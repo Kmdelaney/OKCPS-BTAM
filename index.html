@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OKCPS BTAM - Student Behavioral Threat Assessment Portal</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OKCPS Behavioral Threat Assessment System</title>
+  <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -11,384 +12,690 @@
       theme: {
         extend: {
           colors: {
-            brand: { navy: '#0f172a', card: '#1e293b', border: '#334155' }
+            slate: {
+              950: '#020617',
+              900: '#0f172a',
+              800: '#1e293b',
+              700: '#334155'
+            }
           }
         }
       }
     }
   </script>
+  <!-- React & ReactDOM via CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <!-- Babel Standalone for JSX compilation in browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen">
 
-  <!-- Header -->
-  <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50 shadow-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="bg-blue-600 text-white p-2 rounded-lg font-black tracking-widest text-sm">OKCPS</div>
-        <div>
-          <h1 class="text-lg font-bold leading-tight">BTAM & CSTAG Portal</h1>
-          <p class="text-xs text-slate-400">Behavioral Threat Assessment & Management</p>
-        </div>
-      </div>
-      <div class="flex items-center gap-3">
-        <select id="userRole" class="bg-slate-900 text-xs border border-slate-700 rounded-md px-2 py-1 text-slate-300">
-          <option value="lead">Role: Team Lead / Admin</option>
-          <option value="member">Role: Assessment Member</option>
-          <option value="viewer">Role: Read-Only / Auditor</option>
-        </select>
-        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-950 text-emerald-400 border border-emerald-800">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> FERPA / HIPAA Compliant
-        </span>
-      </div>
-    </div>
-  </header>
+  <div id="root"></div>
 
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
-    <!-- Top Dashboard Statistics -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-md">
-        <span class="text-xs text-slate-400 uppercase font-semibold">Active BTAM Cases</span>
-        <div class="text-3xl font-extrabold text-white mt-2">12</div>
-        <span class="text-xs text-slate-400 mt-1">4 Substantive · 8 Transient</span>
-      </div>
-      <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-md">
-        <span class="text-xs text-slate-400 uppercase font-semibold">Doc Outreach Health</span>
-        <div class="text-xl font-bold text-amber-400 mt-2">⚠️ 3 Overdue</div>
-        <span class="text-xs text-slate-400 mt-1">Re-outreach required (&gt;5 days)</span>
-      </div>
-      <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-md">
-        <span class="text-xs text-slate-400 uppercase font-semibold">Active Suspensions</span>
-        <div class="text-xl font-bold text-rose-400 mt-2">2 Students</div>
-        <span class="text-xs text-slate-400 mt-1">Pending Re-Entry Meetings</span>
-      </div>
-      <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-md">
-        <span class="text-xs text-slate-400 uppercase font-semibold">Current Case Level</span>
-        <div class="text-xl font-bold text-blue-400 mt-2">Level 2 / Step 4</div>
-        <span class="text-xs text-slate-400 mt-1">Comprehensive Assessment</span>
-      </div>
-    </div>
+    // Explicit Pathway to Violence Stage Definitions & Color Scheme
+    const PATHWAY_STAGES = [
+      { key: 'Grievance', label: 'Grievance', color: 'bg-blue-900 text-blue-200 border-blue-600' },
+      { key: 'Violent Ideation', label: 'Violent Ideation', color: 'bg-teal-900 text-teal-200 border-teal-600' },
+      { key: 'Research & Planning', label: 'Research & Planning', color: 'bg-yellow-900 text-yellow-200 border-yellow-600' },
+      { key: 'Preparation', label: 'Preparation', color: 'bg-purple-900 text-purple-200 border-purple-600' },
+      { key: 'Probing/Breaching', label: 'Probing / Breaching', color: 'bg-pink-900 text-pink-200 border-pink-600' },
+      { key: 'Attack', label: 'Attack', color: 'bg-red-900 text-red-200 border-red-600' }
+    ];
 
-    <!-- TIPS Report PDF Intake Parser -->
-    <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-700 pb-3">
-        <div>
-          <h2 class="text-lg font-bold text-white">TIPS Report Intake & PDF Parser</h2>
-          <p class="text-xs text-slate-400">Upload or import anonymous TIPS report documentation to auto-populate intake fields.</p>
-        </div>
-        <button onclick="simulatePdfParse()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg transition-colors">
-          📄 Auto-Parse Sample TIPS PDF
-        </button>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Student ID / Name</label>
-          <input type="text" id="tipsStudent" placeholder="e.g., #10492 - John Doe" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">Incident Location / School</label>
-          <input type="text" id="tipsLocation" placeholder="e.g., Northwest Classen High" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-400 mb-1">TIPS Report Date</label>
-          <input type="date" id="tipsDate" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
-        </div>
-      </div>
-    </section>
+    // Seeded Dataset from OKCPS Spreadsheet & TIPS PDF (Jorge Jimenez)
+    const INITIAL_CASES = [
+      {
+        id: '26-03093',
+        studentName: 'Jorge Jimenez',
+        studentId: '345290',
+        schoolLocation: 'Capitol Hill High School',
+        tovBrief: 'Reported online threats, firearm-related imagery on Instagram highlights, and alleged stalking/intimidation behavior toward peers.',
+        incidentDate: '2026-09-04',
+        dateReported: '2026-09-07',
+        tipsReportNum: '26-03093',
+        triagePriority: 'High',
+        triageCompleted: true,
+        cstagClassification: 'Very Serious Substantive',
+        isIep: false,
+        suspended: true,
+        reEntryDate: '2026-09-21',
+        caseStatus: 'Active',
+        planStartDate: '2026-09-08',
+        planNextMeeting: '2026-10-12',
+        planEndDate: '2026-12-18',
+        supportPlanStatus: 'Backpack search required upon school entry. No Contact Contracts established.',
+        lastTeamContactDate: '2026-09-08',
+        teamReachoutCount: 3,
+        pastTovCount: 1,
+        previousTovHistory: [
+          { date: '2026-08-28', brief: 'Stolen ring incident resulting in OSS discipline.', actionTaken: 'OSS Assigned' }
+        ],
+        documents: {
+          studentInterview: [{ name: 'Jorge_Jimenez_Statement.pdf', uploadDate: '2026-09-08', size: '1.1 MB' }],
+          parentInterview: [], // Empty > 14 days triggers Red Alert
+          witnessStatements: [{ name: 'Witness_Statement_Erick_Ruben.pdf', uploadDate: '2026-09-07', size: '890 KB' }],
+          recordsReview: [{ name: 'Instagram_Firearm_Screenshots.pdf', uploadDate: '2026-09-07', size: '4.2 MB' }]
+        },
+        pathwayEvents: [
+          { id: 1, stage: 'Grievance', description: 'Peer dispute involving stolen ring and neighborhood altercation.', date: '2026-09-04' },
+          { id: 2, stage: 'Violent Ideation', description: 'Instagram highlights posted showing subject with firearms.', date: '2026-09-04' },
+          { id: 3, stage: 'Probing/Breaching', description: 'Targeted peers reported feeling watched and monitored online.', date: '2026-09-07' }
+        ]
+      },
+      {
+        id: '26-02602',
+        studentName: 'Jesus Garcia-Reyes',
+        studentId: '332545',
+        schoolLocation: 'U.S. Grant HS',
+        tovBrief: '"Raymond does not deserve to live"',
+        incidentDate: '2026-08-12',
+        dateReported: '2026-08-12',
+        tipsReportNum: '26-02602',
+        triagePriority: 'High',
+        triageCompleted: true,
+        cstagClassification: 'Very Serious Substantive',
+        isIep: true,
+        suspended: true,
+        reEntryDate: '2026-08-27',
+        caseStatus: 'Monitored',
+        planStartDate: '2026-08-27',
+        planNextMeeting: '2026-10-15',
+        planEndDate: '2026-12-18',
+        supportPlanStatus: 'Student hospitalized at CRC for 10 days. Safety plan active and under re-evaluation.',
+        lastTeamContactDate: '2026-09-16',
+        teamReachoutCount: 4,
+        pastTovCount: 0,
+        previousTovHistory: [],
+        documents: {
+          studentInterview: [{ name: 'Student_Interview_0812.pdf', uploadDate: '2026-08-13', size: '1.2 MB' }],
+          parentInterview: [{ name: 'Parent_Contact_Notes.pdf', uploadDate: '2026-08-13', size: '850 KB' }],
+          witnessStatements: [{ name: 'Witness_Statement_Raymond.pdf', uploadDate: '2026-08-14', size: '500 KB' }],
+          recordsReview: [{ name: 'CRC_Hospital_Release_Summary.pdf', uploadDate: '2026-08-25', size: '2.4 MB' }]
+        },
+        pathwayEvents: [
+          { id: 1, stage: 'Grievance', description: 'Conflict with student Raymond in cafeteria.', date: '2026-08-10' },
+          { id: 2, stage: 'Violent Ideation', description: 'Stated "Raymond does not deserve to live".', date: '2026-08-12' }
+        ]
+      },
+      {
+        id: '26-02880',
+        studentName: 'Elijah Jameson',
+        studentId: '1071436',
+        schoolLocation: 'Skyline MS',
+        tovBrief: '"I\'m gonna have my Grandma come up to the school and shoot you."',
+        incidentDate: '2026-08-26',
+        dateReported: '2026-08-27',
+        tipsReportNum: '26-02880',
+        triagePriority: 'Medium',
+        triageCompleted: true,
+        cstagClassification: 'Transient Threat',
+        isIep: false,
+        suspended: true,
+        reEntryDate: '2026-09-03',
+        caseStatus: 'Active',
+        planStartDate: '2026-09-30',
+        planNextMeeting: '2026-10-14',
+        planEndDate: '2026-11-30',
+        supportPlanStatus: 'BIP draft finalized with parent on 9/23. BIP serving as support plan.',
+        lastTeamContactDate: '2026-10-05',
+        teamReachoutCount: 2,
+        pastTovCount: 0,
+        previousTovHistory: [],
+        documents: {
+          studentInterview: [{ name: 'Elijah_Student_Interview.pdf', uploadDate: '2026-08-28', size: '1.0 MB' }],
+          parentInterview: [],
+          witnessStatements: [{ name: 'Staff_Witness_Statement.pdf', uploadDate: '2026-08-28', size: '650 KB' }],
+          recordsReview: [{ name: 'Elijah_Behavior_Logs.pdf', uploadDate: '2026-10-05', size: '2.0 MB' }]
+        },
+        pathwayEvents: [
+          { id: 1, stage: 'Grievance', description: 'Disciplinary encounter with hall monitor.', date: '2026-08-26' },
+          { id: 2, stage: 'Violent Ideation', description: 'Threatened shooting via family member.', date: '2026-08-26' }
+        ]
+      },
+      {
+        id: '26-02511',
+        studentName: 'Marcus Vance',
+        studentId: '1098421',
+        schoolLocation: 'NW Classen HS',
+        tovBrief: 'Verbal disagreement regarding athletic equipment.',
+        incidentDate: '2026-08-10',
+        dateReported: '2026-08-10',
+        tipsReportNum: '26-02511',
+        triagePriority: 'Low',
+        triageCompleted: true,
+        cstagClassification: 'Not a Threat',
+        isIep: false,
+        suspended: false,
+        reEntryDate: 'N/A',
+        caseStatus: 'Active',
+        planStartDate: '',
+        planNextMeeting: '',
+        planEndDate: '',
+        supportPlanStatus: 'Resolved at Triage. Restorative conference held.',
+        lastTeamContactDate: '2026-08-10',
+        teamReachoutCount: 1,
+        pastTovCount: 0,
+        previousTovHistory: [],
+        documents: { studentInterview: [], parentInterview: [], witnessStatements: [], recordsReview: [] },
+        pathwayEvents: []
+      },
+      {
+        id: '26-02100',
+        studentName: 'Tristan Capulin',
+        studentId: '351196',
+        schoolLocation: 'NW Classen HS',
+        tovBrief: 'Yelled at a group of students referencing a "dead homie".',
+        incidentDate: '2026-08-01',
+        dateReported: '2026-08-01',
+        tipsReportNum: '26-02100',
+        triagePriority: 'Low',
+        triageCompleted: true,
+        cstagClassification: 'Transient Threat',
+        isIep: false,
+        suspended: true,
+        reEntryDate: '2026-08-05',
+        caseStatus: 'Closed',
+        planStartDate: '2026-08-05',
+        planNextMeeting: '',
+        planEndDate: '2026-09-01',
+        supportPlanStatus: 'Closed Action Steps Taken: Student completed restorative mediation.',
+        lastTeamContactDate: '2026-08-05',
+        teamReachoutCount: 2,
+        pastTovCount: 0,
+        previousTovHistory: [],
+        documents: { studentInterview: [], parentInterview: [], witnessStatements: [], recordsReview: [] },
+        pathwayEvents: []
+      }
+    ];
 
-    <!-- Custom Pathway to Violence Stages -->
-    <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl">
-      <div class="flex items-center justify-between mb-4">
-        <div>
-          <h2 class="text-lg font-bold text-white">Pathway to Violence Timeline</h2>
-          <p class="text-xs text-slate-400">Classify behavioral markers according to CSTAG threat indicators.</p>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
-        <div class="bg-blue-950/80 border border-blue-800 rounded-xl p-4 flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase text-blue-400">Stage 1</span>
-          <h3 class="text-sm font-bold text-blue-200 mt-1">Grievance</h3>
-          <p class="text-xs text-blue-300/80 mt-3">Perceived injury or loss of status.</p>
-        </div>
-        <div class="bg-teal-950/80 border border-teal-800 rounded-xl p-4 flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase text-teal-400">Stage 2</span>
-          <h3 class="text-sm font-bold text-teal-200 mt-1">Violent Ideation</h3>
-          <p class="text-xs text-teal-300/80 mt-3">Fantasies or expressed harm.</p>
-        </div>
-        <div class="bg-amber-950/80 border border-amber-700 rounded-xl p-4 flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase text-amber-400">Stage 3</span>
-          <h3 class="text-sm font-bold text-amber-200 mt-1">Research & Planning</h3>
-          <p class="text-xs text-amber-300/80 mt-3">Target selection & logistics.</p>
-        </div>
-        <div class="bg-pink-950/80 border border-pink-800 rounded-xl p-4 flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase text-pink-400">Stage 4</span>
-          <h3 class="text-sm font-bold text-pink-200 mt-1">Preparation</h3>
-          <p class="text-xs text-pink-300/80 mt-3">Acquiring weapons or means.</p>
-        </div>
-        <div class="bg-fuchsia-950/80 border border-fuchsia-800 rounded-xl p-4 flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase text-fuchsia-400">Stage 5</span>
-          <h3 class="text-sm font-bold text-fuchsia-200 mt-1">Probing / Breaching</h3>
-          <p class="text-xs text-fuchsia-300/80 mt-3">Testing security parameters.</p>
-        </div>
-        <div class="bg-red-950/80 border border-red-800 rounded-xl p-4 flex flex-col justify-between">
-          <span class="text-[10px] font-bold uppercase text-red-400">Stage 6</span>
-          <h3 class="text-sm font-bold text-red-200 mt-1">Attack</h3>
-          <p class="text-xs text-red-300/80 mt-3">Direct execution of harm.</p>
-        </div>
-      </div>
-    </section>
+    function App() {
+      const [cases, setCases] = useState(INITIAL_CASES);
+      const [mainTab, setMainTab] = useState('active');
+      const [selectedCaseId, setSelectedCaseId] = useState(INITIAL_CASES[0].id);
+      const [activeDocTab, setActiveDocTab] = useState('studentInterview');
 
-    <!-- 10-Step CSTAG Workflow Navigation -->
-    <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
-      <h2 class="text-lg font-bold text-white">10-Step CSTAG Decision Tree & Workflow</h2>
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
-        <button class="p-2.5 rounded bg-blue-600 text-white font-semibold">1. Incident Report</button>
-        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">2. Interview Key Parties</button>
-        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">3. Evaluate Threat Level</button>
-        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">4. Transient vs Substantive</button>
-        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">5. Respond to Transient</button>
-        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">6. Serious Substantive</button>
-        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">7. Very Serious Substantive</button>
-        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">8. Safety Plan Dev</button>
-        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">9. Implement Supports</button>
-        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">10. Case Review / Close</button>
-      </div>
-    </section>
+      const [showNewIntakeModal, setShowNewIntakeModal] = useState(false);
+      const [showLowRiskCloseModal, setShowLowRiskCloseModal] = useState(false);
+      const [pendingLowRiskCase, setPendingLowRiskCase] = useState(null);
+      const [actionStepsInput, setActionStepsInput] = useState('');
 
-    <!-- Outreach & Suspension Management -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      
-      <!-- Module A: Team Outreach Log -->
-      <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
-        <div class="border-b border-slate-700 pb-3 flex justify-between items-center">
-          <div>
-            <h2 class="text-base font-bold text-white">Team Outreach & Document Health</h2>
-            <p class="text-xs text-slate-400">Log requests for paperwork, Safety/Support plans, or evidence.</p>
-          </div>
-          <span id="outreachBadge" class="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-950 text-emerald-400 border border-emerald-800">
-            Up to date
-          </span>
-        </div>
-        <div class="space-y-3">
-          <div>
-            <label class="block text-xs text-slate-300 mb-1">Last Date Team Reached Out To</label>
-            <input type="datetime-local" id="lastOutreachDate" onchange="updateOutreachTracker()" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white">
-          </div>
-          <div>
-            <label class="block text-xs text-slate-300 mb-1">Outreach Notes / Recipient Team Members</label>
-            <input type="text" id="outreachNotes" placeholder="e.g. Emailed Special Ed Director & Psychologist" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white">
-          </div>
-          <div class="p-3 bg-slate-900/60 rounded-lg border border-slate-700 text-xs text-slate-300 flex justify-between">
-            <span>Days Elapsed: <strong id="daysElapsed" class="text-white">0 days</strong></span>
-            <span>Next Follow-Up: <strong id="nextFollowUp" class="text-blue-400">--</strong></span>
-          </div>
-          <button onclick="logOutreachNow()" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-lg">
-            📅 Log Team Outreach Timestamp (Now)
-          </button>
-        </div>
-      </section>
+      const [triageScores, setTriageScores] = useState({
+        item1_plan: '1', item1a_grievance: '1', item2_weapons: '1',
+        item3_time: '1', item4_viability: '1', item4a_leakage: '1'
+      });
 
-      <!-- Module B: Suspension & Re-entry Tracker -->
-      <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
-        <div class="border-b border-slate-700 pb-3 flex justify-between items-center">
-          <div>
-            <h2 class="text-base font-bold text-white">Suspension & Re-Entry Management</h2>
-            <p class="text-xs text-slate-400">Track disciplinary absence and mandate re-entry meeting dates.</p>
-          </div>
-          <span id="suspensionStatusBadge" class="px-2.5 py-1 text-xs font-semibold rounded-md bg-slate-700 text-slate-300">
-            Not Suspended
-          </span>
-        </div>
-        <div class="space-y-3">
-          <div class="flex items-center gap-2">
-            <input type="checkbox" id="isSuspended" onchange="toggleSuspensionFields()" class="w-4 h-4 rounded border-slate-700 text-blue-600 bg-slate-900">
-            <label for="isSuspended" class="text-sm font-medium text-slate-200">Student is currently under Disciplinary Suspension</label>
-          </div>
-          <div id="suspensionFields" class="space-y-3 opacity-50 pointer-events-none transition-all">
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs text-slate-300 mb-1">Suspension Start Date</label>
-                <input type="date" id="suspensionStartDate" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white">
+      const [intakeStudentName, setIntakeStudentName] = useState('');
+      const [intakeStudentId, setIntakeStudentId] = useState('');
+      const [intakeSchool, setIntakeSchool] = useState('');
+      const [intakeBrief, setIntakeBrief] = useState('');
+      const [intakeTipsNum, setIntakeTipsNum] = useState('');
+      const [intakeIsIep, setIntakeIsIep] = useState(false);
+      const [intakeSuspended, setIntakeSuspended] = useState(false);
+      const [intakeReEntryDate, setIntakeReEntryDate] = useState('');
+
+      useEffect(() => {
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      });
+
+      const calculateTriageOutcome = () => {
+        const values = Object.values(triageScores);
+        const lowCount = values.filter(v => v === '1').length;
+        const medCount = values.filter(v => v === '2').length;
+        const highCount = values.filter(v => v === '3').length;
+
+        if (highCount >= medCount && highCount >= lowCount && highCount > 0) return 'High';
+        if (medCount >= lowCount) return 'Medium';
+        return 'Low';
+      };
+
+      const calculatedRisk = calculateTriageOutcome();
+
+      const activeMediumHighCases = cases.filter(c => (c.triagePriority === 'Medium' || c.triagePriority === 'High') && c.caseStatus !== 'Closed');
+      const lowRiskCases = cases.filter(c => c.triagePriority === 'Low' && c.caseStatus !== 'Closed');
+      const closedCases = cases.filter(c => c.caseStatus === 'Closed');
+
+      const currentCase = cases.find(c => c.id === selectedCaseId) || cases[0];
+
+      const isTabAlertRed = (category) => {
+        if (!currentCase || currentCase.triagePriority === 'Low') return false;
+        const docs = currentCase.documents?.[category];
+        if (docs && docs.length > 0) return false;
+        
+        const lastContact = new Date(currentCase.lastTeamContactDate || '2026-09-01');
+        const today = new Date();
+        const diffDays = Math.ceil((today - lastContact) / (1000 * 60 * 60 * 24));
+        return diffDays > 14;
+      };
+
+      const handleTipsFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          setTimeout(() => {
+            setIntakeStudentName('Jorge Jimenez');
+            setIntakeStudentId('345290');
+            setIntakeSchool('Capitol Hill High School');
+            setIntakeTipsNum('26-03093');
+            setIntakeBrief('Reported online threats, firearm-related imagery on Instagram highlights, and alleged stalking/intimidation behavior toward peers.');
+            setIntakeSuspended(true);
+            setIntakeReEntryDate('2026-09-21');
+          }, 400);
+        }
+      };
+
+      const handleCreateCase = (e) => {
+        e.preventDefault();
+        const finalPriority = calculatedRisk;
+        const pastMatches = cases.filter(c => c.studentId === intakeStudentId);
+
+        const newCase = {
+          id: intakeTipsNum || `26-${Math.floor(1000 + Math.random() * 9000)}`,
+          studentName: intakeStudentName,
+          studentId: intakeStudentId,
+          schoolLocation: intakeSchool || 'OKCPS Campus',
+          tovBrief: intakeBrief,
+          incidentDate: '2026-10-06',
+          dateReported: '2026-10-06',
+          tipsReportNum: intakeTipsNum,
+          triagePriority: finalPriority,
+          triageCompleted: true,
+          cstagClassification: finalPriority === 'Low' ? 'Transient Threat' : 'Substantive Threat',
+          isIep: intakeIsIep,
+          suspended: intakeSuspended,
+          reEntryDate: intakeSuspended ? (intakeReEntryDate || 'Pending') : 'N/A',
+          caseStatus: finalPriority === 'Low' ? 'Closed' : 'Active',
+          planStartDate: '',
+          planNextMeeting: '',
+          planEndDate: '',
+          supportPlanStatus: finalPriority === 'Low' ? 'Closed at Triage' : 'Active Monitoring Required',
+          lastTeamContactDate: '2026-10-06',
+          teamReachoutCount: 1,
+          pastTovCount: pastMatches.length,
+          previousTovHistory: pastMatches.map(m => ({ date: m.incidentDate, brief: m.tovBrief, actionTaken: m.supportPlanStatus })),
+          documents: { studentInterview: [], parentInterview: [], witnessStatements: [], recordsReview: [] },
+          pathwayEvents: finalPriority !== 'Low' ? [
+            { id: Date.now(), stage: 'Grievance', description: `Initial threat logged via TIPS #${intakeTipsNum}`, date: '2026-10-06' }
+          ] : []
+        };
+
+        if (finalPriority === 'Low') {
+          setPendingLowRiskCase(newCase);
+          setShowNewIntakeModal(false);
+          setShowLowRiskCloseModal(true);
+        } else {
+          setCases([newCase, ...cases]);
+          setSelectedCaseId(newCase.id);
+          setShowNewIntakeModal(false);
+          setMainTab('active');
+        }
+      };
+
+      const handleCloseLowRiskCase = () => {
+        if (!pendingLowRiskCase) return;
+        const finalizedCase = {
+          ...pendingLowRiskCase,
+          supportPlanStatus: `Closed Action Steps Taken: ${actionStepsInput}`,
+          caseStatus: 'Closed'
+        };
+        setCases([finalizedCase, ...cases]);
+        setSelectedCaseId(finalizedCase.id);
+        setShowLowRiskCloseModal(false);
+        setPendingLowRiskCase(null);
+        setActionStepsInput('');
+        setMainTab('closed');
+      };
+
+      return (
+        <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased">
+          {/* HEADER BAR */}
+          <header className="border-b border-slate-800 bg-slate-900/90 sticky top-0 z-40 backdrop-blur">
+            <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <i data-lucide="shield" className="w-8 h-8 text-blue-500"></i>
+                <div>
+                  <h1 className="text-base font-bold text-slate-100">OKCPS Behavioral Threat Assessment System</h1>
+                  <p className="text-[11px] text-slate-400">CSTAG Protocol Engine • FERPA & HIPAA Compliant</p>
+                </div>
               </div>
-              <div>
-                <label class="block text-xs text-slate-300 mb-1">Expected Re-Entry Date</label>
-                <input type="date" id="reentryDate" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white">
+
+              <button
+                onClick={() => setShowNewIntakeModal(true)}
+                className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all shadow-md shadow-blue-600/20"
+              >
+                <i data-lucide="plus" className="w-4 h-4"></i>
+                <span>New Threat Intake (TIPS PDF)</span>
+              </button>
+            </div>
+          </header>
+
+          {/* DISPATCH ALERT BAR */}
+          {currentCase?.triagePriority === 'High' && mainTab !== 'dashboard' && (
+            <div className="bg-red-950/90 border-b border-red-800 text-red-200 px-4 py-2 text-xs flex items-center justify-between animate-pulse">
+              <div className="max-w-7xl mx-auto w-full flex items-center space-x-2">
+                <i data-lucide="alert-triangle" className="w-4 h-4 text-red-400 shrink-0"></i>
+                <span className="font-semibold">
+                  HIGH RISK ASSESSMENT ACTIVE: Automated Dispatch Notification routed to District Security (405-587-SAFE) & Mental Health Department.
+                </span>
               </div>
             </div>
-            <div class="flex items-center gap-2 pt-1">
-              <input type="checkbox" id="reentryMeetingDone" class="w-4 h-4 rounded border-slate-700 text-blue-600 bg-slate-900">
-              <label for="reentryMeetingDone" class="text-xs text-slate-300">Safety & Re-Entry Plan Meeting completed prior to return</label>
+          )}
+
+          {/* IEP ALERT BANNER */}
+          {currentCase?.isIep && mainTab !== 'dashboard' && (
+            <div className="bg-amber-950/90 border-b border-amber-800 text-amber-200 px-4 py-2 text-xs">
+              <div className="max-w-7xl mx-auto w-full flex items-center space-x-2 font-semibold">
+                <i data-lucide="lock" className="w-4 h-4 text-amber-400 shrink-0"></i>
+                <span>AUTOMATED IEP / OESS ALERT: OESS MUST be consulted for all students on an IEP.</span>
+              </div>
+            </div>
+          )}
+
+          {/* NAVIGATION TABS */}
+          <div className="max-w-7xl mx-auto px-4 pt-4">
+            <div className="flex border-b border-slate-800 space-x-6 text-xs font-semibold">
+              <button
+                onClick={() => { setMainTab('active'); setSelectedCaseId(activeMediumHighCases[0]?.id || cases[0].id); }}
+                className={`pb-3 flex items-center space-x-2 border-b-2 transition-colors ${
+                  mainTab === 'active' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <i data-lucide="activity" className="w-4 h-4"></i>
+                <span>Active Medium / High Cases ({activeMediumHighCases.length})</span>
+              </button>
+
+              <button
+                onClick={() => { setMainTab('low'); setSelectedCaseId(lowRiskCases[0]?.id || cases[0].id); }}
+                className={`pb-3 flex items-center space-x-2 border-b-2 transition-colors ${
+                  mainTab === 'low' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <i data-lucide="check-circle" className="w-4 h-4"></i>
+                <span>Low Risk Cases ({lowRiskCases.length})</span>
+              </button>
+
+              <button
+                onClick={() => { setMainTab('closed'); setSelectedCaseId(closedCases[0]?.id || cases[0].id); }}
+                className={`pb-3 flex items-center space-x-2 border-b-2 transition-colors ${
+                  mainTab === 'closed' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <i data-lucide="archive" className="w-4 h-4"></i>
+                <span>Closed Cases Archive ({closedCases.length})</span>
+              </button>
+
+              <button
+                onClick={() => setMainTab('dashboard')}
+                className={`pb-3 flex items-center space-x-2 border-b-2 transition-colors ${
+                  mainTab === 'dashboard' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <i data-lucide="users" className="w-4 h-4"></i>
+                <span>District Oversight Dashboard (All Cases)</span>
+              </button>
             </div>
           </div>
-          <button onclick="saveSuspensionData()" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium text-xs rounded-lg border border-slate-600">
-            💾 Save Suspension & Re-entry Log
-          </button>
+
+          {/* MAIN CONTENT AREA */}
+          <main className="max-w-7xl mx-auto px-4 py-6">
+            {(mainTab === 'active' || mainTab === 'low' || mainTab === 'closed') && (
+              <div className="grid grid-cols-12 gap-6">
+                {/* SIDEBAR */}
+                <div className="col-span-12 lg:col-span-4 space-y-3">
+                  <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                    {mainTab === 'active' ? 'Active Medium & High Cases' : mainTab === 'low' ? 'Low Risk Cases' : 'Closed Cases'}
+                  </h2>
+
+                  <div className="space-y-2">
+                    {(mainTab === 'active' ? activeMediumHighCases : mainTab === 'low' ? lowRiskCases : closedCases).map(c => (
+                      <div
+                        key={c.id}
+                        onClick={() => setSelectedCaseId(c.id)}
+                        className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
+                          selectedCaseId === c.id
+                            ? 'bg-slate-900 border-blue-500 shadow-lg shadow-blue-900/10'
+                            : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="flex justify-between items-start mb-1">
+                          <span className="font-bold text-sm text-slate-100">{c.studentName}</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                            c.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' :
+                            c.triagePriority === 'Medium' ? 'bg-yellow-950 text-yellow-300 border-yellow-800' :
+                            'bg-slate-800 text-slate-300 border-slate-700'
+                          }`}>
+                            {c.triagePriority} Risk
+                          </span>
+                        </div>
+
+                        <div className="text-xs text-slate-400 mb-2 flex justify-between">
+                          <span>ID: #{c.studentId}</span>
+                          <span>TIPS: {c.tipsReportNum}</span>
+                        </div>
+
+                        <p className="text-xs text-slate-300 line-clamp-2 bg-slate-950 p-2 rounded border border-slate-800/80 mb-2">
+                          "{c.tovBrief}"
+                        </p>
+
+                        <div className="flex items-center justify-between text-[11px] text-slate-400">
+                          <span>{c.schoolLocation}</span>
+                          <span className="text-blue-400 font-semibold">{c.caseStatus}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* WORKSPACE */}
+                <div className="col-span-12 lg:col-span-8 space-y-6">
+                  {currentCase ? (
+                    <>
+                      {/* CASE HEADER CARD */}
+                      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
+                        <div className="flex justify-between items-start border-b border-slate-800 pb-3">
+                          <div>
+                            <div className="flex items-center space-x-3">
+                              <h2 className="text-xl font-bold text-slate-100">{currentCase.studentName}</h2>
+                              <span className="text-xs font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded">
+                                #{currentCase.studentId}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-400 mt-1">
+                              Campus: <span className="text-slate-200">{currentCase.schoolLocation}</span> | TIPS: <span className="text-slate-200">{currentCase.tipsReportNum}</span>
+                            </p>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <span className={`text-xs font-bold px-3 py-1 rounded border ${
+                              currentCase.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' :
+                              currentCase.triagePriority === 'Medium' ? 'bg-yellow-950 text-yellow-300 border-yellow-800' :
+                              'bg-slate-800 text-slate-300 border-slate-700'
+                            }`}>
+                              {currentCase.triagePriority} Risk
+                            </span>
+                            <span className="text-xs bg-blue-950 text-blue-300 border border-blue-800 px-3 py-1 rounded">
+                              {currentCase.caseStatus}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Threat Brief */}
+                        <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs space-y-1">
+                          <span className="text-[10px] text-slate-500 font-semibold uppercase">Automated Threat Brief (TOV)</span>
+                          <p className="text-slate-200 italic">"{currentCase.tovBrief}"</p>
+                        </div>
+
+                        {/* Quick Info Grid */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                          <div className="bg-slate-950 p-2.5 rounded border border-slate-800">
+                            <span className="text-slate-400 block text-[10px]">Suspension Status</span>
+                            <span className="font-semibold text-slate-200">
+                              {currentCase.suspended ? `OSS Active (${currentCase.reEntryDate})` : 'Not Suspended'}
+                            </span>
+                          </div>
+
+                          <div className="bg-slate-950 p-2.5 rounded border border-slate-800">
+                            <span className="text-slate-400 block text-[10px]">Past TOV Record</span>
+                            <span className={`font-semibold ${currentCase.pastTovCount > 0 ? 'text-amber-400' : 'text-slate-200'}`}>
+                              {currentCase.pastTovCount > 0 ? `${currentCase.pastTovCount} Previous Incident(s)` : 'No Past History'}
+                            </span>
+                          </div>
+
+                          <div className="bg-slate-950 p-2.5 rounded border border-slate-800">
+                            <span className="text-slate-400 block text-[10px]">DTAC Contact Attempts</span>
+                            <span className="font-semibold text-slate-200">{currentCase.teamReachoutCount} Reachouts</span>
+                          </div>
+
+                          <div className="bg-slate-950 p-2.5 rounded border border-slate-800">
+                            <span className="text-slate-400 block text-[10px]">Last Team Outreach</span>
+                            <span className="font-semibold text-slate-200">{currentCase.lastTeamContactDate}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* PATHWAY TO VIOLENCE TRACKER FOR MEDIUM & HIGH CASES */}
+                      {(currentCase.triagePriority === 'Medium' || currentCase.triagePriority === 'High') && (
+                        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
+                          <div className="flex justify-between items-center">
+                            <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
+                              <i data-lucide="activity" className="w-4 h-4 text-blue-400"></i>
+                              <span>Pathway to Violence Case Timeline</span>
+                            </h3>
+                            <span className="text-xs text-slate-400">Auto-Populated from Document Uploads</span>
+                          </div>
+
+                          {/* Stage Legend */}
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-1.5 text-[10px] text-center font-bold">
+                            {PATHWAY_STAGES.map(s => (
+                              <div key={s.key} className={`p-1.5 rounded border ${s.color}`}>
+                                {s.label}
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Event Timeline */}
+                          <div className="border-l-2 border-slate-800 ml-3 pl-4 space-y-3 py-2">
+                            {currentCase.pathwayEvents.map(e => (
+                              <div key={e.id} className="bg-slate-950 border border-slate-800 p-3 rounded-lg text-xs space-y-1">
+                                <div className="flex justify-between font-semibold">
+                                  <span className="text-blue-400">{e.stage}</span>
+                                  <span className="text-slate-500 font-mono text-[11px]">{e.date}</span>
+                                </div>
+                                <p className="text-slate-300">{e.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 360-DEGREE ASSESSMENT DOCUMENT VAULT */}
+                      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
+                        <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
+                          <i data-lucide="file-text" className="w-4 h-4 text-blue-400"></i>
+                          <span>360-Degree Assessment Documents</span>
+                        </h3>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          {[
+                            { key: 'studentInterview', label: 'Student Interview' },
+                            { key: 'parentInterview', label: 'Parent Interview' },
+                            { key: 'witnessStatements', label: 'Witness Statements' },
+                            { key: 'recordsReview', label: 'Records Review' }
+                          ].map(tab => {
+                            const isRed = isTabAlertRed(tab.key);
+                            return (
+                              <button
+                                key={tab.key}
+                                onClick={() => setActiveDocTab(tab.key)}
+                                className={`p-2 rounded text-xs font-semibold border flex items-center justify-between ${
+                                  isRed 
+                                    ? 'bg-red-950 border-red-600 text-red-200 animate-pulse'
+                                    : activeDocTab === tab.key
+                                    ? 'bg-blue-900/50 border-blue-500 text-blue-200'
+                                    : 'bg-slate-950 border-slate-800 text-slate-400'
+                                }`}
+                              >
+                                <span>{tab.label}</span>
+                                {isRed && <i data-lucide="alert-triangle" className="w-3.5 h-3.5 text-red-400"></i>}
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        <div className="bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-3 text-xs">
+                          {isTabAlertRed(activeDocTab) && (
+                            <div className="bg-red-950/80 border border-red-800 p-2.5 rounded text-red-200">
+                              <strong>MISSING DOCUMENT ALERT:</strong> Upload missing for over 2 weeks on a Medium/High risk case. Last DTAC outreach: {currentCase.lastTeamContactDate} ({currentCase.teamReachoutCount} total contact attempts).
+                            </div>
+                          )}
+
+                          <div className="space-y-2">
+                            {currentCase.documents[activeDocTab]?.map((doc, idx) => (
+                              <div key={idx} className="flex justify-between items-center p-2.5 bg-slate-900 rounded border border-slate-800">
+                                <span className="font-medium text-slate-200">{doc.name}</span>
+                                <span className="text-slate-500 font-mono text-[11px]">{doc.uploadDate}</span>
+                              </div>
+                            ))}
+                            {(!currentCase.documents[activeDocTab] || currentCase.documents[activeDocTab].length === 0) && (
+                              <p className="text-xs text-slate-500 italic py-2">
+                                {currentCase.triagePriority === 'Low' ? 'Optional document upload for Low Risk cases.' : 'No files uploaded yet in this category.'}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              </div>
+            )}
+
+            {/* DASHBOARD TAB */}
+            {mainTab === 'dashboard' && (
+              <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
+                <h2 className="text-base font-bold text-slate-100">District-Wide Case Matrix (All Cases)</h2>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs text-slate-300">
+                    <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase text-[10px]">
+                      <tr>
+                        <th className="p-3">Student / ID</th>
+                        <th className="p-3">School Location</th>
+                        <th className="p-3">TIPS #</th>
+                        <th className="p-3">Triage</th>
+                        <th className="p-3">IEP Status</th>
+                        <th className="p-3">Suspension / Re-entry</th>
+                        <th className="p-3">Case Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60">
+                      {cases.map(c => (
+                        <tr key={c.id} className="hover:bg-slate-800/40">
+                          <td className="p-3 font-semibold text-slate-100">{c.studentName} <span className="text-slate-500 font-mono text-[10px]">#{c.studentId}</span></td>
+                          <td className="p-3">{c.schoolLocation}</td>
+                          <td className="p-3 font-mono">{c.tipsReportNum}</td>
+                          <td className="p-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300">{c.triagePriority}</span></td>
+                          <td className="p-3">{c.isIep ? <span className="text-amber-400 font-bold">YES</span> : 'No'}</td>
+                          <td className="p-3">{c.suspended ? `OSS (${c.reEntryDate})` : 'Not Suspended'}</td>
+                          <td className="p-3 font-semibold text-blue-400">{c.caseStatus}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </main>
         </div>
-      </section>
-
-    </div>
-
-    <!-- Safety & Support Plan Management -->
-    <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-6">
-      <div class="border-b border-slate-700 pb-3">
-        <h2 class="text-lg font-bold text-white">Integrated Support & Safety Plans</h2>
-        <p class="text-xs text-slate-400">Set active plan lifecycles with scheduled follow-up dates and attached documentation.</p>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Support Plan (Transient) -->
-        <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-5 space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-teal-400">Support Plan (Transient Risk)</h3>
-            <span class="text-[10px] font-bold bg-teal-950 text-teal-300 border border-teal-800 px-2 py-0.5 rounded">Low Risk Workflow</span>
-          </div>
-          <div class="space-y-3">
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">Plan Start Date</label>
-              <input type="date" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
-            </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">Scheduled Progress Review Date</label>
-              <input type="date" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
-            </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">Attach Support Plan PDF</label>
-              <input type="file" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1 text-xs text-slate-300">
-            </div>
-          </div>
-        </div>
-
-        <!-- Safety Plan (Substantive) -->
-        <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-5 space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-rose-400">Safety Plan (Substantive Risk)</h3>
-            <span class="text-[10px] font-bold bg-rose-950 text-rose-300 border border-rose-800 px-2 py-0.5 rounded">High Risk Workflow</span>
-          </div>
-          <div class="space-y-3">
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">Plan Start Date</label>
-              <input type="date" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
-            </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">Mandatory Re-evaluation Date</label>
-              <input type="date" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
-            </div>
-            <div>
-              <label class="block text-xs text-slate-400 mb-1">Attach Signed Safety Plan PDF</label>
-              <input type="file" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1 text-xs text-slate-300">
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Historical Target / Victim (TOV) Audit Log -->
-    <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
-      <h2 class="text-lg font-bold text-white">Historical Target or Victim (TOV) Audit Log</h2>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-slate-300 border-collapse">
-          <thead>
-            <tr class="border-b border-slate-700 text-slate-400">
-              <th class="p-2">Date</th>
-              <th class="p-2">Target/Victim</th>
-              <th class="p-2">Associated Threat Level</th>
-              <th class="p-2">Protective Actions Implemented</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-700/50">
-            <tr>
-              <td class="p-2">2026-09-14</td>
-              <td class="p-2 font-medium text-white">Student Peer A</td>
-              <td class="p-2"><span class="px-2 py-0.5 rounded bg-teal-950 text-teal-400 border border-teal-800">Transient</span></td>
-              <td class="p-2">No-Contact Agreement signed & seating plan moved.</td>
-            </tr>
-            <tr>
-              <td class="p-2">2026-10-02</td>
-              <td class="p-2 font-medium text-white">Staff Member B</td>
-              <td class="p-2"><span class="px-2 py-0.5 rounded bg-rose-950 text-rose-400 border border-rose-800">Serious Substantive</span></td>
-              <td class="p-2">Escort provided, SRO notified, local safety plan active.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-  </main>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const now = new Date();
-      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-      document.getElementById('lastOutreachDate').value = now.toISOString().slice(0, 16);
-      updateOutreachTracker();
-    });
-
-    function simulatePdfParse() {
-      document.getElementById('tipsStudent').value = 'Student #88392 (Jane Doe)';
-      document.getElementById('tipsLocation').value = 'Classen SAS High School';
-      document.getElementById('tipsDate').value = '2026-10-05';
-      alert('Parsed TIPS Report PDF data successfully!');
+      );
     }
 
-    function logOutreachNow() {
-      const now = new Date();
-      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-      document.getElementById('lastOutreachDate').value = now.toISOString().slice(0, 16);
-      updateOutreachTracker();
-      alert('Outreach timestamp updated!');
-    }
-
-    function updateOutreachTracker() {
-      const dateVal = document.getElementById('lastOutreachDate').value;
-      if (!dateVal) return;
-      const lastDate = new Date(dateVal);
-      const today = new Date();
-      const diffTime = Math.abs(today - lastDate);
-      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-      document.getElementById('daysElapsed').textContent = `${diffDays} day(s) ago`;
-      const followUp = new Date(lastDate);
-      followUp.setDate(followUp.getDate() + 5);
-      document.getElementById('nextFollowUp').textContent = followUp.toLocaleDateString();
-
-      const badge = document.getElementById('outreachBadge');
-      if (diffDays >= 5) {
-        badge.textContent = '⚠️ Follow-up Overdue';
-        badge.className = 'px-2.5 py-1 text-xs font-semibold rounded-md bg-amber-950 text-amber-400 border border-amber-800 animate-pulse';
-      } else {
-        badge.textContent = 'Up to date';
-        badge.className = 'px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-950 text-emerald-400 border border-emerald-800';
-      }
-    }
-
-    function toggleSuspensionFields() {
-      const isChecked = document.getElementById('isSuspended').checked;
-      const fields = document.getElementById('suspensionFields');
-      const badge = document.getElementById('suspensionStatusBadge');
-
-      if (isChecked) {
-        fields.classList.remove('opacity-50', 'pointer-events-none');
-        badge.textContent = 'Student Suspended';
-        badge.className = 'px-2.5 py-1 text-xs font-semibold rounded-md bg-rose-950 text-rose-400 border border-rose-800';
-      } else {
-        fields.classList.add('opacity-50', 'pointer-events-none');
-        badge.textContent = 'Not Suspended';
-        badge.className = 'px-2.5 py-1 text-xs font-semibold rounded-md bg-slate-700 text-slate-300';
-      }
-    }
-
-    function saveSuspensionData() {
-      const isChecked = document.getElementById('isSuspended').checked;
-      const startDate = document.getElementById('suspensionStartDate').value;
-      const reentryDate = document.getElementById('reentryDate').value;
-
-      if (isChecked && (!startDate || !reentryDate)) {
-        alert('Please select both the Suspension Start Date and Expected Re-Entry Date.');
-        return;
-      }
-      alert('Suspension and Re-entry log saved successfully!');
-    }
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
 </html>
-
