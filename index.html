@@ -34,7 +34,7 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState } = React;
 
     // Pathway Stages & Colors
     const PATHWAY_STAGES = [
@@ -46,7 +46,7 @@
       { key: 'Attack', label: 'Attack', color: 'bg-red-900 text-red-200 border-red-600' }
     ];
 
-    // Initial Cases Data
+    // Seeded Dataset from OKCPS Spreadsheet & TIPS PDF
     const INITIAL_CASES = [
       {
         id: '26-03093',
@@ -64,6 +64,7 @@
         suspended: true,
         reEntryDate: '2026-09-21',
         caseStatus: 'Active',
+        closeDate: '',
         planStartDate: '2026-09-08',
         planNextMeeting: '2026-10-12',
         planEndDate: '2026-12-18',
@@ -76,7 +77,7 @@
         ],
         documents: {
           studentInterview: [{ name: 'Jorge_Jimenez_Statement.pdf', uploadDate: '2026-09-08', size: '1.1 MB' }],
-          parentInterview: [], // Triggers missing alert (>14 days)
+          parentInterview: [], // Empty -> Red
           witnessStatements: [{ name: 'Witness_Statement_Erick_Ruben.pdf', uploadDate: '2026-09-07', size: '890 KB' }],
           recordsReview: [{ name: 'Instagram_Firearm_Screenshots.pdf', uploadDate: '2026-09-07', size: '4.2 MB' }]
         },
@@ -102,6 +103,7 @@
         suspended: true,
         reEntryDate: '2026-08-27',
         caseStatus: 'Monitored',
+        closeDate: '',
         planStartDate: '2026-08-27',
         planNextMeeting: '2026-10-15',
         planEndDate: '2026-12-18',
@@ -137,6 +139,7 @@
         suspended: true,
         reEntryDate: '2026-09-03',
         caseStatus: 'Active',
+        closeDate: '',
         planStartDate: '2026-09-30',
         planNextMeeting: '2026-10-14',
         planEndDate: '2026-11-30',
@@ -147,7 +150,7 @@
         previousTovHistory: [],
         documents: {
           studentInterview: [{ name: 'Elijah_Student_Interview.pdf', uploadDate: '2026-08-28', size: '1.0 MB' }],
-          parentInterview: [],
+          parentInterview: [], // Empty -> Red
           witnessStatements: [{ name: 'Staff_Witness_Statement.pdf', uploadDate: '2026-08-28', size: '650 KB' }],
           recordsReview: [{ name: 'Elijah_Behavior_Logs.pdf', uploadDate: '2026-10-05', size: '2.0 MB' }]
         },
@@ -172,6 +175,7 @@
         suspended: false,
         reEntryDate: 'N/A',
         caseStatus: 'Active',
+        closeDate: '',
         planStartDate: '',
         planNextMeeting: '',
         planEndDate: '',
@@ -184,11 +188,39 @@
         pathwayEvents: []
       },
       {
-        id: '26-02100',
+        id: '26-02588',
         studentName: 'Tristan Capulin',
         studentId: '351196',
         schoolLocation: 'NW Classen HS',
-        tovBrief: 'Yelled at a group of students referencing a "dead homie".',
+        tovBrief: 'Yelled at a group of students referencing a "dead homie" and "the score".',
+        incidentDate: '2026-08-11',
+        dateReported: '2026-08-11',
+        tipsReportNum: '26-02588',
+        triagePriority: 'Pending Triage',
+        triageCompleted: false,
+        cstagClassification: 'Pending Assessment',
+        isIep: false,
+        suspended: true,
+        reEntryDate: 'Pending',
+        caseStatus: 'Active',
+        closeDate: '',
+        planStartDate: '',
+        planNextMeeting: '',
+        planEndDate: '',
+        supportPlanStatus: 'Awaiting initial team activation and triage completion.',
+        lastTeamContactDate: '2026-08-11',
+        teamReachoutCount: 1,
+        pastTovCount: 0,
+        previousTovHistory: [],
+        documents: { studentInterview: [], parentInterview: [], witnessStatements: [], recordsReview: [] },
+        pathwayEvents: []
+      },
+      {
+        id: '26-02100',
+        studentName: 'Devon Scott',
+        studentId: '399812',
+        schoolLocation: 'Rogers MS',
+        tovBrief: 'Threatened student during hall transition.',
         incidentDate: '2026-08-01',
         dateReported: '2026-08-01',
         tipsReportNum: '26-02100',
@@ -199,6 +231,7 @@
         suspended: true,
         reEntryDate: '2026-08-05',
         caseStatus: 'Closed',
+        closeDate: '2026-08-05',
         planStartDate: '2026-08-05',
         planNextMeeting: '',
         planEndDate: '2026-09-01',
@@ -214,20 +247,26 @@
 
     function App() {
       const [cases, setCases] = useState(INITIAL_CASES);
-      const [mainTab, setMainTab] = useState('active');
+      const [mainTab, setMainTab] = useState('active'); // active, low, noTriage, closed, dashboard
       const [selectedCaseId, setSelectedCaseId] = useState(INITIAL_CASES[0].id);
       const [activeDocTab, setActiveDocTab] = useState('studentInterview');
 
+      // Modals
       const [showNewIntakeModal, setShowNewIntakeModal] = useState(false);
-      const [showLowRiskCloseModal, setShowLowRiskCloseModal] = useState(false);
-      const [pendingLowRiskCase, setPendingLowRiskCase] = useState(null);
-      const [actionStepsInput, setActionStepsInput] = useState('');
+      const [showCloseCaseModal, setShowCloseCaseModal] = useState(false);
 
+      // Close Case Form
+      const [closeCaseDate, setCloseCaseDate] = useState(new Date().toISOString().split('T')[0]);
+      const [closeCaseNotes, setCloseCaseNotes] = useState('');
+
+      // Triage Worksheet
+      const [performTriageInForm, setPerformTriageInForm] = useState(true);
       const [triageScores, setTriageScores] = useState({
         item1_plan: '1', item1a_grievance: '1', item2_weapons: '1',
         item3_time: '1', item4_viability: '1', item4a_leakage: '1'
       });
 
+      // Intake Form
       const [intakeStudentName, setIntakeStudentName] = useState('');
       const [intakeStudentId, setIntakeStudentId] = useState('');
       const [intakeSchool, setIntakeSchool] = useState('');
@@ -237,13 +276,16 @@
       const [intakeSuspended, setIntakeSuspended] = useState(false);
       const [intakeReEntryDate, setIntakeReEntryDate] = useState('');
 
-      const activeMediumHighCases = cases.filter(c => (c.triagePriority === 'Medium' || c.triagePriority === 'High') && c.caseStatus !== 'Closed');
-      const lowRiskCases = cases.filter(c => c.triagePriority === 'Low' && c.caseStatus !== 'Closed');
+      // Filtered Case Categories
+      const activeMediumHighCases = cases.filter(c => c.triageCompleted && (c.triagePriority === 'Medium' || c.triagePriority === 'High') && c.caseStatus !== 'Closed');
+      const lowRiskCases = cases.filter(c => c.triageCompleted && c.triagePriority === 'Low' && c.caseStatus !== 'Closed');
+      const openNoTriageCases = cases.filter(c => !c.triageCompleted && c.caseStatus !== 'Closed');
       const closedCases = cases.filter(c => c.caseStatus === 'Closed');
 
-      // Safely find the current selected case
-      const currentCase = cases.find(c => c.id === selectedCaseId) || activeMediumHighCases[0] || cases[0];
+      // Safely select active case
+      const currentCase = cases.find(c => c.id === selectedCaseId) || activeMediumHighCases[0] || openNoTriageCases[0] || cases[0];
 
+      // Calculate Triage
       const calculateTriageOutcome = () => {
         const values = Object.values(triageScores);
         const lowCount = values.filter(v => v === '1').length;
@@ -257,17 +299,32 @@
 
       const calculatedRisk = calculateTriageOutcome();
 
-      const isTabAlertRed = (category) => {
-        if (!currentCase || currentCase.triagePriority === 'Low') return false;
-        const docs = currentCase.documents?.[category] || [];
-        if (docs.length > 0) return false;
-        
-        const lastContact = new Date(currentCase.lastTeamContactDate || '2026-09-01');
-        const today = new Date();
-        const diffDays = Math.ceil((today - lastContact) / (1000 * 60 * 60 * 24));
-        return diffDays > 14;
+      // Handle Document Upload per Category Tab
+      const handleFileUpload = (category, e) => {
+        const file = e.target.files[0];
+        if (!file || !currentCase) return;
+
+        const newDoc = {
+          name: file.name,
+          uploadDate: new Date().toISOString().split('T')[0],
+          size: `${(file.size / 1024).toFixed(0)} KB`
+        };
+
+        const updatedCases = cases.map(c => {
+          if (c.id === currentCase.id) {
+            const updatedDocs = {
+              ...c.documents,
+              [category]: [...(c.documents[category] || []), newDoc]
+            };
+            return { ...c, documents: updatedDocs };
+          }
+          return c;
+        });
+
+        setCases(updatedCases);
       };
 
+      // TIPS PDF Parser Simulation
       const handleTipsFileUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -283,10 +340,24 @@
         }
       };
 
+      // Create New Case & Check System History
       const handleCreateCase = (e) => {
         e.preventDefault();
-        const finalPriority = calculatedRisk;
-        const pastMatches = cases.filter(c => c.studentId === intakeStudentId);
+        
+        // Find existing student records across system
+        const pastMatches = cases.filter(c => c.studentId === intakeStudentId && intakeStudentId.trim() !== '');
+
+        // Auto-generate prior history document for Records Review tab if matching student exists
+        const autoRecordsDocs = [];
+        if (pastMatches.length > 0) {
+          autoRecordsDocs.push({
+            name: `Prior_System_Incident_Summary_ID_${intakeStudentId}.pdf`,
+            uploadDate: new Date().toISOString().split('T')[0],
+            size: '520 KB'
+          });
+        }
+
+        const finalPriority = performTriageInForm ? calculatedRisk : 'Pending Triage';
 
         const newCase = {
           id: intakeTipsNum || `26-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -294,54 +365,65 @@
           studentId: intakeStudentId,
           schoolLocation: intakeSchool || 'OKCPS Campus',
           tovBrief: intakeBrief,
-          incidentDate: '2026-10-06',
-          dateReported: '2026-10-06',
+          incidentDate: new Date().toISOString().split('T')[0],
+          dateReported: new Date().toISOString().split('T')[0],
           tipsReportNum: intakeTipsNum,
           triagePriority: finalPriority,
-          triageCompleted: true,
-          cstagClassification: finalPriority === 'Low' ? 'Transient Threat' : 'Substantive Threat',
+          triageCompleted: performTriageInForm,
+          cstagClassification: !performTriageInForm ? 'Pending Assessment' : finalPriority === 'Low' ? 'Transient Threat' : 'Substantive Threat',
           isIep: intakeIsIep,
           suspended: intakeSuspended,
           reEntryDate: intakeSuspended ? (intakeReEntryDate || 'Pending') : 'N/A',
-          caseStatus: finalPriority === 'Low' ? 'Closed' : 'Active',
+          caseStatus: 'Active',
+          closeDate: '',
           planStartDate: '',
           planNextMeeting: '',
           planEndDate: '',
-          supportPlanStatus: finalPriority === 'Low' ? 'Closed at Triage' : 'Active Monitoring Required',
-          lastTeamContactDate: '2026-10-06',
+          supportPlanStatus: performTriageInForm ? 'Active Monitoring' : 'Awaiting Triage & Activation',
+          lastTeamContactDate: new Date().toISOString().split('T')[0],
           teamReachoutCount: 1,
           pastTovCount: pastMatches.length,
           previousTovHistory: pastMatches.map(m => ({ date: m.incidentDate, brief: m.tovBrief, actionTaken: m.supportPlanStatus })),
-          documents: { studentInterview: [], parentInterview: [], witnessStatements: [], recordsReview: [] },
-          pathwayEvents: finalPriority !== 'Low' ? [
-            { id: Date.now(), stage: 'Grievance', description: `Initial threat logged via TIPS #${intakeTipsNum}`, date: '2026-10-06' }
+          documents: {
+            studentInterview: [],
+            parentInterview: [],
+            witnessStatements: [],
+            recordsReview: autoRecordsDocs
+          },
+          pathwayEvents: (performTriageInForm && finalPriority !== 'Low') ? [
+            { id: Date.now(), stage: 'Grievance', description: `Initial threat reported via TIPS #${intakeTipsNum}`, date: new Date().toISOString().split('T')[0] }
           ] : []
         };
 
-        if (finalPriority === 'Low') {
-          setPendingLowRiskCase(newCase);
-          setShowNewIntakeModal(false);
-          setShowLowRiskCloseModal(true);
-        } else {
-          setCases([newCase, ...cases]);
-          setSelectedCaseId(newCase.id);
-          setShowNewIntakeModal(false);
-          setMainTab('active');
-        }
+        setCases([newCase, ...cases]);
+        setSelectedCaseId(newCase.id);
+        setShowNewIntakeModal(false);
+
+        // Route to correct tab
+        if (!performTriageInForm) setMainTab('noTriage');
+        else if (finalPriority === 'Low') setMainTab('low');
+        else setMainTab('active');
       };
 
-      const handleCloseLowRiskCase = () => {
-        if (!pendingLowRiskCase) return;
-        const finalizedCase = {
-          ...pendingLowRiskCase,
-          supportPlanStatus: `Closed Action Steps Taken: ${actionStepsInput}`,
-          caseStatus: 'Closed'
-        };
-        setCases([finalizedCase, ...cases]);
-        setSelectedCaseId(finalizedCase.id);
-        setShowLowRiskCloseModal(false);
-        setPendingLowRiskCase(null);
-        setActionStepsInput('');
+      // Close Case Action
+      const handleConfirmCloseCase = () => {
+        if (!currentCase) return;
+
+        const updatedCases = cases.map(c => {
+          if (c.id === currentCase.id) {
+            return {
+              ...c,
+              caseStatus: 'Closed',
+              closeDate: closeCaseDate,
+              supportPlanStatus: `Closed (${closeCaseDate}): ${closeCaseNotes}`
+            };
+          }
+          return c;
+        });
+
+        setCases(updatedCases);
+        setShowCloseCaseModal(false);
+        setCloseCaseNotes('');
         setMainTab('closed');
       };
 
@@ -360,15 +442,15 @@
 
               <button
                 onClick={() => setShowNewIntakeModal(true)}
-                className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition-all shadow-md shadow-blue-600/20"
+                className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all shadow-md shadow-blue-600/20"
               >
-                <span>+ New Threat Intake (TIPS PDF)</span>
+                + New Threat Intake (TIPS PDF)
               </button>
             </div>
           </header>
 
-          {/* DISPATCH ALERT BAR */}
-          {currentCase?.triagePriority === 'High' && mainTab !== 'dashboard' && (
+          {/* EMERGENCY ALERT BANNERS */}
+          {currentCase?.triagePriority === 'High' && mainTab !== 'dashboard' && currentCase.caseStatus !== 'Closed' && (
             <div className="bg-red-950/90 border-b border-red-800 text-red-200 px-4 py-2 text-xs flex items-center justify-between animate-pulse">
               <div className="max-w-7xl mx-auto w-full flex items-center space-x-2">
                 <span className="text-red-400 font-bold">⚠️</span>
@@ -379,8 +461,7 @@
             </div>
           )}
 
-          {/* IEP ALERT BANNER */}
-          {currentCase?.isIep && mainTab !== 'dashboard' && (
+          {currentCase?.isIep && mainTab !== 'dashboard' && currentCase.caseStatus !== 'Closed' && (
             <div className="bg-amber-950/90 border-b border-amber-800 text-amber-200 px-4 py-2 text-xs">
               <div className="max-w-7xl mx-auto w-full flex items-center space-x-2 font-semibold">
                 <span className="text-amber-400">🔒</span>
@@ -389,59 +470,68 @@
             </div>
           )}
 
-          {/* NAVIGATION TABS */}
+          {/* NAVIGATION TABS WITH CASE COUNTERS */}
           <div className="max-w-7xl mx-auto px-4 pt-4">
-            <div className="flex border-b border-slate-800 space-x-6 text-xs font-semibold">
+            <div className="flex border-b border-slate-800 space-x-6 text-xs font-semibold overflow-x-auto">
               <button
                 onClick={() => { setMainTab('active'); if (activeMediumHighCases.length > 0) setSelectedCaseId(activeMediumHighCases[0].id); }}
-                className={`pb-3 flex items-center space-x-2 border-b-2 transition-colors ${
+                className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${
                   mainTab === 'active' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <span>Active Medium / High Cases ({activeMediumHighCases.length})</span>
+                Active Medium/High Cases ({activeMediumHighCases.length})
               </button>
 
               <button
                 onClick={() => { setMainTab('low'); if (lowRiskCases.length > 0) setSelectedCaseId(lowRiskCases[0].id); }}
-                className={`pb-3 flex items-center space-x-2 border-b-2 transition-colors ${
+                className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${
                   mainTab === 'low' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <span>Low Risk Cases ({lowRiskCases.length})</span>
+                Low-Risk Cases ({lowRiskCases.length})
+              </button>
+
+              <button
+                onClick={() => { setMainTab('noTriage'); if (openNoTriageCases.length > 0) setSelectedCaseId(openNoTriageCases[0].id); }}
+                className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${
+                  mainTab === 'noTriage' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Open Cases without Triage ({openNoTriageCases.length})
               </button>
 
               <button
                 onClick={() => { setMainTab('closed'); if (closedCases.length > 0) setSelectedCaseId(closedCases[0].id); }}
-                className={`pb-3 flex items-center space-x-2 border-b-2 transition-colors ${
+                className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${
                   mainTab === 'closed' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <span>Closed Cases Archive ({closedCases.length})</span>
+                Closed Cases Archive ({closedCases.length})
               </button>
 
               <button
                 onClick={() => setMainTab('dashboard')}
-                className={`pb-3 flex items-center space-x-2 border-b-2 transition-colors ${
+                className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${
                   mainTab === 'dashboard' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
-                <span>District Oversight Dashboard ({cases.length})</span>
+                District Oversight Dashboard ({cases.length})
               </button>
             </div>
           </div>
 
           {/* MAIN CONTENT AREA */}
           <main className="max-w-7xl mx-auto px-4 py-6">
-            {(mainTab === 'active' || mainTab === 'low' || mainTab === 'closed') && (
+            {(mainTab === 'active' || mainTab === 'low' || mainTab === 'noTriage' || mainTab === 'closed') && (
               <div className="grid grid-cols-12 gap-6">
                 {/* SIDEBAR */}
                 <div className="col-span-12 lg:col-span-4 space-y-3">
                   <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    {mainTab === 'active' ? 'Active Medium & High Cases' : mainTab === 'low' ? 'Low Risk Cases' : 'Closed Cases'}
+                    {mainTab === 'active' ? 'Active Medium & High Cases' : mainTab === 'low' ? 'Low-Risk Cases' : mainTab === 'noTriage' ? 'Cases Pending Triage' : 'Closed Cases'}
                   </h2>
 
-                  <div className="space-y-2">
-                    {(mainTab === 'active' ? activeMediumHighCases : mainTab === 'low' ? lowRiskCases : closedCases).map(c => (
+                  <div className="space-y-2 max-h-[80vh] overflow-y-auto pr-1">
+                    {(mainTab === 'active' ? activeMediumHighCases : mainTab === 'low' ? lowRiskCases : mainTab === 'noTriage' ? openNoTriageCases : closedCases).map(c => (
                       <div
                         key={c.id}
                         onClick={() => setSelectedCaseId(c.id)}
@@ -456,9 +546,10 @@
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
                             c.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' :
                             c.triagePriority === 'Medium' ? 'bg-yellow-950 text-yellow-300 border-yellow-800' :
-                            'bg-slate-800 text-slate-300 border-slate-700'
+                            c.triagePriority === 'Low' ? 'bg-slate-800 text-slate-300 border-slate-700' :
+                            'bg-purple-950 text-purple-300 border-purple-800'
                           }`}>
-                            {c.triagePriority} Risk
+                            {c.triagePriority}
                           </span>
                         </div>
 
@@ -477,6 +568,12 @@
                         </div>
                       </div>
                     ))}
+
+                    {(mainTab === 'active' ? activeMediumHighCases : mainTab === 'low' ? lowRiskCases : mainTab === 'noTriage' ? openNoTriageCases : closedCases).length === 0 && (
+                      <div className="p-6 text-center text-xs text-slate-500 bg-slate-900/50 rounded-xl border border-slate-800">
+                        No cases found in this view.
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -503,13 +600,27 @@
                             <span className={`text-xs font-bold px-3 py-1 rounded border ${
                               currentCase.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' :
                               currentCase.triagePriority === 'Medium' ? 'bg-yellow-950 text-yellow-300 border-yellow-800' :
-                              'bg-slate-800 text-slate-300 border-slate-700'
+                              currentCase.triagePriority === 'Low' ? 'bg-slate-800 text-slate-300 border-slate-700' :
+                              'bg-purple-950 text-purple-300 border-purple-800'
                             }`}>
-                              {currentCase.triagePriority} Risk
+                              {currentCase.triagePriority}
                             </span>
-                            <span className="text-xs bg-blue-950 text-blue-300 border border-blue-800 px-3 py-1 rounded">
-                              {currentCase.caseStatus}
-                            </span>
+
+                            {/* CLOSE CASE BUTTON (Available for all open cases) */}
+                            {currentCase.caseStatus !== 'Closed' && (
+                              <button
+                                onClick={() => setShowCloseCaseModal(true)}
+                                className="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-1 rounded font-semibold transition-colors"
+                              >
+                                Close Case
+                              </button>
+                            )}
+
+                            {currentCase.caseStatus === 'Closed' && (
+                              <span className="text-xs bg-slate-800 text-slate-400 border border-slate-700 px-3 py-1 rounded">
+                                Closed on {currentCase.closeDate || 'N/A'}
+                              </span>
+                            )}
                           </div>
                         </div>
 
@@ -529,7 +640,7 @@
                           </div>
 
                           <div className="bg-slate-950 p-2.5 rounded border border-slate-800">
-                            <span className="text-slate-400 block text-[10px]">Past TOV Record</span>
+                            <span className="text-slate-400 block text-[10px]">Past System Records</span>
                             <span className={`font-semibold ${currentCase.pastTovCount > 0 ? 'text-amber-400' : 'text-slate-200'}`}>
                               {currentCase.pastTovCount > 0 ? `${currentCase.pastTovCount} Previous Incident(s)` : 'No Past History'}
                             </span>
@@ -546,10 +657,10 @@
                           </div>
                         </div>
 
-                        {/* Historical TOV Log */}
+                        {/* Historical Records Notice */}
                         {currentCase.previousTovHistory && currentCase.previousTovHistory.length > 0 && (
                           <div className="bg-amber-950/30 border border-amber-900/60 p-3 rounded text-xs space-y-1">
-                            <span className="font-bold text-amber-300">Prior System Incident History:</span>
+                            <span className="font-bold text-amber-300">Prior System Incident History (Auto-Linked to Records Review):</span>
                             {currentCase.previousTovHistory.map((h, i) => (
                               <p key={i} className="text-slate-300">
                                 • <span className="font-mono text-slate-400">{h.date}:</span> {h.brief} (Action: {h.actionTaken})
@@ -597,13 +708,17 @@
                         </div>
                       )}
 
-                      {/* 360-DEGREE ASSESSMENT DOCUMENT VAULT */}
+                      {/* 360-DEGREE ASSESSMENT DOCUMENT VAULT WITH DYNAMIC COLOR BUTTONS */}
                       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
-                        <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
-                          <span className="text-blue-400">📁</span>
-                          <span>360-Degree Assessment Documents</span>
-                        </h3>
+                        <div className="flex justify-between items-center">
+                          <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
+                            <span className="text-blue-400">📁</span>
+                            <span>360-Degree Assessment Documents</span>
+                          </h3>
+                          <span className="text-[11px] text-slate-400">RED = Empty | BLUE = Document Uploaded</span>
+                        </div>
 
+                        {/* 4 DYNAMIC CATEGORY TABS (RED IF EMPTY, BLUE IF HAS DOCUMENTS) */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                           {[
                             { key: 'studentInterview', label: 'Student Interview' },
@@ -611,44 +726,61 @@
                             { key: 'witnessStatements', label: 'Witness Statements' },
                             { key: 'recordsReview', label: 'Records Review' }
                           ].map(tab => {
-                            const isRed = isTabAlertRed(tab.key);
+                            const docsList = currentCase.documents?.[tab.key] || [];
+                            const hasDocs = docsList.length > 0;
                             return (
                               <button
                                 key={tab.key}
                                 onClick={() => setActiveDocTab(tab.key)}
-                                className={`p-2 rounded text-xs font-semibold border flex items-center justify-between ${
-                                  isRed 
-                                    ? 'bg-red-950 border-red-600 text-red-200 animate-pulse'
-                                    : activeDocTab === tab.key
-                                    ? 'bg-blue-900/50 border-blue-500 text-blue-200'
-                                    : 'bg-slate-950 border-slate-800 text-slate-400'
+                                className={`p-2.5 rounded-lg text-xs font-semibold border flex items-center justify-between transition-all ${
+                                  hasDocs
+                                    ? 'bg-blue-900/50 border-blue-500 text-blue-200 shadow-md shadow-blue-950'
+                                    : 'bg-red-950/80 border-red-600 text-red-200 animate-pulse'
                                 }`}
                               >
                                 <span>{tab.label}</span>
-                                {isRed && <span className="text-red-400 font-bold">⚠️</span>}
+                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${hasDocs ? 'bg-blue-950 text-blue-300' : 'bg-red-900 text-red-100'}`}>
+                                  {docsList.length}
+                                </span>
                               </button>
                             );
                           })}
                         </div>
 
+                        {/* DOCUMENT VAULT CONTENT & FILE UPLOADER */}
                         <div className="bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-3 text-xs">
-                          {isTabAlertRed(activeDocTab) && (
-                            <div className="bg-red-950/80 border border-red-800 p-2.5 rounded text-red-200">
-                              <strong>MISSING DOCUMENT ALERT:</strong> Upload missing for over 2 weeks on a Medium/High risk case. Last DTAC outreach: {currentCase.lastTeamContactDate} ({currentCase.teamReachoutCount} total contact attempts).
-                            </div>
-                          )}
+                          <div className="flex justify-between items-center pb-2 border-b border-slate-800">
+                            <span className="font-semibold text-slate-200 uppercase tracking-wider text-[11px]">
+                              {activeDocTab.replace(/([A-Z])/g, ' $1')} Files
+                            </span>
+
+                            {/* FILE UPLOAD BUTTON */}
+                            <label className="cursor-pointer bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-medium transition-colors">
+                              + Upload to {activeDocTab.replace(/([A-Z])/g, ' $1')}
+                              <input
+                                type="file"
+                                className="hidden"
+                                onChange={(e) => handleFileUpload(activeDocTab, e)}
+                              />
+                            </label>
+                          </div>
 
                           <div className="space-y-2">
                             {(currentCase.documents?.[activeDocTab] || []).map((doc, idx) => (
                               <div key={idx} className="flex justify-between items-center p-2.5 bg-slate-900 rounded border border-slate-800">
-                                <span className="font-medium text-slate-200">{doc.name}</span>
+                                <div className="flex items-center space-x-2">
+                                  <span className="text-blue-400">📄</span>
+                                  <span className="font-medium text-slate-200">{doc.name}</span>
+                                  <span className="text-slate-500 text-[10px]">({doc.size})</span>
+                                </div>
                                 <span className="text-slate-500 font-mono text-[11px]">{doc.uploadDate}</span>
                               </div>
                             ))}
+
                             {(!currentCase.documents?.[activeDocTab] || currentCase.documents[activeDocTab].length === 0) && (
-                              <p className="text-xs text-slate-500 italic py-2">
-                                {currentCase.triagePriority === 'Low' ? 'Optional document upload for Low Risk cases.' : 'No files uploaded yet in this category.'}
-                              </p>
+                              <div className="p-4 text-center text-xs text-red-400 bg-red-950/20 border border-red-900/40 rounded">
+                                Category empty. Upload a document to clear the red alert tab.
+                              </div>
                             )}
                           </div>
                         </div>
@@ -659,10 +791,10 @@
               </div>
             )}
 
-            {/* DASHBOARD TAB */}
+            {/* DASHBOARD TAB MATRIX */}
             {mainTab === 'dashboard' && (
               <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
-                <h2 className="text-base font-bold text-slate-100">District-Wide Case Matrix (All Cases)</h2>
+                <h2 className="text-base font-bold text-slate-100">District-Wide Case Matrix (All System Cases)</h2>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs text-slate-300">
                     <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase text-[10px]">
@@ -670,7 +802,7 @@
                         <th className="p-3">Student / ID</th>
                         <th className="p-3">School Location</th>
                         <th className="p-3">TIPS #</th>
-                        <th className="p-3">Triage</th>
+                        <th className="p-3">Triage Priority</th>
                         <th className="p-3">IEP Status</th>
                         <th className="p-3">Suspension / Re-entry</th>
                         <th className="p-3">Case Status</th>
@@ -682,7 +814,16 @@
                           <td className="p-3 font-semibold text-slate-100">{c.studentName} <span className="text-slate-500 font-mono text-[10px]">#{c.studentId}</span></td>
                           <td className="p-3">{c.schoolLocation}</td>
                           <td className="p-3 font-mono">{c.tipsReportNum}</td>
-                          <td className="p-3"><span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300">{c.triagePriority}</span></td>
+                          <td className="p-3">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              c.triagePriority === 'High' ? 'bg-red-950 text-red-300 border border-red-800' :
+                              c.triagePriority === 'Medium' ? 'bg-yellow-950 text-yellow-300 border border-yellow-800' :
+                              c.triagePriority === 'Low' ? 'bg-slate-800 text-slate-300 border border-slate-700' :
+                              'bg-purple-950 text-purple-300 border border-purple-800'
+                            }`}>
+                              {c.triagePriority}
+                            </span>
+                          </td>
                           <td className="p-3">{c.isIep ? <span className="text-amber-400 font-bold">YES</span> : 'No'}</td>
                           <td className="p-3">{c.suspended ? `OSS (${c.reEntryDate})` : 'Not Suspended'}</td>
                           <td className="p-3 font-semibold text-blue-400">{c.caseStatus}</td>
@@ -695,12 +836,12 @@
             )}
           </main>
 
-          {/* INTAKE MODAL */}
+          {/* NEW INTAKE MODAL */}
           {showNewIntakeModal && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
                 <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                  <h3 className="text-base font-bold text-slate-100">Upload TIPS Report PDF & Calculate Triage</h3>
+                  <h3 className="text-base font-bold text-slate-100">Upload TIPS Report PDF & Open Case</h3>
                   <button onClick={() => setShowNewIntakeModal(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
                 </div>
 
@@ -726,58 +867,71 @@
                     <textarea rows="2" value={intakeBrief} onChange={(e) => setIntakeBrief(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                   </div>
 
-                  <div className="border-t border-slate-800 pt-3 space-y-3">
-                    <h4 className="font-bold text-slate-200">Threats of Violence Triage Criteria</h4>
-                    
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-slate-400 block mb-1">1. Plan Specificity</label>
-                        <select value={triageScores.item1_plan} onChange={(e) => setTriageScores({...triageScores, item1_plan: e.target.value})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
-                          <option value="1">Low: Vague</option>
-                          <option value="2">Medium: Some Specifics</option>
-                          <option value="3">High: Well thought out</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="text-slate-400 block mb-1">1a. Grievance Motive</label>
-                        <select value={triageScores.item1a_grievance} onChange={(e) => setTriageScores({...triageScores, item1a_grievance: e.target.value})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
-                          <option value="1">Low: General / No Target</option>
-                          <option value="2">Medium: Group Target</option>
-                          <option value="3">High: Specific Individual</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="text-slate-400 block mb-1">2. Weapon Access</label>
-                        <select value={triageScores.item2_weapons} onChange={(e) => setTriageScores({...triageScores, item2_weapons: e.target.value})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
-                          <option value="1">Low: Unavailable</option>
-                          <option value="2">Medium: Ability to obtain</option>
-                          <option value="3">High: Easy Access / In hand</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="text-slate-400 block mb-1">3. Time Imminence</label>
-                        <select value={triageScores.item3_time} onChange={(e) => setTriageScores({...triageScores, item3_time: e.target.value})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
-                          <option value="1">Low: No specific time</option>
-                          <option value="2">Medium: Within a few hours</option>
-                          <option value="3">High: Immediate</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="p-3 bg-slate-950 rounded border border-slate-800 flex justify-between items-center">
-                      <span className="font-bold text-slate-300">Calculated Triage Level:</span>
-                      <span className={`px-3 py-1 rounded font-bold text-xs ${
-                        calculatedRisk === 'High' ? 'bg-red-950 text-red-300 border border-red-800' :
-                        calculatedRisk === 'Medium' ? 'bg-yellow-950 text-yellow-300 border border-yellow-800' :
-                        'bg-slate-800 text-slate-300 border border-slate-700'
-                      }`}>
-                        {calculatedRisk} Risk
-                      </span>
-                    </div>
+                  {/* TRIAGE OPTION TOGGLE */}
+                  <div className="flex items-center space-x-2 pt-2 border-t border-slate-800">
+                    <input
+                      type="checkbox"
+                      id="triageToggle"
+                      checked={performTriageInForm}
+                      onChange={(e) => setPerformTriageInForm(e.target.checked)}
+                      className="rounded bg-slate-950 border-slate-800"
+                    />
+                    <label htmlFor="triageToggle" className="text-slate-200 font-semibold">Perform Triage Calculation Now?</label>
                   </div>
+
+                  {performTriageInForm && (
+                    <div className="space-y-3 pt-2">
+                      <h4 className="font-bold text-slate-200">Threats of Violence Triage Criteria</h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-slate-400 block mb-1">1. Plan Specificity</label>
+                          <select value={triageScores.item1_plan} onChange={(e) => setTriageScores({...triageScores, item1_plan: e.target.value})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
+                            <option value="1">Low: Vague</option>
+                            <option value="2">Medium: Some Specifics</option>
+                            <option value="3">High: Well thought out</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-slate-400 block mb-1">1a. Grievance Motive</label>
+                          <select value={triageScores.item1a_grievance} onChange={(e) => setTriageScores({...triageScores, item1a_grievance: e.target.value})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
+                            <option value="1">Low: General / No Target</option>
+                            <option value="2">Medium: Group Target</option>
+                            <option value="3">High: Specific Individual</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-slate-400 block mb-1">2. Weapon Access</label>
+                          <select value={triageScores.item2_weapons} onChange={(e) => setTriageScores({...triageScores, item2_weapons: e.target.value})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
+                            <option value="1">Low: Unavailable</option>
+                            <option value="2">Medium: Ability to obtain</option>
+                            <option value="3">High: Easy Access / In hand</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="text-slate-400 block mb-1">3. Time Imminence</label>
+                          <select value={triageScores.item3_time} onChange={(e) => setTriageScores({...triageScores, item3_time: e.target.value})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
+                            <option value="1">Low: No specific time</option>
+                            <option value="2">Medium: Within a few hours</option>
+                            <option value="3">High: Immediate</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-slate-950 rounded border border-slate-800 flex justify-between items-center">
+                        <span className="font-bold text-slate-300">Calculated Triage Level:</span>
+                        <span className={`px-3 py-1 rounded font-bold text-xs ${
+                          calculatedRisk === 'High' ? 'bg-red-950 text-red-300 border border-red-800' :
+                          calculatedRisk === 'Medium' ? 'bg-yellow-950 text-yellow-300 border border-yellow-800' :
+                          'bg-slate-800 text-slate-300 border border-slate-700'
+                        }`}>
+                          {calculatedRisk} Risk
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
                     <button type="button" onClick={() => setShowNewIntakeModal(false)} className="bg-slate-800 px-4 py-2 rounded text-slate-300 font-semibold">Cancel</button>
@@ -788,38 +942,47 @@
             </div>
           )}
 
-          {/* LOW-RISK ACTION STEPS MODAL */}
-          {showLowRiskCloseModal && (
+          {/* CLOSE CASE MODAL */}
+          {showCloseCaseModal && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-                <h3 className="text-base font-bold text-slate-100 flex items-center space-x-2">
-                  <span className="text-green-400">✅</span>
-                  <span>Low-Risk Calculated: Log Action Steps</span>
-                </h3>
+                <h3 className="text-base font-bold text-slate-100">Close Case & Move to Archive</h3>
 
                 <p className="text-xs text-slate-300">
-                  This triage calculated as <strong>Low Risk</strong>. Please input the restorative or administrative action steps taken prior to archiving.
+                  You are closing case <strong>{currentCase?.studentName} (#{currentCase?.studentId})</strong>. This will move the case into the <strong>Closed Cases Archive</strong>.
                 </p>
 
-                <div className="space-y-1 text-xs">
-                  <label className="text-slate-400 block font-medium">Action Steps Taken</label>
-                  <textarea
-                    rows="4"
-                    required
-                    placeholder="e.g., Administrator interviewed student, confirmed lack of intent, notified parent, restorative mediation scheduled."
-                    value={actionStepsInput}
-                    onChange={(e) => setActionStepsInput(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded p-2.5 text-slate-100 focus:outline-none focus:border-blue-500"
-                  />
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="text-slate-400 block mb-1">Case Close Date</label>
+                    <input
+                      type="date"
+                      required
+                      value={closeCaseDate}
+                      onChange={(e) => setCloseCaseDate(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-slate-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-slate-400 block mb-1">Resolution / Action Steps Taken</label>
+                    <textarea
+                      rows="3"
+                      required
+                      placeholder="Specify resolution steps, support outcomes, or mediation actions taken..."
+                      value={closeCaseNotes}
+                      onChange={(e) => setCloseCaseNotes(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded p-2.5 text-slate-100 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
                 </div>
 
-                <div className="flex justify-end space-x-3 pt-3 border-t border-slate-800">
-                  <button
-                    onClick={handleCloseLowRiskCase}
-                    disabled={!actionStepsInput.trim()}
-                    className="bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white text-xs px-4 py-2 rounded font-bold"
-                  >
-                    Save Action Steps & Close Case
+                <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
+                  <button onClick={() => setShowCloseCaseModal(false)} className="bg-slate-800 text-slate-300 px-4 py-2 rounded font-semibold">
+                    Cancel
+                  </button>
+                  <button onClick={handleConfirmCloseCase} className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded font-semibold">
+                    Confirm & Move to Closed Archive
                   </button>
                 </div>
               </div>
