@@ -46,7 +46,7 @@
       { key: 'Attack', label: 'Attack', color: 'bg-red-900 text-red-200 border-red-600' }
     ];
 
-    // Seeded Dataset from OKCPS Spreadsheet & TIPS PDF
+    // Seeded Dataset with Uploaded TIPS and Triage Files Attached
     const INITIAL_CASES = [
       {
         id: '26-03093',
@@ -75,6 +75,11 @@
         previousTovHistory: [
           { date: '2026-08-28', brief: 'Stolen ring incident resulting in OSS discipline.', actionTaken: 'OSS Assigned' }
         ],
+        // TIPS and Triage Files saved per case
+        intakeFiles: {
+          tipsPdf: { name: 'TIPS_Report_26-03093_Jimenez.pdf', uploadDate: '2026-09-07', size: '1.4 MB' },
+          triagePdf: { name: 'JJ_Triage_HIGH.pdf', uploadDate: '2026-09-07', size: '620 KB', scoreDetected: 'High' }
+        },
         documents: {
           studentInterview: [{ name: 'Jorge_Jimenez_Statement.pdf', uploadDate: '2026-09-08', size: '1.1 MB' }],
           parentInterview: [], // Empty -> Red
@@ -112,6 +117,10 @@
         teamReachoutCount: 4,
         pastTovCount: 0,
         previousTovHistory: [],
+        intakeFiles: {
+          tipsPdf: { name: 'TIPS_26-02602_GarciaReyes.pdf', uploadDate: '2026-08-12', size: '1.2 MB' },
+          triagePdf: { name: 'Triage_Worksheet_GarciaReyes_HIGH.pdf', uploadDate: '2026-08-12', size: '580 KB', scoreDetected: 'High' }
+        },
         documents: {
           studentInterview: [{ name: 'Student_Interview_0812.pdf', uploadDate: '2026-08-13', size: '1.2 MB' }],
           parentInterview: [{ name: 'Parent_Contact_Notes.pdf', uploadDate: '2026-08-13', size: '850 KB' }],
@@ -148,6 +157,10 @@
         teamReachoutCount: 2,
         pastTovCount: 0,
         previousTovHistory: [],
+        intakeFiles: {
+          tipsPdf: { name: 'TIPS_26-02880_Jameson.pdf', uploadDate: '2026-08-27', size: '1.1 MB' },
+          triagePdf: { name: 'Triage_Form_Jameson_MED.pdf', uploadDate: '2026-08-27', size: '510 KB', scoreDetected: 'Medium' }
+        },
         documents: {
           studentInterview: [{ name: 'Elijah_Student_Interview.pdf', uploadDate: '2026-08-28', size: '1.0 MB' }],
           parentInterview: [], // Empty -> Red
@@ -184,6 +197,10 @@
         teamReachoutCount: 1,
         pastTovCount: 0,
         previousTovHistory: [],
+        intakeFiles: {
+          tipsPdf: { name: 'TIPS_26-02511_Vance.pdf', uploadDate: '2026-08-10', size: '980 KB' },
+          triagePdf: { name: 'Triage_Worksheet_Vance_LOW.pdf', uploadDate: '2026-08-10', size: '420 KB', scoreDetected: 'Low' }
+        },
         documents: { studentInterview: [], parentInterview: [], witnessStatements: [], recordsReview: [] },
         pathwayEvents: []
       },
@@ -212,6 +229,10 @@
         teamReachoutCount: 1,
         pastTovCount: 0,
         previousTovHistory: [],
+        intakeFiles: {
+          tipsPdf: { name: 'TIPS_26-02588_Capulin.pdf', uploadDate: '2026-08-11', size: '1.0 MB' },
+          triagePdf: null // Triage missing
+        },
         documents: { studentInterview: [], parentInterview: [], witnessStatements: [], recordsReview: [] },
         pathwayEvents: []
       },
@@ -240,6 +261,10 @@
         teamReachoutCount: 2,
         pastTovCount: 0,
         previousTovHistory: [],
+        intakeFiles: {
+          tipsPdf: { name: 'TIPS_26-02100_Scott.pdf', uploadDate: '2026-08-01', size: '890 KB' },
+          triagePdf: { name: 'Triage_Form_Scott_LOW.pdf', uploadDate: '2026-08-01', size: '390 KB', scoreDetected: 'Low' }
+        },
         documents: { studentInterview: [], parentInterview: [], witnessStatements: [], recordsReview: [] },
         pathwayEvents: []
       }
@@ -259,14 +284,12 @@
       const [closeCaseDate, setCloseCaseDate] = useState(new Date().toISOString().split('T')[0]);
       const [closeCaseNotes, setCloseCaseNotes] = useState('');
 
-      // Triage Worksheet
-      const [performTriageInForm, setPerformTriageInForm] = useState(true);
-      const [triageScores, setTriageScores] = useState({
-        item1_plan: '1', item1a_grievance: '1', item2_weapons: '1',
-        item3_time: '1', item4_viability: '1', item4a_leakage: '1'
-      });
+      // New Intake Form Upload States
+      const [uploadedTipsFile, setUploadedTipsFile] = useState(null);
+      const [uploadedTriageFile, setUploadedTriageFile] = useState(null);
+      const [detectedTriageScore, setDetectedTriageScore] = useState('Pending Triage');
 
-      // Intake Form
+      // Intake Fields
       const [intakeStudentName, setIntakeStudentName] = useState('');
       const [intakeStudentId, setIntakeStudentId] = useState('');
       const [intakeSchool, setIntakeSchool] = useState('');
@@ -284,20 +307,6 @@
 
       // Safely select active case
       const currentCase = cases.find(c => c.id === selectedCaseId) || activeMediumHighCases[0] || openNoTriageCases[0] || cases[0];
-
-      // Calculate Triage
-      const calculateTriageOutcome = () => {
-        const values = Object.values(triageScores);
-        const lowCount = values.filter(v => v === '1').length;
-        const medCount = values.filter(v => v === '2').length;
-        const highCount = values.filter(v => v === '3').length;
-
-        if (highCount >= medCount && highCount >= lowCount && highCount > 0) return 'High';
-        if (medCount >= lowCount) return 'Medium';
-        return 'Low';
-      };
-
-      const calculatedRisk = calculateTriageOutcome();
 
       // Handle Document Upload per Category Tab
       const handleFileUpload = (category, e) => {
@@ -328,6 +337,7 @@
       const handleTipsFileUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
+          setUploadedTipsFile(file);
           setTimeout(() => {
             setIntakeStudentName('Jorge Jimenez');
             setIntakeStudentId('345290');
@@ -336,18 +346,33 @@
             setIntakeBrief('Reported online threats, firearm-related imagery on Instagram highlights, and alleged stalking/intimidation behavior toward peers.');
             setIntakeSuspended(true);
             setIntakeReEntryDate('2026-09-21');
-          }, 400);
+          }, 300);
         }
       };
 
-      // Create New Case & Check System History
+      // Triage PDF Analysis Parser Simulation
+      const handleTriageFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          setUploadedTriageFile(file);
+          // Auto-detect score based on filename or contents simulation
+          setTimeout(() => {
+            const fname = file.name.toUpperCase();
+            if (fname.includes('HIGH')) setDetectedTriageScore('High');
+            else if (fname.includes('MED')) setDetectedTriageScore('Medium');
+            else if (fname.includes('LOW')) setDetectedTriageScore('Low');
+            else setDetectedTriageScore('High'); // Default calculated score from sample JJ Triage - HIGH.pdf
+          }, 300);
+        }
+      };
+
+      // Create New Case & Link Uploaded Documents
       const handleCreateCase = (e) => {
         e.preventDefault();
         
-        // Find existing student records across system
+        // Check previous history
         const pastMatches = cases.filter(c => c.studentId === intakeStudentId && intakeStudentId.trim() !== '');
 
-        // Auto-generate prior history document for Records Review tab if matching student exists
         const autoRecordsDocs = [];
         if (pastMatches.length > 0) {
           autoRecordsDocs.push({
@@ -357,7 +382,8 @@
           });
         }
 
-        const finalPriority = performTriageInForm ? calculatedRisk : 'Pending Triage';
+        const isTriageProvided = !!uploadedTriageFile;
+        const finalPriority = isTriageProvided ? detectedTriageScore : 'Pending Triage';
 
         const newCase = {
           id: intakeTipsNum || `26-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -369,8 +395,8 @@
           dateReported: new Date().toISOString().split('T')[0],
           tipsReportNum: intakeTipsNum,
           triagePriority: finalPriority,
-          triageCompleted: performTriageInForm,
-          cstagClassification: !performTriageInForm ? 'Pending Assessment' : finalPriority === 'Low' ? 'Transient Threat' : 'Substantive Threat',
+          triageCompleted: isTriageProvided,
+          cstagClassification: !isTriageProvided ? 'Pending Assessment' : finalPriority === 'Low' ? 'Transient Threat' : 'Substantive Threat',
           isIep: intakeIsIep,
           suspended: intakeSuspended,
           reEntryDate: intakeSuspended ? (intakeReEntryDate || 'Pending') : 'N/A',
@@ -379,19 +405,24 @@
           planStartDate: '',
           planNextMeeting: '',
           planEndDate: '',
-          supportPlanStatus: performTriageInForm ? 'Active Monitoring' : 'Awaiting Triage & Activation',
+          supportPlanStatus: isTriageProvided ? 'Active Monitoring' : 'Awaiting Triage & Core Team Activation',
           lastTeamContactDate: new Date().toISOString().split('T')[0],
           teamReachoutCount: 1,
           pastTovCount: pastMatches.length,
           previousTovHistory: pastMatches.map(m => ({ date: m.incidentDate, brief: m.tovBrief, actionTaken: m.supportPlanStatus })),
+          // Saved Intake Documents
+          intakeFiles: {
+            tipsPdf: uploadedTipsFile ? { name: uploadedTipsFile.name, uploadDate: new Date().toISOString().split('T')[0], size: '1.2 MB' } : null,
+            triagePdf: uploadedTriageFile ? { name: uploadedTriageFile.name, uploadDate: new Date().toISOString().split('T')[0], size: '540 KB', scoreDetected: finalPriority } : null
+          },
           documents: {
             studentInterview: [],
             parentInterview: [],
             witnessStatements: [],
             recordsReview: autoRecordsDocs
           },
-          pathwayEvents: (performTriageInForm && finalPriority !== 'Low') ? [
-            { id: Date.now(), stage: 'Grievance', description: `Initial threat reported via TIPS #${intakeTipsNum}`, date: new Date().toISOString().split('T')[0] }
+          pathwayEvents: (isTriageProvided && finalPriority !== 'Low') ? [
+            { id: Date.now(), stage: 'Grievance', description: `Initial threat logged via TIPS #${intakeTipsNum}`, date: new Date().toISOString().split('T')[0] }
           ] : []
         };
 
@@ -399,8 +430,13 @@
         setSelectedCaseId(newCase.id);
         setShowNewIntakeModal(false);
 
+        // Reset Modal Form
+        setUploadedTipsFile(null);
+        setUploadedTriageFile(null);
+        setDetectedTriageScore('Pending Triage');
+
         // Route to correct tab
-        if (!performTriageInForm) setMainTab('noTriage');
+        if (!isTriageProvided) setMainTab('noTriage');
         else if (finalPriority === 'Low') setMainTab('low');
         else setMainTab('active');
       };
@@ -444,7 +480,7 @@
                 onClick={() => setShowNewIntakeModal(true)}
                 className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all shadow-md shadow-blue-600/20"
               >
-                + New Threat Intake (TIPS PDF)
+                + New Threat Intake (TIPS & Triage PDF)
               </button>
             </div>
           </header>
@@ -606,7 +642,7 @@
                               {currentCase.triagePriority}
                             </span>
 
-                            {/* CLOSE CASE BUTTON (Available for all open cases) */}
+                            {/* CLOSE CASE BUTTON */}
                             {currentCase.caseStatus !== 'Closed' && (
                               <button
                                 onClick={() => setShowCloseCaseModal(true)}
@@ -621,6 +657,51 @@
                                 Closed on {currentCase.closeDate || 'N/A'}
                               </span>
                             )}
+                          </div>
+                        </div>
+
+                        {/* ACCESSIBLE INTAKE DOCUMENTS PANEL (TIPS PDF & TRIAGE FORM PDF) */}
+                        <div className="bg-slate-950 p-3.5 rounded-lg border border-slate-800 space-y-2">
+                          <span className="text-[10px] text-slate-400 uppercase font-semibold tracking-wider block">
+                            Intake Files & Triage Records (Accessible Across All Views)
+                          </span>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                            {/* TIPS PDF LINK */}
+                            <div className="flex items-center justify-between p-2 bg-slate-900 border border-slate-800 rounded">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-blue-400 font-bold">📄</span>
+                                <div>
+                                  <span className="font-semibold text-slate-200 block truncate max-w-[180px]">
+                                    {currentCase.intakeFiles?.tipsPdf?.name || 'TIPS_Report_Document.pdf'}
+                                  </span>
+                                  <span className="text-[10px] text-slate-500 font-mono">TIPS Incident Report PDF</span>
+                                </div>
+                              </div>
+                              <button onClick={() => alert(`Opening ${currentCase.intakeFiles?.tipsPdf?.name || 'TIPS PDF'}`)} className="text-blue-400 hover:text-blue-300 underline font-medium text-[11px]">
+                                View / PDF
+                              </button>
+                            </div>
+
+                            {/* TRIAGE FORM PDF LINK */}
+                            <div className="flex items-center justify-between p-2 bg-slate-900 border border-slate-800 rounded">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-purple-400 font-bold">📋</span>
+                                <div>
+                                  <span className="font-semibold text-slate-200 block truncate max-w-[180px]">
+                                    {currentCase.intakeFiles?.triagePdf?.name || 'Pending_Triage_Upload.pdf'}
+                                  </span>
+                                  <span className="text-[10px] text-slate-500 font-mono">
+                                    {currentCase.intakeFiles?.triagePdf ? `Triage Form (${currentCase.intakeFiles.triagePdf.scoreDetected} Risk)` : 'No Triage Form Attached'}
+                                  </span>
+                                </div>
+                              </div>
+                              {currentCase.intakeFiles?.triagePdf && (
+                                <button onClick={() => alert(`Opening ${currentCase.intakeFiles.triagePdf.name}`)} className="text-purple-400 hover:text-purple-300 underline font-medium text-[11px]">
+                                  View / PDF
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
 
@@ -656,18 +737,6 @@
                             <span className="font-semibold text-slate-200">{currentCase.lastTeamContactDate}</span>
                           </div>
                         </div>
-
-                        {/* Historical Records Notice */}
-                        {currentCase.previousTovHistory && currentCase.previousTovHistory.length > 0 && (
-                          <div className="bg-amber-950/30 border border-amber-900/60 p-3 rounded text-xs space-y-1">
-                            <span className="font-bold text-amber-300">Prior System Incident History (Auto-Linked to Records Review):</span>
-                            {currentCase.previousTovHistory.map((h, i) => (
-                              <p key={i} className="text-slate-300">
-                                • <span className="font-mono text-slate-400">{h.date}:</span> {h.brief} (Action: {h.actionTaken})
-                              </p>
-                            ))}
-                          </div>
-                        )}
                       </div>
 
                       {/* PATHWAY TO VIOLENCE TRACKER FOR MEDIUM & HIGH CASES */}
@@ -708,7 +777,7 @@
                         </div>
                       )}
 
-                      {/* 360-DEGREE ASSESSMENT DOCUMENT VAULT WITH DYNAMIC COLOR BUTTONS */}
+                      {/* 360-DEGREE ASSESSMENT DOCUMENT VAULT */}
                       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
                         <div className="flex justify-between items-center">
                           <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
@@ -718,7 +787,7 @@
                           <span className="text-[11px] text-slate-400">RED = Empty | BLUE = Document Uploaded</span>
                         </div>
 
-                        {/* 4 DYNAMIC CATEGORY TABS (RED IF EMPTY, BLUE IF HAS DOCUMENTS) */}
+                        {/* 4 DYNAMIC CATEGORY TABS */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                           {[
                             { key: 'studentInterview', label: 'Student Interview' },
@@ -754,7 +823,6 @@
                               {activeDocTab.replace(/([A-Z])/g, ' $1')} Files
                             </span>
 
-                            {/* FILE UPLOAD BUTTON */}
                             <label className="cursor-pointer bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-medium transition-colors">
                               + Upload to {activeDocTab.replace(/([A-Z])/g, ' $1')}
                               <input
@@ -836,21 +904,55 @@
             )}
           </main>
 
-          {/* NEW INTAKE MODAL */}
+          {/* NEW INTAKE MODAL (PARSES TIPS PDF & TRIAGE FORM PDF) */}
           {showNewIntakeModal && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
                 <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                  <h3 className="text-base font-bold text-slate-100">Upload TIPS Report PDF & Open Case</h3>
+                  <h3 className="text-base font-bold text-slate-100">New Threat Intake (Upload TIPS Report & Triage PDF)</h3>
                   <button onClick={() => setShowNewIntakeModal(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
                 </div>
 
                 <form onSubmit={handleCreateCase} className="space-y-4 text-xs">
-                  <div className="border-2 border-dashed border-slate-700 p-4 rounded-lg text-center bg-slate-950/50">
-                    <p className="font-semibold text-slate-200 mb-1">Upload TIPS Report PDF</p>
-                    <input type="file" accept="application/pdf" onChange={handleTipsFileUpload} className="text-xs text-slate-400" />
+                  {/* DUAL PDF UPLOAD ZONE */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {/* 1. TIPS REPORT PDF UPLOADER */}
+                    <div className="border-2 border-dashed border-slate-700 hover:border-blue-500 p-4 rounded-lg text-center bg-slate-950/50">
+                      <span className="text-2xl block mb-1">📄</span>
+                      <p className="font-semibold text-slate-200 mb-1">Upload TIPS Report PDF</p>
+                      <p className="text-[10px] text-slate-400 mb-2">Auto-extracts Student Name, ID#, & Brief</p>
+                      <input type="file" accept="application/pdf" onChange={handleTipsFileUpload} className="text-xs text-slate-400 w-full" />
+                      {uploadedTipsFile && <p className="mt-2 text-blue-400 text-[10px] font-mono">Loaded: {uploadedTipsFile.name}</p>}
+                    </div>
+
+                    {/* 2. TRIAGE FORM PDF UPLOADER */}
+                    <div className="border-2 border-dashed border-slate-700 hover:border-purple-500 p-4 rounded-lg text-center bg-slate-950/50">
+                      <span className="text-2xl block mb-1">📋</span>
+                      <p className="font-semibold text-slate-200 mb-1">Upload Threat Triage PDF</p>
+                      <p className="text-[10px] text-slate-400 mb-2">App analyzes score & checks automatically</p>
+                      <input type="file" accept="application/pdf" onChange={handleTriageFileUpload} className="text-xs text-slate-400 w-full" />
+                      {uploadedTriageFile && <p className="mt-2 text-purple-400 text-[10px] font-mono">Loaded: {uploadedTriageFile.name}</p>}
+                    </div>
                   </div>
 
+                  {/* AUTOMATED ANALYSIS SUMMARY BANNER */}
+                  {uploadedTriageFile && (
+                    <div className="p-3 bg-slate-950 border border-slate-800 rounded flex justify-between items-center">
+                      <div>
+                        <span className="text-slate-400 block text-[10px]">Triage PDF Analysis Outcome</span>
+                        <span className="font-bold text-slate-200">Extracted Risk Level Score</span>
+                      </div>
+                      <span className={`px-3 py-1 rounded font-bold text-xs ${
+                        detectedTriageScore === 'High' ? 'bg-red-950 text-red-300 border border-red-800' :
+                        detectedTriageScore === 'Medium' ? 'bg-yellow-950 text-yellow-300 border border-yellow-800' :
+                        'bg-slate-800 text-slate-300 border border-slate-700'
+                      }`}>
+                        {detectedTriageScore} Risk Level
+                      </span>
+                    </div>
+                  )}
+
+                  {/* PARSED FORM FIELDS */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-slate-400 block mb-1">Perpetrator Student Name</label>
@@ -862,74 +964,38 @@
                     </div>
                   </div>
 
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-slate-400 block mb-1">School Location</label>
+                      <input type="text" value={intakeSchool} onChange={(e) => setIntakeSchool(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                    </div>
+                    <div>
+                      <label className="text-slate-400 block mb-1">TIPS Report Number</label>
+                      <input type="text" value={intakeTipsNum} onChange={(e) => setIntakeTipsNum(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                    </div>
+                  </div>
+
                   <div>
-                    <label className="text-slate-400 block mb-1">Generated Threat Brief (Editable)</label>
+                    <label className="text-slate-400 block mb-1">Generated 1-Sentence Threat Brief (Editable)</label>
                     <textarea rows="2" value={intakeBrief} onChange={(e) => setIntakeBrief(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                   </div>
 
-                  {/* TRIAGE OPTION TOGGLE */}
-                  <div className="flex items-center space-x-2 pt-2 border-t border-slate-800">
-                    <input
-                      type="checkbox"
-                      id="triageToggle"
-                      checked={performTriageInForm}
-                      onChange={(e) => setPerformTriageInForm(e.target.checked)}
-                      className="rounded bg-slate-950 border-slate-800"
-                    />
-                    <label htmlFor="triageToggle" className="text-slate-200 font-semibold">Perform Triage Calculation Now?</label>
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div className="flex items-center space-x-2">
+                      <input type="checkbox" id="iepCheck" checked={intakeIsIep} onChange={(e) => setIntakeIsIep(e.target.checked)} className="rounded bg-slate-950 border-slate-800 text-blue-600" />
+                      <label htmlFor="iepCheck" className="text-slate-300 font-semibold">Student on IEP (OESS Flag)</label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input type="checkbox" id="suspensionCheck" checked={intakeSuspended} onChange={(e) => setIntakeSuspended(e.target.checked)} className="rounded bg-slate-950 border-slate-800 text-blue-600" />
+                      <label htmlFor="suspensionCheck" className="text-slate-300">OSS Suspension Active?</label>
+                    </div>
                   </div>
 
-                  {performTriageInForm && (
-                    <div className="space-y-3 pt-2">
-                      <h4 className="font-bold text-slate-200">Threats of Violence Triage Criteria</h4>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="text-slate-400 block mb-1">1. Plan Specificity</label>
-                          <select value={triageScores.item1_plan} onChange={(e) => setTriageScores({...triageScores, item1_plan: e.target.value})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
-                            <option value="1">Low: Vague</option>
-                            <option value="2">Medium: Some Specifics</option>
-                            <option value="3">High: Well thought out</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="text-slate-400 block mb-1">1a. Grievance Motive</label>
-                          <select value={triageScores.item1a_grievance} onChange={(e) => setTriageScores({...triageScores, item1a_grievance: e.target.value})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
-                            <option value="1">Low: General / No Target</option>
-                            <option value="2">Medium: Group Target</option>
-                            <option value="3">High: Specific Individual</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="text-slate-400 block mb-1">2. Weapon Access</label>
-                          <select value={triageScores.item2_weapons} onChange={(e) => setTriageScores({...triageScores, item2_weapons: e.target.value})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
-                            <option value="1">Low: Unavailable</option>
-                            <option value="2">Medium: Ability to obtain</option>
-                            <option value="3">High: Easy Access / In hand</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="text-slate-400 block mb-1">3. Time Imminence</label>
-                          <select value={triageScores.item3_time} onChange={(e) => setTriageScores({...triageScores, item3_time: e.target.value})} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
-                            <option value="1">Low: No specific time</option>
-                            <option value="2">Medium: Within a few hours</option>
-                            <option value="3">High: Immediate</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="p-3 bg-slate-950 rounded border border-slate-800 flex justify-between items-center">
-                        <span className="font-bold text-slate-300">Calculated Triage Level:</span>
-                        <span className={`px-3 py-1 rounded font-bold text-xs ${
-                          calculatedRisk === 'High' ? 'bg-red-950 text-red-300 border border-red-800' :
-                          calculatedRisk === 'Medium' ? 'bg-yellow-950 text-yellow-300 border border-yellow-800' :
-                          'bg-slate-800 text-slate-300 border border-slate-700'
-                        }`}>
-                          {calculatedRisk} Risk
-                        </span>
-                      </div>
+                  {intakeSuspended && (
+                    <div>
+                      <label className="text-slate-400 block mb-1">OSS Re-entry Date</label>
+                      <input type="date" value={intakeReEntryDate} onChange={(e) => setIntakeReEntryDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                     </div>
                   )}
 
