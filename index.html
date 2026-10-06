@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OKCPS BTAM - Student Behavioral Threat Assessment Portal</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -28,17 +27,17 @@
         <div class="bg-blue-600 text-white p-2 rounded-lg font-black tracking-widest text-sm">OKCPS</div>
         <div>
           <h1 class="text-lg font-bold leading-tight">BTAM & CSTAG Portal</h1>
-          <p class="text-xs text-slate-400">Behavioral Threat Assessment & Management System</p>
+          <p class="text-xs text-slate-400">Behavioral Threat Assessment & Management</p>
         </div>
       </div>
       <div class="flex items-center gap-3">
-        <select id="userRole" class="bg-slate-900 text-xs border border-slate-700 rounded-md px-2 py-1 text-slate-300 focus:outline-none">
+        <select id="userRole" class="bg-slate-900 text-xs border border-slate-700 rounded-md px-2 py-1 text-slate-300">
           <option value="lead">Role: Team Lead / Admin</option>
           <option value="member">Role: Assessment Member</option>
           <option value="viewer">Role: Read-Only / Auditor</option>
         </select>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-950 text-emerald-400 border border-emerald-800">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> FERPA / HIPAA Compliant Mode
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> FERPA / HIPAA Compliant
         </span>
       </div>
     </div>
@@ -46,7 +45,7 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-    <!-- Top Dashboard Matrix Summary -->
+    <!-- Top Dashboard Statistics -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-md">
         <span class="text-xs text-slate-400 uppercase font-semibold">Active BTAM Cases</span>
@@ -70,78 +69,14 @@
       </div>
     </div>
 
-    <!-- STUDENT CASE DASHBOARD TABLE -->
-    <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-700 pb-4">
-        <div>
-          <h2 class="text-lg font-bold text-white">Student Case Dashboard</h2>
-          <p class="text-xs text-slate-400">Manage, filter, and review active behavioral threat assessment cases.</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <input type="text" id="caseSearch" onkeyup="filterCases()" placeholder="Search student name or ID..." class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 w-60">
-          <select id="riskFilter" onchange="filterCases()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-300 focus:outline-none">
-            <option value="all">All Risk Levels</option>
-            <option value="Transient">Transient</option>
-            <option value="Substantive">Substantive</option>
-          </select>
-          <button type="button" onclick="alert('Opening New BTAM Intake Form...')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg transition-colors font-medium">+ New Case</button>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs text-slate-300 border-collapse" id="caseTable">
-          <thead>
-            <tr class="border-b border-slate-700 text-slate-400 bg-slate-900/50">
-              <th class="p-3">Student Name / ID</th>
-              <th class="p-3">School / Location</th>
-              <th class="p-3">Threat Level</th>
-              <th class="p-3">CSTAG Step</th>
-              <th class="p-3">Pathway Stage</th>
-              <th class="p-3">Suspension Status</th>
-              <th class="p-3 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-700/60">
-            <tr class="hover:bg-slate-700/30 transition-colors">
-              <td class="p-3 font-semibold text-white">Doe, John (#10492)</td>
-              <td class="p-3 text-slate-400">NW Classen High</td>
-              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-950 text-teal-400 border border-teal-800">Transient</span></td>
-              <td class="p-3 text-slate-300">Step 5 (Support Plan)</td>
-              <td class="p-3"><span class="text-blue-400 font-medium">1. Grievance</span></td>
-              <td class="p-3"><span class="text-slate-400">Active in Class</span></td>
-              <td class="p-3 text-right"><button type="button" class="text-blue-400 hover:underline">Select Case</button></td>
-            </tr>
-            <tr class="hover:bg-slate-700/30 transition-colors">
-              <td class="p-3 font-semibold text-white">Smith, Alex (#88392)</td>
-              <td class="p-3 text-slate-400">Classen SAS High</td>
-              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950 text-rose-400 border border-rose-800">Substantive</span></td>
-              <td class="p-3 text-slate-300">Step 8 (Safety Plan)</td>
-              <td class="p-3"><span class="text-amber-400 font-medium">3. Research & Plan</span></td>
-              <td class="p-3"><span class="text-rose-400 font-semibold">Suspended (Re-entry: Oct 12)</span></td>
-              <td class="p-3 text-right"><button type="button" class="text-blue-400 hover:underline">Select Case</button></td>
-            </tr>
-            <tr class="hover:bg-slate-700/30 transition-colors">
-              <td class="p-3 font-semibold text-white">Johnson, Chris (#92014)</td>
-              <td class="p-3 text-slate-400">Capitol Hill High</td>
-              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-950 text-teal-400 border border-teal-800">Transient</span></td>
-              <td class="p-3 text-slate-300">Step 10 (Closure Review)</td>
-              <td class="p-3"><span class="text-teal-400 font-medium">2. Ideation</span></td>
-              <td class="p-3"><span class="text-slate-400">Active in Class</span></td>
-              <td class="p-3 text-right"><button type="button" class="text-blue-400 hover:underline">Select Case</button></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- TIPS Report PDF Parser Intake -->
+    <!-- TIPS Report PDF Intake Parser -->
     <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
       <div class="flex justify-between items-center border-b border-slate-700 pb-3">
         <div>
           <h2 class="text-lg font-bold text-white">TIPS Report Intake & PDF Parser</h2>
-          <p class="text-xs text-slate-400">Import or upload TIPS report documentation to auto-populate intake details.</p>
+          <p class="text-xs text-slate-400">Upload or import anonymous TIPS report documentation to auto-populate intake fields.</p>
         </div>
-        <button type="button" onclick="simulatePdfParse()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg transition-colors">
+        <button onclick="simulatePdfParse()" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg transition-colors">
           📄 Auto-Parse Sample TIPS PDF
         </button>
       </div>
@@ -161,7 +96,7 @@
       </div>
     </section>
 
-    <!-- Customized Pathway to Violence Stages -->
+    <!-- Custom Pathway to Violence Stages -->
     <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl">
       <div class="flex items-center justify-between mb-4">
         <div>
@@ -207,20 +142,20 @@
     <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
       <h2 class="text-lg font-bold text-white">10-Step CSTAG Decision Tree & Workflow</h2>
       <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
-        <button type="button" class="p-2.5 rounded bg-blue-600 text-white font-semibold text-center">1. Incident Report</button>
-        <button type="button" class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 text-center">2. Interview Key Parties</button>
-        <button type="button" class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 text-center">3. Evaluate Threat Level</button>
-        <button type="button" class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 text-center">4. Transient vs Substantive</button>
-        <button type="button" class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 text-center">5. Respond to Transient</button>
-        <button type="button" class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 text-center">6. Serious Substantive</button>
-        <button type="button" class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 text-center">7. Very Serious Substantive</button>
-        <button type="button" class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 text-center">8. Safety Plan Dev</button>
-        <button type="button" class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 text-center">9. Implement Supports</button>
-        <button type="button" class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 text-center">10. Case Review / Close</button>
+        <button class="p-2.5 rounded bg-blue-600 text-white font-semibold">1. Incident Report</button>
+        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">2. Interview Key Parties</button>
+        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">3. Evaluate Threat Level</button>
+        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">4. Transient vs Substantive</button>
+        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">5. Respond to Transient</button>
+        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">6. Serious Substantive</button>
+        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">7. Very Serious Substantive</button>
+        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">8. Safety Plan Dev</button>
+        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">9. Implement Supports</button>
+        <button class="p-2.5 rounded bg-slate-700 text-slate-300 hover:bg-slate-600">10. Case Review / Close</button>
       </div>
     </section>
 
-    <!-- Team Outreach & Suspension Trackers -->
+    <!-- Outreach & Suspension Management -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
       
       <!-- Module A: Team Outreach Log -->
@@ -241,13 +176,13 @@
           </div>
           <div>
             <label class="block text-xs text-slate-300 mb-1">Outreach Notes / Recipient Team Members</label>
-            <input type="text" id="outreachNotes" placeholder="e.g., Emailed Special Ed Director & Psychologist" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white">
+            <input type="text" id="outreachNotes" placeholder="e.g. Emailed Special Ed Director & Psychologist" class="w-full bg-slate-900 border border-slate-700 rounded px-3 py-2 text-sm text-white">
           </div>
           <div class="p-3 bg-slate-900/60 rounded-lg border border-slate-700 text-xs text-slate-300 flex justify-between">
             <span>Days Elapsed: <strong id="daysElapsed" class="text-white">0 days</strong></span>
             <span>Next Follow-Up: <strong id="nextFollowUp" class="text-blue-400">--</strong></span>
           </div>
-          <button type="button" onclick="logOutreachNow()" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-lg transition-colors">
+          <button onclick="logOutreachNow()" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-lg">
             📅 Log Team Outreach Timestamp (Now)
           </button>
         </div>
@@ -285,7 +220,7 @@
               <label for="reentryMeetingDone" class="text-xs text-slate-300">Safety & Re-Entry Plan Meeting completed prior to return</label>
             </div>
           </div>
-          <button type="button" onclick="saveSuspensionData()" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium text-xs rounded-lg border border-slate-600 transition-colors">
+          <button onclick="saveSuspensionData()" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium text-xs rounded-lg border border-slate-600">
             💾 Save Suspension & Re-entry Log
           </button>
         </div>
@@ -293,7 +228,7 @@
 
     </div>
 
-    <!-- Integrated Support & Safety Plans -->
+    <!-- Safety & Support Plan Management -->
     <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-6">
       <div class="border-b border-slate-700 pb-3">
         <h2 class="text-lg font-bold text-white">Integrated Support & Safety Plans</h2>
@@ -301,7 +236,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Support Plan (Transient Risk) -->
+        <!-- Support Plan (Transient) -->
         <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-5 space-y-4">
           <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-teal-400">Support Plan (Transient Risk)</h3>
@@ -323,7 +258,7 @@
           </div>
         </div>
 
-        <!-- Safety Plan (Substantive Risk) -->
+        <!-- Safety Plan (Substantive) -->
         <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-5 space-y-4">
           <div class="flex items-center justify-between">
             <h3 class="text-sm font-bold text-rose-400">Safety Plan (Substantive Risk)</h3>
@@ -347,7 +282,7 @@
       </div>
     </section>
 
-    <!-- Target / Victim (TOV) Audit Log -->
+    <!-- Historical Target / Victim (TOV) Audit Log -->
     <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
       <h2 class="text-lg font-bold text-white">Historical Target or Victim (TOV) Audit Log</h2>
       <div class="overflow-x-auto">
@@ -380,35 +315,13 @@
 
   </main>
 
-  <!-- Client JavaScript -->
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var now = new Date();
+    document.addEventListener('DOMContentLoaded', () => {
+      const now = new Date();
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-      var dateInput = document.getElementById('lastOutreachDate');
-      if (dateInput) {
-        dateInput.value = now.toISOString().slice(0, 16);
-      }
+      document.getElementById('lastOutreachDate').value = now.toISOString().slice(0, 16);
       updateOutreachTracker();
     });
-
-    function filterCases() {
-      var searchVal = document.getElementById('caseSearch').value.toLowerCase();
-      var riskVal = document.getElementById('riskFilter').value;
-      var rows = document.querySelectorAll('#caseTable tbody tr');
-
-      rows.forEach(function(row) {
-        var text = row.innerText.toLowerCase();
-        var matchesSearch = text.includes(searchVal);
-        var matchesRisk = (riskVal === 'all') || text.includes(riskVal.toLowerCase());
-
-        if (matchesSearch && matchesRisk) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
-      });
-    }
 
     function simulatePdfParse() {
       document.getElementById('tipsStudent').value = 'Student #88392 (Jane Doe)';
@@ -418,48 +331,40 @@
     }
 
     function logOutreachNow() {
-      var now = new Date();
+      const now = new Date();
       now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-      var dateInput = document.getElementById('lastOutreachDate');
-      if (dateInput) {
-        dateInput.value = now.toISOString().slice(0, 16);
-      }
+      document.getElementById('lastOutreachDate').value = now.toISOString().slice(0, 16);
       updateOutreachTracker();
       alert('Outreach timestamp updated!');
     }
 
     function updateOutreachTracker() {
-      var dateVal = document.getElementById('lastOutreachDate').value;
+      const dateVal = document.getElementById('lastOutreachDate').value;
       if (!dateVal) return;
-      var lastDate = new Date(dateVal);
-      var today = new Date();
-      var diffTime = Math.abs(today - lastDate);
-      var diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      const lastDate = new Date(dateVal);
+      const today = new Date();
+      const diffTime = Math.abs(today - lastDate);
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-      var daysElem = document.getElementById('daysElapsed');
-      if (daysElem) daysElem.textContent = diffDays + ' day(s) ago';
-
-      var followUp = new Date(lastDate);
+      document.getElementById('daysElapsed').textContent = `${diffDays} day(s) ago`;
+      const followUp = new Date(lastDate);
       followUp.setDate(followUp.getDate() + 5);
-      var followElem = document.getElementById('nextFollowUp');
-      if (followElem) followElem.textContent = followUp.toLocaleDateString();
+      document.getElementById('nextFollowUp').textContent = followUp.toLocaleDateString();
 
-      var badge = document.getElementById('outreachBadge');
-      if (badge) {
-        if (diffDays >= 5) {
-          badge.textContent = '⚠️ Follow-up Overdue';
-          badge.className = 'px-2.5 py-1 text-xs font-semibold rounded-md bg-amber-950 text-amber-400 border border-amber-800 animate-pulse';
-        } else {
-          badge.textContent = 'Up to date';
-          badge.className = 'px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-950 text-emerald-400 border border-emerald-800';
-        }
+      const badge = document.getElementById('outreachBadge');
+      if (diffDays >= 5) {
+        badge.textContent = '⚠️ Follow-up Overdue';
+        badge.className = 'px-2.5 py-1 text-xs font-semibold rounded-md bg-amber-950 text-amber-400 border border-amber-800 animate-pulse';
+      } else {
+        badge.textContent = 'Up to date';
+        badge.className = 'px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-950 text-emerald-400 border border-emerald-800';
       }
     }
 
     function toggleSuspensionFields() {
-      var isChecked = document.getElementById('isSuspended').checked;
-      var fields = document.getElementById('suspensionFields');
-      var badge = document.getElementById('suspensionStatusBadge');
+      const isChecked = document.getElementById('isSuspended').checked;
+      const fields = document.getElementById('suspensionFields');
+      const badge = document.getElementById('suspensionStatusBadge');
 
       if (isChecked) {
         fields.classList.remove('opacity-50', 'pointer-events-none');
@@ -473,9 +378,9 @@
     }
 
     function saveSuspensionData() {
-      var isChecked = document.getElementById('isSuspended').checked;
-      var startDate = document.getElementById('suspensionStartDate').value;
-      var reentryDate = document.getElementById('reentryDate').value;
+      const isChecked = document.getElementById('isSuspended').checked;
+      const startDate = document.getElementById('suspensionStartDate').value;
+      const reentryDate = document.getElementById('reentryDate').value;
 
       if (isChecked && (!startDate || !reentryDate)) {
         alert('Please select both the Suspension Start Date and Expected Re-Entry Date.');
