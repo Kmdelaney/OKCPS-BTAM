@@ -21,7 +21,7 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
 
-  <!-- Application Header -->
+  <!-- Header -->
   <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50 shadow-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -38,7 +38,7 @@
           <option value="viewer">Role: Read-Only / Auditor</option>
         </select>
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-950 text-emerald-400 border border-emerald-800">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> FERPA / HIPAA Compliant
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> FERPA / HIPAA Compliant Mode
         </span>
       </div>
     </div>
@@ -46,7 +46,7 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-    <!-- Top Dashboard Matrix -->
+    <!-- Top Dashboard Matrix Summary -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 shadow-md">
         <span class="text-xs text-slate-400 uppercase font-semibold">Active BTAM Cases</span>
@@ -69,6 +69,70 @@
         <span class="text-xs text-slate-400 mt-1">Comprehensive Assessment</span>
       </div>
     </div>
+
+    <!-- STUDENT CASE DASHBOARD TABLE -->
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-700 pb-4">
+        <div>
+          <h2 class="text-lg font-bold text-white">Student Case Dashboard</h2>
+          <p class="text-xs text-slate-400">Manage, filter, and review active behavioral threat assessment cases.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="text" id="caseSearch" onkeyup="filterCases()" placeholder="Search student name or ID..." class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 w-60">
+          <select id="riskFilter" onchange="filterCases()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-300 focus:outline-none">
+            <option value="all">All Risk Levels</option>
+            <option value="Transient">Transient</option>
+            <option value="Substantive">Substantive</option>
+          </select>
+          <button type="button" onclick="alert('Opening New BTAM Intake Form...')" class="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded-lg transition-colors font-medium">+ New Case</button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-300 border-collapse" id="caseTable">
+          <thead>
+            <tr class="border-b border-slate-700 text-slate-400 bg-slate-900/50">
+              <th class="p-3">Student Name / ID</th>
+              <th class="p-3">School / Location</th>
+              <th class="p-3">Threat Level</th>
+              <th class="p-3">CSTAG Step</th>
+              <th class="p-3">Pathway Stage</th>
+              <th class="p-3">Suspension Status</th>
+              <th class="p-3 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-700/60">
+            <tr class="hover:bg-slate-700/30 transition-colors">
+              <td class="p-3 font-semibold text-white">Doe, John (#10492)</td>
+              <td class="p-3 text-slate-400">NW Classen High</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-950 text-teal-400 border border-teal-800">Transient</span></td>
+              <td class="p-3 text-slate-300">Step 5 (Support Plan)</td>
+              <td class="p-3"><span class="text-blue-400 font-medium">1. Grievance</span></td>
+              <td class="p-3"><span class="text-slate-400">Active in Class</span></td>
+              <td class="p-3 text-right"><button type="button" class="text-blue-400 hover:underline">Select Case</button></td>
+            </tr>
+            <tr class="hover:bg-slate-700/30 transition-colors">
+              <td class="p-3 font-semibold text-white">Smith, Alex (#88392)</td>
+              <td class="p-3 text-slate-400">Classen SAS High</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950 text-rose-400 border border-rose-800">Substantive</span></td>
+              <td class="p-3 text-slate-300">Step 8 (Safety Plan)</td>
+              <td class="p-3"><span class="text-amber-400 font-medium">3. Research & Plan</span></td>
+              <td class="p-3"><span class="text-rose-400 font-semibold">Suspended (Re-entry: Oct 12)</span></td>
+              <td class="p-3 text-right"><button type="button" class="text-blue-400 hover:underline">Select Case</button></td>
+            </tr>
+            <tr class="hover:bg-slate-700/30 transition-colors">
+              <td class="p-3 font-semibold text-white">Johnson, Chris (#92014)</td>
+              <td class="p-3 text-slate-400">Capitol Hill High</td>
+              <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-950 text-teal-400 border border-teal-800">Transient</span></td>
+              <td class="p-3 text-slate-300">Step 10 (Closure Review)</td>
+              <td class="p-3"><span class="text-teal-400 font-medium">2. Ideation</span></td>
+              <td class="p-3"><span class="text-slate-400">Active in Class</span></td>
+              <td class="p-3 text-right"><button type="button" class="text-blue-400 hover:underline">Select Case</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
     <!-- TIPS Report PDF Parser Intake -->
     <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
@@ -316,7 +380,7 @@
 
   </main>
 
-  <!-- Verified Client JavaScript -->
+  <!-- Client JavaScript -->
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       var now = new Date();
@@ -327,6 +391,24 @@
       }
       updateOutreachTracker();
     });
+
+    function filterCases() {
+      var searchVal = document.getElementById('caseSearch').value.toLowerCase();
+      var riskVal = document.getElementById('riskFilter').value;
+      var rows = document.querySelectorAll('#caseTable tbody tr');
+
+      rows.forEach(function(row) {
+        var text = row.innerText.toLowerCase();
+        var matchesSearch = text.includes(searchVal);
+        var matchesRisk = (riskVal === 'all') || text.includes(riskVal.toLowerCase());
+
+        if (matchesSearch && matchesRisk) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
 
     function simulatePdfParse() {
       document.getElementById('tipsStudent').value = 'Student #88392 (Jane Doe)';
