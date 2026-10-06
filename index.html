@@ -36,7 +36,6 @@
   <script type="text/babel">
     const { useState } = React;
 
-    // Pathway Stages & Colors
     const PATHWAY_STAGES = [
       { key: 'Grievance', label: 'Grievance', color: 'bg-blue-900 text-blue-200 border-blue-600' },
       { key: 'Violent Ideation', label: 'Violent Ideation', color: 'bg-teal-900 text-teal-200 border-teal-600' },
@@ -46,7 +45,12 @@
       { key: 'Attack', label: 'Attack', color: 'bg-red-900 text-red-200 border-red-600' }
     ];
 
-    // Seeded Dataset with Uploaded TIPS and Triage Files Attached
+    const createMockPdfBlobUrl = (title, details) => {
+      const pdfContent = `%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n4 0 obj\n<< /Length 120 >>\nstream\nBT\n/F1 16 Tf\n50 700 Td\n(${title}) Tj\n0 -30 Td\n/F1 10 Tf\n(${details}) Tj\nET\nendstream\nendobj\n5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000244 00000 n \n0000000415 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n492\n%%EOF`;
+      const blob = new Blob([pdfContent], { type: 'application/pdf' });
+      return URL.createObjectURL(blob);
+    };
+
     const INITIAL_CASES = [
       {
         id: '26-03093',
@@ -60,36 +64,36 @@
         triagePriority: 'High',
         triageCompleted: true,
         cstagClassification: 'Very Serious Substantive',
+        cstagDoc: { name: 'CSTAG_Determination_Jimenez_VSS.pdf', uploadDate: '2026-09-08', size: '740 KB', url: createMockPdfBlobUrl('CSTAG Determination', 'Classification: Very Serious Substantive') },
+        immediateResponse: { victimNotification: true, vulnerabilityReduction: true, conflictResolution: false },
+        planStatus: 'Support Plan Created',
+        planDoc: { name: 'Safety_Plan_Jorge_Jimenez.pdf', uploadDate: '2026-09-08', size: '1.2 MB', url: createMockPdfBlobUrl('Safety Plan', 'Student Safety Plan') },
+        planStartDate: '2026-09-08',
+        planEndDate: '2026-12-18',
+        planCheckinDate: '2026-10-12',
         isIep: false,
         suspended: true,
         reEntryDate: '2026-09-21',
         caseStatus: 'Active',
         closeDate: '',
-        planStartDate: '2026-09-08',
-        planNextMeeting: '2026-10-12',
-        planEndDate: '2026-12-18',
-        supportPlanStatus: 'Backpack search required upon school entry. No Contact Contracts established.',
         lastTeamContactDate: '2026-09-08',
         teamReachoutCount: 3,
         pastTovCount: 1,
-        previousTovHistory: [
-          { date: '2026-08-28', brief: 'Stolen ring incident resulting in OSS discipline.', actionTaken: 'OSS Assigned' }
-        ],
-        // TIPS and Triage Files saved per case
+        previousTovHistory: [{ date: '2026-08-28', brief: 'Stolen ring incident resulting in OSS discipline.', actionTaken: 'OSS Assigned' }],
         intakeFiles: {
-          tipsPdf: { name: 'TIPS_Report_26-03093_Jimenez.pdf', uploadDate: '2026-09-07', size: '1.4 MB' },
-          triagePdf: { name: 'JJ_Triage_HIGH.pdf', uploadDate: '2026-09-07', size: '620 KB', scoreDetected: 'High' }
+          tipsPdf: { name: 'TIPS_Report_26-03093_Jimenez.pdf', uploadDate: '2026-09-07', size: '1.4 MB', url: createMockPdfBlobUrl('TIPS Report #26-03093', 'Subject: Jorge Jimenez (ID: 345290)') },
+          triagePdf: { name: 'JJ_Triage_HIGH.pdf', uploadDate: '2026-09-07', size: '620 KB', scoreDetected: 'High', url: createMockPdfBlobUrl('Triage Form: JJ Triage - HIGH', 'Assessment: Very Serious Substantive Threat.') }
         },
         documents: {
-          studentInterview: [{ name: 'Jorge_Jimenez_Statement.pdf', uploadDate: '2026-09-08', size: '1.1 MB' }],
-          parentInterview: [], // Empty -> Red
-          witnessStatements: [{ name: 'Witness_Statement_Erick_Ruben.pdf', uploadDate: '2026-09-07', size: '890 KB' }],
-          recordsReview: [{ name: 'Instagram_Firearm_Screenshots.pdf', uploadDate: '2026-09-07', size: '4.2 MB' }]
+          studentInterview: [{ name: 'Jorge_Jimenez_Statement.pdf', uploadDate: '2026-09-08', size: '1.1 MB', url: createMockPdfBlobUrl('Student Statement', 'Jorge Jimenez interview notes.') }],
+          parentInterview: [],
+          witnessStatements: [{ name: 'Witness_Statement_Erick_Ruben.pdf', uploadDate: '2026-09-07', size: '890 KB', url: createMockPdfBlobUrl('Witness Statement', 'Erick Ruben witness report.') }],
+          recordsReview: [{ name: 'Instagram_Firearm_Screenshots.pdf', uploadDate: '2026-09-07', size: '4.2 MB', url: createMockPdfBlobUrl('Evidence', 'Instagram highlights screenshots.') }]
         },
         pathwayEvents: [
-          { id: 1, stage: 'Grievance', description: 'Peer dispute involving stolen ring and neighborhood altercation.', date: '2026-09-04' },
-          { id: 2, stage: 'Violent Ideation', description: 'Instagram highlights posted showing subject with firearms.', date: '2026-09-04' },
-          { id: 3, stage: 'Probing/Breaching', description: 'Targeted peers reported feeling watched and monitored online.', date: '2026-09-07' }
+          { id: 1, stage: 'Grievance', description: 'Peer dispute involving stolen ring during physical education class.', date: '2026-08-28' },
+          { id: 2, stage: 'Violent Ideation', description: 'Instagram highlights updated showing subject posing with firearms.', date: '2026-09-05' },
+          { id: 3, stage: 'Probing/Breaching', description: 'Targeted peers reported feeling watched and followed after school.', date: '2026-09-07' }
         ]
       },
       {
@@ -104,32 +108,35 @@
         triagePriority: 'High',
         triageCompleted: true,
         cstagClassification: 'Very Serious Substantive',
+        cstagDoc: null,
+        immediateResponse: { victimNotification: true, vulnerabilityReduction: false, conflictResolution: false },
+        planStatus: 'Meeting Scheduled',
+        planDoc: null,
+        planStartDate: '',
+        planEndDate: '',
+        planCheckinDate: '',
         isIep: true,
         suspended: true,
         reEntryDate: '2026-08-27',
         caseStatus: 'Monitored',
         closeDate: '',
-        planStartDate: '2026-08-27',
-        planNextMeeting: '2026-10-15',
-        planEndDate: '2026-12-18',
-        supportPlanStatus: 'Student hospitalized at CRC for 10 days. Safety plan active and under re-evaluation.',
         lastTeamContactDate: '2026-09-16',
         teamReachoutCount: 4,
         pastTovCount: 0,
         previousTovHistory: [],
         intakeFiles: {
-          tipsPdf: { name: 'TIPS_26-02602_GarciaReyes.pdf', uploadDate: '2026-08-12', size: '1.2 MB' },
-          triagePdf: { name: 'Triage_Worksheet_GarciaReyes_HIGH.pdf', uploadDate: '2026-08-12', size: '580 KB', scoreDetected: 'High' }
+          tipsPdf: { name: 'TIPS_26-02602_GarciaReyes.pdf', uploadDate: '2026-08-12', size: '1.2 MB', url: createMockPdfBlobUrl('TIPS Report #26-02602', 'Subject: Jesus Garcia-Reyes') },
+          triagePdf: { name: 'Triage_Worksheet_GarciaReyes_HIGH.pdf', uploadDate: '2026-08-12', size: '580 KB', scoreDetected: 'High', url: createMockPdfBlobUrl('Triage Form', 'Risk Score: High') }
         },
         documents: {
-          studentInterview: [{ name: 'Student_Interview_0812.pdf', uploadDate: '2026-08-13', size: '1.2 MB' }],
-          parentInterview: [{ name: 'Parent_Contact_Notes.pdf', uploadDate: '2026-08-13', size: '850 KB' }],
-          witnessStatements: [{ name: 'Witness_Statement_Raymond.pdf', uploadDate: '2026-08-14', size: '500 KB' }],
-          recordsReview: [{ name: 'CRC_Hospital_Release_Summary.pdf', uploadDate: '2026-08-25', size: '2.4 MB' }]
+          studentInterview: [{ name: 'Student_Interview_0812.pdf', uploadDate: '2026-08-13', size: '1.2 MB', url: createMockPdfBlobUrl('Interview', 'Student Interview notes.') }],
+          parentInterview: [{ name: 'Parent_Contact_Notes.pdf', uploadDate: '2026-08-13', size: '850 KB', url: createMockPdfBlobUrl('Parent Contact', 'Parent interview notes.') }],
+          witnessStatements: [{ name: 'Witness_Statement_Raymond.pdf', uploadDate: '2026-08-14', size: '500 KB', url: createMockPdfBlobUrl('Witness', 'Raymond statement.') }],
+          recordsReview: [{ name: 'CRC_Hospital_Release_Summary.pdf', uploadDate: '2026-08-25', size: '2.4 MB', url: createMockPdfBlobUrl('Records', 'Hospital summary.') }]
         },
         pathwayEvents: [
-          { id: 1, stage: 'Grievance', description: 'Conflict with student Raymond in cafeteria.', date: '2026-08-10' },
-          { id: 2, stage: 'Violent Ideation', description: 'Stated "Raymond does not deserve to live".', date: '2026-08-12' }
+          { id: 1, stage: 'Grievance', description: 'Verbal confrontation with student Raymond in cafeteria line.', date: '2026-08-10' },
+          { id: 2, stage: 'Violent Ideation', description: 'Stated directly to peer: "Raymond does not deserve to live".', date: '2026-08-12' }
         ]
       },
       {
@@ -144,147 +151,63 @@
         triagePriority: 'Medium',
         triageCompleted: true,
         cstagClassification: 'Transient Threat',
+        cstagDoc: null,
+        immediateResponse: { victimNotification: false, vulnerabilityReduction: false, conflictResolution: false },
+        planStatus: 'Support Plan Created',
+        planDoc: { name: 'Support_Plan_Elijah.pdf', uploadDate: '2026-09-30', size: '890 KB', url: createMockPdfBlobUrl('Support Plan', 'Transient Threat Support Plan') },
+        planStartDate: '2026-09-30',
+        planEndDate: '2026-11-30',
+        planCheckinDate: '2026-10-14',
         isIep: false,
         suspended: true,
         reEntryDate: '2026-09-03',
         caseStatus: 'Active',
         closeDate: '',
-        planStartDate: '2026-09-30',
-        planNextMeeting: '2026-10-14',
-        planEndDate: '2026-11-30',
-        supportPlanStatus: 'BIP draft finalized with parent on 9/23. BIP serving as support plan.',
         lastTeamContactDate: '2026-10-05',
         teamReachoutCount: 2,
         pastTovCount: 0,
         previousTovHistory: [],
         intakeFiles: {
-          tipsPdf: { name: 'TIPS_26-02880_Jameson.pdf', uploadDate: '2026-08-27', size: '1.1 MB' },
-          triagePdf: { name: 'Triage_Form_Jameson_MED.pdf', uploadDate: '2026-08-27', size: '510 KB', scoreDetected: 'Medium' }
+          tipsPdf: { name: 'TIPS_26-02880_Jameson.pdf', uploadDate: '2026-08-27', size: '1.1 MB', url: createMockPdfBlobUrl('TIPS Report #26-02880', 'Subject: Elijah Jameson') },
+          triagePdf: { name: 'Triage_Form_Jameson_MED.pdf', uploadDate: '2026-08-27', size: '510 KB', scoreDetected: 'Medium', url: createMockPdfBlobUrl('Triage Form', 'Risk Score: Medium') }
         },
         documents: {
-          studentInterview: [{ name: 'Elijah_Student_Interview.pdf', uploadDate: '2026-08-28', size: '1.0 MB' }],
-          parentInterview: [], // Empty -> Red
-          witnessStatements: [{ name: 'Staff_Witness_Statement.pdf', uploadDate: '2026-08-28', size: '650 KB' }],
-          recordsReview: [{ name: 'Elijah_Behavior_Logs.pdf', uploadDate: '2026-10-05', size: '2.0 MB' }]
+          studentInterview: [{ name: 'Elijah_Student_Interview.pdf', uploadDate: '2026-08-28', size: '1.0 MB', url: createMockPdfBlobUrl('Student Interview', 'Elijah statement.') }],
+          parentInterview: [],
+          witnessStatements: [{ name: 'Staff_Witness_Statement.pdf', uploadDate: '2026-08-28', size: '650 KB', url: createMockPdfBlobUrl('Witness Statement', 'Staff report.') }],
+          recordsReview: [{ name: 'Elijah_Behavior_Logs.pdf', uploadDate: '2026-10-05', size: '2.0 MB', url: createMockPdfBlobUrl('Records Review', 'Behavior logs.') }]
         },
         pathwayEvents: [
-          { id: 1, stage: 'Grievance', description: 'Disciplinary encounter with hall monitor.', date: '2026-08-26' },
-          { id: 2, stage: 'Violent Ideation', description: 'Threatened shooting via family member.', date: '2026-08-26' }
+          { id: 1, stage: 'Grievance', description: 'Disciplinary encounter with hall monitor over phone confiscation.', date: '2026-08-26' },
+          { id: 2, stage: 'Violent Ideation', description: 'Threatened shooting via family member in main office.', date: '2026-08-26' }
         ]
-      },
-      {
-        id: '26-02511',
-        studentName: 'Marcus Vance',
-        studentId: '1098421',
-        schoolLocation: 'NW Classen HS',
-        tovBrief: 'Verbal disagreement regarding athletic equipment.',
-        incidentDate: '2026-08-10',
-        dateReported: '2026-08-10',
-        tipsReportNum: '26-02511',
-        triagePriority: 'Low',
-        triageCompleted: true,
-        cstagClassification: 'Not a Threat',
-        isIep: false,
-        suspended: false,
-        reEntryDate: 'N/A',
-        caseStatus: 'Active',
-        closeDate: '',
-        planStartDate: '',
-        planNextMeeting: '',
-        planEndDate: '',
-        supportPlanStatus: 'Resolved at Triage. Restorative conference held.',
-        lastTeamContactDate: '2026-08-10',
-        teamReachoutCount: 1,
-        pastTovCount: 0,
-        previousTovHistory: [],
-        intakeFiles: {
-          tipsPdf: { name: 'TIPS_26-02511_Vance.pdf', uploadDate: '2026-08-10', size: '980 KB' },
-          triagePdf: { name: 'Triage_Worksheet_Vance_LOW.pdf', uploadDate: '2026-08-10', size: '420 KB', scoreDetected: 'Low' }
-        },
-        documents: { studentInterview: [], parentInterview: [], witnessStatements: [], recordsReview: [] },
-        pathwayEvents: []
-      },
-      {
-        id: '26-02588',
-        studentName: 'Tristan Capulin',
-        studentId: '351196',
-        schoolLocation: 'NW Classen HS',
-        tovBrief: 'Yelled at a group of students referencing a "dead homie" and "the score".',
-        incidentDate: '2026-08-11',
-        dateReported: '2026-08-11',
-        tipsReportNum: '26-02588',
-        triagePriority: 'Pending Triage',
-        triageCompleted: false,
-        cstagClassification: 'Pending Assessment',
-        isIep: false,
-        suspended: true,
-        reEntryDate: 'Pending',
-        caseStatus: 'Active',
-        closeDate: '',
-        planStartDate: '',
-        planNextMeeting: '',
-        planEndDate: '',
-        supportPlanStatus: 'Awaiting initial team activation and triage completion.',
-        lastTeamContactDate: '2026-08-11',
-        teamReachoutCount: 1,
-        pastTovCount: 0,
-        previousTovHistory: [],
-        intakeFiles: {
-          tipsPdf: { name: 'TIPS_26-02588_Capulin.pdf', uploadDate: '2026-08-11', size: '1.0 MB' },
-          triagePdf: null // Triage missing
-        },
-        documents: { studentInterview: [], parentInterview: [], witnessStatements: [], recordsReview: [] },
-        pathwayEvents: []
-      },
-      {
-        id: '26-02100',
-        studentName: 'Devon Scott',
-        studentId: '399812',
-        schoolLocation: 'Rogers MS',
-        tovBrief: 'Threatened student during hall transition.',
-        incidentDate: '2026-08-01',
-        dateReported: '2026-08-01',
-        tipsReportNum: '26-02100',
-        triagePriority: 'Low',
-        triageCompleted: true,
-        cstagClassification: 'Transient Threat',
-        isIep: false,
-        suspended: true,
-        reEntryDate: '2026-08-05',
-        caseStatus: 'Closed',
-        closeDate: '2026-08-05',
-        planStartDate: '2026-08-05',
-        planNextMeeting: '',
-        planEndDate: '2026-09-01',
-        supportPlanStatus: 'Closed Action Steps Taken: Student completed restorative mediation.',
-        lastTeamContactDate: '2026-08-05',
-        teamReachoutCount: 2,
-        pastTovCount: 0,
-        previousTovHistory: [],
-        intakeFiles: {
-          tipsPdf: { name: 'TIPS_26-02100_Scott.pdf', uploadDate: '2026-08-01', size: '890 KB' },
-          triagePdf: { name: 'Triage_Form_Scott_LOW.pdf', uploadDate: '2026-08-01', size: '390 KB', scoreDetected: 'Low' }
-        },
-        documents: { studentInterview: [], parentInterview: [], witnessStatements: [], recordsReview: [] },
-        pathwayEvents: []
       }
     ];
 
     function App() {
       const [cases, setCases] = useState(INITIAL_CASES);
-      const [mainTab, setMainTab] = useState('active'); // active, low, noTriage, closed, dashboard
+      const [mainTab, setMainTab] = useState('active'); // active, planTab, low, noTriage, closed, dashboard
       const [selectedCaseId, setSelectedCaseId] = useState(INITIAL_CASES[0].id);
       const [activeDocTab, setActiveDocTab] = useState('studentInterview');
+
+      // Viewer Modal
+      const [viewingDoc, setViewingDoc] = useState(null);
 
       // Modals
       const [showNewIntakeModal, setShowNewIntakeModal] = useState(false);
       const [showCloseCaseModal, setShowCloseCaseModal] = useState(false);
+      const [showAddPathwayModal, setShowAddPathwayModal] = useState(false);
+
+      // Pathway Add Form
+      const [newEventStage, setNewEventStage] = useState('Grievance');
+      const [newEventDesc, setNewEventDesc] = useState('');
+      const [newEventDate, setNewEventDate] = useState(new Date().toISOString().split('T')[0]);
 
       // Close Case Form
       const [closeCaseDate, setCloseCaseDate] = useState(new Date().toISOString().split('T')[0]);
       const [closeCaseNotes, setCloseCaseNotes] = useState('');
 
-      // New Intake Form Upload States
+      // New Intake Uploads
       const [uploadedTipsFile, setUploadedTipsFile] = useState(null);
       const [uploadedTriageFile, setUploadedTriageFile] = useState(null);
       const [detectedTriageScore, setDetectedTriageScore] = useState('Pending Triage');
@@ -301,31 +224,50 @@
 
       // Filtered Case Categories
       const activeMediumHighCases = cases.filter(c => c.triageCompleted && (c.triagePriority === 'Medium' || c.triagePriority === 'High') && c.caseStatus !== 'Closed');
+      const casesOnPlan = cases.filter(c => c.planStartDate && c.planStartDate.trim() !== '' && c.caseStatus !== 'Closed');
       const lowRiskCases = cases.filter(c => c.triageCompleted && c.triagePriority === 'Low' && c.caseStatus !== 'Closed');
       const openNoTriageCases = cases.filter(c => !c.triageCompleted && c.caseStatus !== 'Closed');
       const closedCases = cases.filter(c => c.caseStatus === 'Closed');
 
-      // Safely select active case
-      const currentCase = cases.find(c => c.id === selectedCaseId) || activeMediumHighCases[0] || openNoTriageCases[0] || cases[0];
+      const currentCase = cases.find(c => c.id === selectedCaseId) || activeMediumHighCases[0] || cases[0];
 
-      // Handle Document Upload per Category Tab
+      // AUTO-GENERATE PATHWAY EVENT ON 360 DOCUMENT UPLOAD
       const handleFileUpload = (category, e) => {
         const file = e.target.files[0];
         if (!file || !currentCase) return;
 
+        const fileUrl = URL.createObjectURL(file);
         const newDoc = {
           name: file.name,
           uploadDate: new Date().toISOString().split('T')[0],
-          size: `${(file.size / 1024).toFixed(0)} KB`
+          size: `${(file.size / 1024).toFixed(0)} KB`,
+          url: fileUrl
+        };
+
+        // Map Category to Pathway Stage
+        let mappedStage = 'Grievance';
+        if (category === 'studentInterview') mappedStage = 'Violent Ideation';
+        else if (category === 'parentInterview') mappedStage = 'Research & Planning';
+        else if (category === 'witnessStatements') mappedStage = 'Preparation';
+        else if (category === 'recordsReview') mappedStage = 'Probing/Breaching';
+
+        const autoPathwayEvent = {
+          id: Date.now(),
+          stage: mappedStage,
+          description: `Auto-Logged via 360 Upload (${category.replace(/([A-Z])/g, ' $1')}): ${file.name}`,
+          date: new Date().toISOString().split('T')[0]
         };
 
         const updatedCases = cases.map(c => {
           if (c.id === currentCase.id) {
-            const updatedDocs = {
-              ...c.documents,
-              [category]: [...(c.documents[category] || []), newDoc]
+            return {
+              ...c,
+              documents: {
+                ...c.documents,
+                [category]: [...(c.documents[category] || []), newDoc]
+              },
+              pathwayEvents: [...(c.pathwayEvents || []), autoPathwayEvent]
             };
-            return { ...c, documents: updatedDocs };
           }
           return c;
         });
@@ -333,52 +275,92 @@
         setCases(updatedCases);
       };
 
-      // TIPS PDF Parser Simulation
+      // Upload CSTAG Determination Document
+      const handleCstagDocUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file || !currentCase) return;
+        const fileUrl = URL.createObjectURL(file);
+        const newDoc = { name: file.name, uploadDate: new Date().toISOString().split('T')[0], size: `${(file.size / 1024).toFixed(0)} KB`, url: fileUrl };
+
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, cstagDoc: newDoc } : c));
+      };
+
+      // Upload Plan Document
+      const handlePlanDocUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file || !currentCase) return;
+        const fileUrl = URL.createObjectURL(file);
+        const newDoc = { name: file.name, uploadDate: new Date().toISOString().split('T')[0], size: `${(file.size / 1024).toFixed(0)} KB`, url: fileUrl };
+
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, planDoc: newDoc } : c));
+      };
+
+      // Update CSTAG Determination
+      const handleCstagChange = (classification) => {
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, cstagClassification: classification } : c));
+      };
+
+      // Toggle Immediate Response Checklist
+      const toggleImmediateCheck = (field) => {
+        if (!currentCase) return;
+        const currentChecks = currentCase.immediateResponse || { victimNotification: false, vulnerabilityReduction: false, conflictResolution: false };
+        const updatedChecks = { ...currentChecks, [field]: !currentChecks[field] };
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, immediateResponse: updatedChecks } : c));
+      };
+
+      // Update Plan Details
+      const updatePlanDetail = (field, val) => {
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, [field]: val } : c));
+      };
+
+      // Add Manual Pathway Event
+      const handleAddPathwayEvent = (e) => {
+        e.preventDefault();
+        if (!newEventDesc.trim() || !currentCase) return;
+
+        const newEvent = { id: Date.now(), stage: newEventStage, description: newEventDesc, date: newEventDate };
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, pathwayEvents: [...(c.pathwayEvents || []), newEvent] } : c));
+        setShowAddPathwayModal(false);
+        setNewEventDesc('');
+      };
+
+      // Intake Upload Handlers
       const handleTipsFileUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
-          setUploadedTipsFile(file);
+          const fileUrl = URL.createObjectURL(file);
+          setUploadedTipsFile({ file, url: fileUrl, name: file.name });
           setTimeout(() => {
-            setIntakeStudentName('Jorge Jimenez');
-            setIntakeStudentId('345290');
-            setIntakeSchool('Capitol Hill High School');
-            setIntakeTipsNum('26-03093');
-            setIntakeBrief('Reported online threats, firearm-related imagery on Instagram highlights, and alleged stalking/intimidation behavior toward peers.');
-            setIntakeSuspended(true);
-            setIntakeReEntryDate('2026-09-21');
+            setIntakeStudentName('Jorge Jimenez'); setIntakeStudentId('345290'); setIntakeSchool('Capitol Hill High School');
+            setIntakeTipsNum('26-03093'); setIntakeBrief('Reported online threats and firearm imagery.'); setIntakeSuspended(true); setIntakeReEntryDate('2026-09-21');
           }, 300);
         }
       };
 
-      // Triage PDF Analysis Parser Simulation
       const handleTriageFileUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
-          setUploadedTriageFile(file);
-          // Auto-detect score based on filename or contents simulation
+          const fileUrl = URL.createObjectURL(file);
+          setUploadedTriageFile({ file, url: fileUrl, name: file.name });
           setTimeout(() => {
             const fname = file.name.toUpperCase();
             if (fname.includes('HIGH')) setDetectedTriageScore('High');
             else if (fname.includes('MED')) setDetectedTriageScore('Medium');
             else if (fname.includes('LOW')) setDetectedTriageScore('Low');
-            else setDetectedTriageScore('High'); // Default calculated score from sample JJ Triage - HIGH.pdf
+            else setDetectedTriageScore('High');
           }, 300);
         }
       };
 
-      // Create New Case & Link Uploaded Documents
       const handleCreateCase = (e) => {
         e.preventDefault();
-        
-        // Check previous history
         const pastMatches = cases.filter(c => c.studentId === intakeStudentId && intakeStudentId.trim() !== '');
 
         const autoRecordsDocs = [];
         if (pastMatches.length > 0) {
           autoRecordsDocs.push({
-            name: `Prior_System_Incident_Summary_ID_${intakeStudentId}.pdf`,
-            uploadDate: new Date().toISOString().split('T')[0],
-            size: '520 KB'
+            name: `Prior_System_Incident_Summary_ID_${intakeStudentId}.pdf`, uploadDate: new Date().toISOString().split('T')[0], size: '520 KB',
+            url: createMockPdfBlobUrl(`Prior Records Summary - Student ID #${intakeStudentId}`, `Found ${pastMatches.length} historical case records.`)
           });
         }
 
@@ -387,80 +369,37 @@
 
         const newCase = {
           id: intakeTipsNum || `26-${Math.floor(1000 + Math.random() * 9000)}`,
-          studentName: intakeStudentName,
-          studentId: intakeStudentId,
-          schoolLocation: intakeSchool || 'OKCPS Campus',
-          tovBrief: intakeBrief,
-          incidentDate: new Date().toISOString().split('T')[0],
-          dateReported: new Date().toISOString().split('T')[0],
-          tipsReportNum: intakeTipsNum,
-          triagePriority: finalPriority,
-          triageCompleted: isTriageProvided,
-          cstagClassification: !isTriageProvided ? 'Pending Assessment' : finalPriority === 'Low' ? 'Transient Threat' : 'Substantive Threat',
-          isIep: intakeIsIep,
-          suspended: intakeSuspended,
-          reEntryDate: intakeSuspended ? (intakeReEntryDate || 'Pending') : 'N/A',
-          caseStatus: 'Active',
-          closeDate: '',
-          planStartDate: '',
-          planNextMeeting: '',
-          planEndDate: '',
-          supportPlanStatus: isTriageProvided ? 'Active Monitoring' : 'Awaiting Triage & Core Team Activation',
-          lastTeamContactDate: new Date().toISOString().split('T')[0],
-          teamReachoutCount: 1,
-          pastTovCount: pastMatches.length,
-          previousTovHistory: pastMatches.map(m => ({ date: m.incidentDate, brief: m.tovBrief, actionTaken: m.supportPlanStatus })),
-          // Saved Intake Documents
+          studentName: intakeStudentName, studentId: intakeStudentId, schoolLocation: intakeSchool || 'OKCPS Campus',
+          tovBrief: intakeBrief, incidentDate: new Date().toISOString().split('T')[0], dateReported: new Date().toISOString().split('T')[0],
+          tipsReportNum: intakeTipsNum, triagePriority: finalPriority, triageCompleted: isTriageProvided,
+          cstagClassification: !isTriageProvided ? 'Pending Assessment' : finalPriority === 'Low' ? 'Not-A-Threat' : 'Serious Substantive',
+          cstagDoc: null, immediateResponse: { victimNotification: false, vulnerabilityReduction: false, conflictResolution: false },
+          planStatus: 'Not Completed', planDoc: null, planStartDate: '', planEndDate: '', planCheckinDate: '',
+          isIep: intakeIsIep, suspended: intakeSuspended, reEntryDate: intakeSuspended ? (intakeReEntryDate || 'Pending') : 'N/A',
+          caseStatus: 'Active', closeDate: '', lastTeamContactDate: new Date().toISOString().split('T')[0], teamReachoutCount: 1,
+          pastTovCount: pastMatches.length, previousTovHistory: pastMatches.map(m => ({ date: m.incidentDate, brief: m.tovBrief, actionTaken: m.supportPlanStatus })),
           intakeFiles: {
-            tipsPdf: uploadedTipsFile ? { name: uploadedTipsFile.name, uploadDate: new Date().toISOString().split('T')[0], size: '1.2 MB' } : null,
-            triagePdf: uploadedTriageFile ? { name: uploadedTriageFile.name, uploadDate: new Date().toISOString().split('T')[0], size: '540 KB', scoreDetected: finalPriority } : null
+            tipsPdf: uploadedTipsFile ? { name: uploadedTipsFile.name, uploadDate: new Date().toISOString().split('T')[0], size: '1.2 MB', url: uploadedTipsFile.url } : null,
+            triagePdf: uploadedTriageFile ? { name: uploadedTriageFile.name, uploadDate: new Date().toISOString().split('T')[0], size: '540 KB', scoreDetected: finalPriority, url: uploadedTriageFile.url } : null
           },
-          documents: {
-            studentInterview: [],
-            parentInterview: [],
-            witnessStatements: [],
-            recordsReview: autoRecordsDocs
-          },
-          pathwayEvents: (isTriageProvided && finalPriority !== 'Low') ? [
-            { id: Date.now(), stage: 'Grievance', description: `Initial threat logged via TIPS #${intakeTipsNum}`, date: new Date().toISOString().split('T')[0] }
-          ] : []
+          documents: { studentInterview: [], parentInterview: [], witnessStatements: [], recordsReview: autoRecordsDocs },
+          pathwayEvents: (isTriageProvided && finalPriority !== 'Low') ? [{ id: Date.now(), stage: 'Grievance', description: `Initial threat logged via TIPS #${intakeTipsNum}`, date: new Date().toISOString().split('T')[0] }] : []
         };
 
         setCases([newCase, ...cases]);
         setSelectedCaseId(newCase.id);
         setShowNewIntakeModal(false);
+        setUploadedTipsFile(null); setUploadedTriageFile(null); setDetectedTriageScore('Pending Triage');
 
-        // Reset Modal Form
-        setUploadedTipsFile(null);
-        setUploadedTriageFile(null);
-        setDetectedTriageScore('Pending Triage');
-
-        // Route to correct tab
         if (!isTriageProvided) setMainTab('noTriage');
         else if (finalPriority === 'Low') setMainTab('low');
         else setMainTab('active');
       };
 
-      // Close Case Action
       const handleConfirmCloseCase = () => {
         if (!currentCase) return;
-
-        const updatedCases = cases.map(c => {
-          if (c.id === currentCase.id) {
-            return {
-              ...c,
-              caseStatus: 'Closed',
-              closeDate: closeCaseDate,
-              supportPlanStatus: `Closed (${closeCaseDate}): ${closeCaseNotes}`
-            };
-          }
-          return c;
-        });
-
-        setCases(updatedCases);
-        setShowCloseCaseModal(false);
-        setCloseCaseNotes('');
-        setMainTab('closed');
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, caseStatus: 'Closed', closeDate: closeCaseDate, supportPlanStatus: `Closed (${closeCaseDate}): ${closeCaseNotes}` } : c));
+        setShowCloseCaseModal(false); setCloseCaseNotes(''); setMainTab('closed');
       };
 
       return (
@@ -476,10 +415,7 @@
                 </div>
               </div>
 
-              <button
-                onClick={() => setShowNewIntakeModal(true)}
-                className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all shadow-md shadow-blue-600/20"
-              >
+              <button onClick={() => setShowNewIntakeModal(true)} className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all shadow-md shadow-blue-600/20">
                 + New Threat Intake (TIPS & Triage PDF)
               </button>
             </div>
@@ -490,9 +426,7 @@
             <div className="bg-red-950/90 border-b border-red-800 text-red-200 px-4 py-2 text-xs flex items-center justify-between animate-pulse">
               <div className="max-w-7xl mx-auto w-full flex items-center space-x-2">
                 <span className="text-red-400 font-bold">⚠️</span>
-                <span className="font-semibold">
-                  HIGH RISK ASSESSMENT ACTIVE: Automated Dispatch Notification routed to District Security (405-587-SAFE) & Mental Health Department.
-                </span>
+                <span className="font-semibold">HIGH RISK ASSESSMENT ACTIVE: Automated Dispatch Notification routed to District Security (405-587-SAFE) & Mental Health.</span>
               </div>
             </div>
           )}
@@ -509,107 +443,66 @@
           {/* NAVIGATION TABS WITH CASE COUNTERS */}
           <div className="max-w-7xl mx-auto px-4 pt-4">
             <div className="flex border-b border-slate-800 space-x-6 text-xs font-semibold overflow-x-auto">
-              <button
-                onClick={() => { setMainTab('active'); if (activeMediumHighCases.length > 0) setSelectedCaseId(activeMediumHighCases[0].id); }}
-                className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${
-                  mainTab === 'active' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
+              <button onClick={() => { setMainTab('active'); if (activeMediumHighCases.length > 0) setSelectedCaseId(activeMediumHighCases[0].id); }} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'active' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
                 Active Medium/High Cases ({activeMediumHighCases.length})
               </button>
 
-              <button
-                onClick={() => { setMainTab('low'); if (lowRiskCases.length > 0) setSelectedCaseId(lowRiskCases[0].id); }}
-                className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${
-                  mainTab === 'low' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
+              <button onClick={() => { setMainTab('planTab'); if (casesOnPlan.length > 0) setSelectedCaseId(casesOnPlan[0].id); }} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'planTab' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
+                Cases on Support/Safety Plan ({casesOnPlan.length})
+              </button>
+
+              <button onClick={() => { setMainTab('low'); if (lowRiskCases.length > 0) setSelectedCaseId(lowRiskCases[0].id); }} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'low' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
                 Low-Risk Cases ({lowRiskCases.length})
               </button>
 
-              <button
-                onClick={() => { setMainTab('noTriage'); if (openNoTriageCases.length > 0) setSelectedCaseId(openNoTriageCases[0].id); }}
-                className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${
-                  mainTab === 'noTriage' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
+              <button onClick={() => { setMainTab('noTriage'); if (openNoTriageCases.length > 0) setSelectedCaseId(openNoTriageCases[0].id); }} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'noTriage' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
                 Open Cases without Triage ({openNoTriageCases.length})
               </button>
 
-              <button
-                onClick={() => { setMainTab('closed'); if (closedCases.length > 0) setSelectedCaseId(closedCases[0].id); }}
-                className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${
-                  mainTab === 'closed' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
+              <button onClick={() => { setMainTab('closed'); if (closedCases.length > 0) setSelectedCaseId(closedCases[0].id); }} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'closed' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
                 Closed Cases Archive ({closedCases.length})
               </button>
 
-              <button
-                onClick={() => setMainTab('dashboard')}
-                className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${
-                  mainTab === 'dashboard' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'
-                }`}
-              >
+              <button onClick={() => setMainTab('dashboard')} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'dashboard' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
                 District Oversight Dashboard ({cases.length})
               </button>
             </div>
           </div>
 
-          {/* MAIN CONTENT AREA */}
+          {/* MAIN WORKSPACE */}
           <main className="max-w-7xl mx-auto px-4 py-6">
-            {(mainTab === 'active' || mainTab === 'low' || mainTab === 'noTriage' || mainTab === 'closed') && (
+            {(mainTab === 'active' || mainTab === 'planTab' || mainTab === 'low' || mainTab === 'noTriage' || mainTab === 'closed') && (
               <div className="grid grid-cols-12 gap-6">
                 {/* SIDEBAR */}
                 <div className="col-span-12 lg:col-span-4 space-y-3">
                   <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    {mainTab === 'active' ? 'Active Medium & High Cases' : mainTab === 'low' ? 'Low-Risk Cases' : mainTab === 'noTriage' ? 'Cases Pending Triage' : 'Closed Cases'}
+                    {mainTab === 'active' ? 'Active Medium & High Cases' : mainTab === 'planTab' ? 'Cases Active on Plan' : mainTab === 'low' ? 'Low-Risk Cases' : mainTab === 'noTriage' ? 'Pending Triage' : 'Closed Cases'}
                   </h2>
 
                   <div className="space-y-2 max-h-[80vh] overflow-y-auto pr-1">
-                    {(mainTab === 'active' ? activeMediumHighCases : mainTab === 'low' ? lowRiskCases : mainTab === 'noTriage' ? openNoTriageCases : closedCases).map(c => (
+                    {(mainTab === 'active' ? activeMediumHighCases : mainTab === 'planTab' ? casesOnPlan : mainTab === 'low' ? lowRiskCases : mainTab === 'noTriage' ? openNoTriageCases : closedCases).map(c => (
                       <div
                         key={c.id}
                         onClick={() => setSelectedCaseId(c.id)}
-                        className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
-                          selectedCaseId === c.id
-                            ? 'bg-slate-900 border-blue-500 shadow-lg shadow-blue-900/10'
-                            : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'
-                        }`}
+                        className={`p-3.5 rounded-xl border cursor-pointer transition-all ${selectedCaseId === c.id ? 'bg-slate-900 border-blue-500 shadow-lg shadow-blue-900/10' : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'}`}
                       >
                         <div className="flex justify-between items-start mb-1">
                           <span className="font-bold text-sm text-slate-100">{c.studentName}</span>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
-                            c.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' :
-                            c.triagePriority === 'Medium' ? 'bg-yellow-950 text-yellow-300 border-yellow-800' :
-                            c.triagePriority === 'Low' ? 'bg-slate-800 text-slate-300 border-slate-700' :
-                            'bg-purple-950 text-purple-300 border-purple-800'
-                          }`}>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${c.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' : c.triagePriority === 'Medium' ? 'bg-yellow-950 text-yellow-300 border-yellow-800' : 'bg-slate-800 text-slate-300 border-slate-700'}`}>
                             {c.triagePriority}
                           </span>
                         </div>
-
                         <div className="text-xs text-slate-400 mb-2 flex justify-between">
                           <span>ID: #{c.studentId}</span>
                           <span>TIPS: {c.tipsReportNum}</span>
                         </div>
-
-                        <p className="text-xs text-slate-300 line-clamp-2 bg-slate-950 p-2 rounded border border-slate-800/80 mb-2">
-                          "{c.tovBrief}"
-                        </p>
-
+                        <p className="text-xs text-slate-300 line-clamp-2 bg-slate-950 p-2 rounded border border-slate-800/80 mb-2">"{c.tovBrief}"</p>
                         <div className="flex items-center justify-between text-[11px] text-slate-400">
                           <span>{c.schoolLocation}</span>
                           <span className="text-blue-400 font-semibold">{c.caseStatus}</span>
                         </div>
                       </div>
                     ))}
-
-                    {(mainTab === 'active' ? activeMediumHighCases : mainTab === 'low' ? lowRiskCases : mainTab === 'noTriage' ? openNoTriageCases : closedCases).length === 0 && (
-                      <div className="p-6 text-center text-xs text-slate-500 bg-slate-900/50 rounded-xl border border-slate-800">
-                        No cases found in this view.
-                      </div>
-                    )}
                   </div>
                 </div>
 
@@ -617,177 +510,94 @@
                 <div className="col-span-12 lg:col-span-8 space-y-6">
                   {currentCase ? (
                     <>
-                      {/* CASE HEADER CARD */}
+                      {/* HEADER CARD */}
                       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
                         <div className="flex justify-between items-start border-b border-slate-800 pb-3">
                           <div>
                             <div className="flex items-center space-x-3">
                               <h2 className="text-xl font-bold text-slate-100">{currentCase.studentName}</h2>
-                              <span className="text-xs font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded">
-                                #{currentCase.studentId}
-                              </span>
+                              <span className="text-xs font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded">#{currentCase.studentId}</span>
                             </div>
-                            <p className="text-xs text-slate-400 mt-1">
-                              Campus: <span className="text-slate-200">{currentCase.schoolLocation}</span> | TIPS: <span className="text-slate-200">{currentCase.tipsReportNum}</span>
-                            </p>
+                            <p className="text-xs text-slate-400 mt-1">Campus: <span className="text-slate-200">{currentCase.schoolLocation}</span> | TIPS: <span className="text-slate-200">{currentCase.tipsReportNum}</span></p>
                           </div>
 
                           <div className="flex items-center space-x-2">
-                            <span className={`text-xs font-bold px-3 py-1 rounded border ${
-                              currentCase.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' :
-                              currentCase.triagePriority === 'Medium' ? 'bg-yellow-950 text-yellow-300 border-yellow-800' :
-                              currentCase.triagePriority === 'Low' ? 'bg-slate-800 text-slate-300 border-slate-700' :
-                              'bg-purple-950 text-purple-300 border-purple-800'
-                            }`}>
+                            <span className={`text-xs font-bold px-3 py-1 rounded border ${currentCase.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' : 'bg-yellow-950 text-yellow-300 border-yellow-800'}`}>
                               {currentCase.triagePriority}
                             </span>
-
-                            {/* CLOSE CASE BUTTON */}
                             {currentCase.caseStatus !== 'Closed' && (
-                              <button
-                                onClick={() => setShowCloseCaseModal(true)}
-                                className="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-1 rounded font-semibold transition-colors"
-                              >
+                              <button onClick={() => setShowCloseCaseModal(true)} className="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-1 rounded font-semibold transition-colors">
                                 Close Case
                               </button>
                             )}
-
-                            {currentCase.caseStatus === 'Closed' && (
-                              <span className="text-xs bg-slate-800 text-slate-400 border border-slate-700 px-3 py-1 rounded">
-                                Closed on {currentCase.closeDate || 'N/A'}
-                              </span>
-                            )}
                           </div>
                         </div>
 
-                        {/* ACCESSIBLE INTAKE DOCUMENTS PANEL (TIPS PDF & TRIAGE FORM PDF) */}
+                        {/* INTAKE FILES */}
                         <div className="bg-slate-950 p-3.5 rounded-lg border border-slate-800 space-y-2">
-                          <span className="text-[10px] text-slate-400 uppercase font-semibold tracking-wider block">
-                            Intake Files & Triage Records (Accessible Across All Views)
-                          </span>
-                          
+                          <span className="text-[10px] text-slate-400 uppercase font-semibold tracking-wider block">Intake Records</span>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                            {/* TIPS PDF LINK */}
-                            <div className="flex items-center justify-between p-2 bg-slate-900 border border-slate-800 rounded">
-                              <div className="flex items-center space-x-2">
-                                <span className="text-blue-400 font-bold">📄</span>
-                                <div>
-                                  <span className="font-semibold text-slate-200 block truncate max-w-[180px]">
-                                    {currentCase.intakeFiles?.tipsPdf?.name || 'TIPS_Report_Document.pdf'}
-                                  </span>
-                                  <span className="text-[10px] text-slate-500 font-mono">TIPS Incident Report PDF</span>
-                                </div>
-                              </div>
-                              <button onClick={() => alert(`Opening ${currentCase.intakeFiles?.tipsPdf?.name || 'TIPS PDF'}`)} className="text-blue-400 hover:text-blue-300 underline font-medium text-[11px]">
-                                View / PDF
-                              </button>
+                            <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded">
+                              <span className="font-semibold text-slate-200 truncate">{currentCase.intakeFiles?.tipsPdf?.name || 'TIPS_Report.pdf'}</span>
+                              <button onClick={() => setViewingDoc(currentCase.intakeFiles?.tipsPdf)} className="bg-blue-900/60 text-blue-200 text-[11px] px-2.5 py-1 rounded font-medium">View</button>
                             </div>
-
-                            {/* TRIAGE FORM PDF LINK */}
-                            <div className="flex items-center justify-between p-2 bg-slate-900 border border-slate-800 rounded">
-                              <div className="flex items-center space-x-2">
-                                <span className="text-purple-400 font-bold">📋</span>
-                                <div>
-                                  <span className="font-semibold text-slate-200 block truncate max-w-[180px]">
-                                    {currentCase.intakeFiles?.triagePdf?.name || 'Pending_Triage_Upload.pdf'}
-                                  </span>
-                                  <span className="text-[10px] text-slate-500 font-mono">
-                                    {currentCase.intakeFiles?.triagePdf ? `Triage Form (${currentCase.intakeFiles.triagePdf.scoreDetected} Risk)` : 'No Triage Form Attached'}
-                                  </span>
-                                </div>
-                              </div>
-                              {currentCase.intakeFiles?.triagePdf && (
-                                <button onClick={() => alert(`Opening ${currentCase.intakeFiles.triagePdf.name}`)} className="text-purple-400 hover:text-purple-300 underline font-medium text-[11px]">
-                                  View / PDF
-                                </button>
-                              )}
+                            <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded">
+                              <span className="font-semibold text-slate-200 truncate">{currentCase.intakeFiles?.triagePdf?.name || 'Triage_Form.pdf'}</span>
+                              {currentCase.intakeFiles?.triagePdf && <button onClick={() => setViewingDoc(currentCase.intakeFiles?.triagePdf)} className="bg-purple-900/60 text-purple-200 text-[11px] px-2.5 py-1 rounded font-medium">View</button>}
                             </div>
-                          </div>
-                        </div>
-
-                        {/* Threat Brief */}
-                        <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs space-y-1">
-                          <span className="text-[10px] text-slate-500 font-semibold uppercase">Automated Threat Brief (TOV)</span>
-                          <p className="text-slate-200 italic">"{currentCase.tovBrief}"</p>
-                        </div>
-
-                        {/* Quick Info Grid */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-                          <div className="bg-slate-950 p-2.5 rounded border border-slate-800">
-                            <span className="text-slate-400 block text-[10px]">Suspension Status</span>
-                            <span className="font-semibold text-slate-200">
-                              {currentCase.suspended ? `OSS Active (${currentCase.reEntryDate})` : 'Not Suspended'}
-                            </span>
-                          </div>
-
-                          <div className="bg-slate-950 p-2.5 rounded border border-slate-800">
-                            <span className="text-slate-400 block text-[10px]">Past System Records</span>
-                            <span className={`font-semibold ${currentCase.pastTovCount > 0 ? 'text-amber-400' : 'text-slate-200'}`}>
-                              {currentCase.pastTovCount > 0 ? `${currentCase.pastTovCount} Previous Incident(s)` : 'No Past History'}
-                            </span>
-                          </div>
-
-                          <div className="bg-slate-950 p-2.5 rounded border border-slate-800">
-                            <span className="text-slate-400 block text-[10px]">DTAC Contact Attempts</span>
-                            <span className="font-semibold text-slate-200">{currentCase.teamReachoutCount} Reachouts</span>
-                          </div>
-
-                          <div className="bg-slate-950 p-2.5 rounded border border-slate-800">
-                            <span className="text-slate-400 block text-[10px]">Last Team Outreach</span>
-                            <span className="font-semibold text-slate-200">{currentCase.lastTeamContactDate}</span>
                           </div>
                         </div>
                       </div>
 
-                      {/* PATHWAY TO VIOLENCE TRACKER FOR MEDIUM & HIGH CASES */}
+                      {/* PATHWAY TO VIOLENCE (WITH AUTO-GENERATED EVENTS FROM 360 UPLOADS) */}
                       {(currentCase.triagePriority === 'Medium' || currentCase.triagePriority === 'High') && (
                         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
                           <div className="flex justify-between items-center">
-                            <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
-                              <span className="text-blue-400">📈</span>
-                              <span>Pathway to Violence Case Timeline</span>
-                            </h3>
-                            <span className="text-xs text-slate-400">Auto-Populated from Document Uploads</span>
+                            <div>
+                              <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
+                                <span className="text-blue-400">📈</span>
+                                <span>Pathway to Violence Timeline</span>
+                              </h3>
+                              <p className="text-[10px] text-slate-400">Events auto-generate on 360 Document Upload</p>
+                            </div>
+                            <button onClick={() => setShowAddPathwayModal(true)} className="bg-blue-600/80 hover:bg-blue-600 text-white text-xs px-3 py-1.5 rounded font-semibold">+ Add Event</button>
                           </div>
 
-                          {/* Stage Legend */}
-                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-1.5 text-[10px] text-center font-bold">
-                            {PATHWAY_STAGES.map(s => (
-                              <div key={s.key} className={`p-1.5 rounded border ${s.color}`}>
-                                {s.label}
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Event Timeline */}
-                          <div className="border-l-2 border-slate-800 ml-3 pl-4 space-y-3 py-2">
-                            {(currentCase.pathwayEvents || []).map(e => (
-                              <div key={e.id} className="bg-slate-950 border border-slate-800 p-3 rounded-lg text-xs space-y-1">
-                                <div className="flex justify-between font-semibold">
-                                  <span className="text-blue-400">{e.stage}</span>
-                                  <span className="text-slate-500 font-mono text-[11px]">{e.date}</span>
+                          <div className="space-y-3 pt-1">
+                            {PATHWAY_STAGES.map(stageObj => {
+                              const stageEvents = (currentCase.pathwayEvents || []).filter(e => e.stage === stageObj.key);
+                              return (
+                                <div key={stageObj.key} className="bg-slate-950 border border-slate-800/80 rounded-lg p-3 space-y-2">
+                                  <div className="flex items-center space-x-2">
+                                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded border ${stageObj.color}`}>{stageObj.label}</span>
+                                    <span className="text-[11px] text-slate-400">({stageEvents.length} Event{stageEvents.length !== 1 ? 's' : ''})</span>
+                                  </div>
+                                  <div className="space-y-1.5 pl-2 border-l-2 border-slate-800">
+                                    {stageEvents.map(evt => (
+                                      <div key={evt.id} className="bg-slate-900 p-2 rounded border border-slate-800 text-xs flex justify-between items-start">
+                                        <p className="text-slate-200 pr-2">{evt.description}</p>
+                                        <span className="text-slate-500 font-mono text-[10px]">{evt.date}</span>
+                                      </div>
+                                    ))}
+                                    {stageEvents.length === 0 && <p className="text-[11px] text-slate-600 italic">No incidents logged.</p>}
+                                  </div>
                                 </div>
-                                <p className="text-slate-300">{e.description}</p>
-                              </div>
-                            ))}
-                            {(!currentCase.pathwayEvents || currentCase.pathwayEvents.length === 0) && (
-                              <p className="text-xs text-slate-500 italic py-2">No pathway events logged yet.</p>
-                            )}
+                              );
+                            })}
                           </div>
                         </div>
                       )}
 
-                      {/* 360-DEGREE ASSESSMENT DOCUMENT VAULT */}
+                      {/* 360-DEGREE ASSESSMENT VAULT */}
                       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
                         <div className="flex justify-between items-center">
                           <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
                             <span className="text-blue-400">📁</span>
                             <span>360-Degree Assessment Documents</span>
                           </h3>
-                          <span className="text-[11px] text-slate-400">RED = Empty | BLUE = Document Uploaded</span>
+                          <span className="text-[11px] text-slate-400">RED = Empty | BLUE = Uploaded</span>
                         </div>
 
-                        {/* 4 DYNAMIC CATEGORY TABS */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                           {[
                             { key: 'studentInterview', label: 'Student Interview' },
@@ -802,57 +612,186 @@
                                 key={tab.key}
                                 onClick={() => setActiveDocTab(tab.key)}
                                 className={`p-2.5 rounded-lg text-xs font-semibold border flex items-center justify-between transition-all ${
-                                  hasDocs
-                                    ? 'bg-blue-900/50 border-blue-500 text-blue-200 shadow-md shadow-blue-950'
-                                    : 'bg-red-950/80 border-red-600 text-red-200 animate-pulse'
+                                  hasDocs ? 'bg-blue-900/50 border-blue-500 text-blue-200 shadow-md' : 'bg-red-950/80 border-red-600 text-red-200 animate-pulse'
                                 }`}
                               >
                                 <span>{tab.label}</span>
-                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${hasDocs ? 'bg-blue-950 text-blue-300' : 'bg-red-900 text-red-100'}`}>
-                                  {docsList.length}
-                                </span>
+                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${hasDocs ? 'bg-blue-950 text-blue-300' : 'bg-red-900 text-red-100'}`}>{docsList.length}</span>
                               </button>
                             );
                           })}
                         </div>
 
-                        {/* DOCUMENT VAULT CONTENT & FILE UPLOADER */}
                         <div className="bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-3 text-xs">
                           <div className="flex justify-between items-center pb-2 border-b border-slate-800">
-                            <span className="font-semibold text-slate-200 uppercase tracking-wider text-[11px]">
-                              {activeDocTab.replace(/([A-Z])/g, ' $1')} Files
-                            </span>
-
-                            <label className="cursor-pointer bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-medium transition-colors">
-                              + Upload to {activeDocTab.replace(/([A-Z])/g, ' $1')}
-                              <input
-                                type="file"
-                                className="hidden"
-                                onChange={(e) => handleFileUpload(activeDocTab, e)}
-                              />
+                            <span className="font-semibold text-slate-200 uppercase text-[11px]">{activeDocTab.replace(/([A-Z])/g, ' $1')} Files</span>
+                            <label className="cursor-pointer bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-medium">
+                              + Upload File
+                              <input type="file" className="hidden" onChange={(e) => handleFileUpload(activeDocTab, e)} />
                             </label>
                           </div>
 
                           <div className="space-y-2">
                             {(currentCase.documents?.[activeDocTab] || []).map((doc, idx) => (
                               <div key={idx} className="flex justify-between items-center p-2.5 bg-slate-900 rounded border border-slate-800">
+                                <span className="font-medium text-slate-200">{doc.name}</span>
                                 <div className="flex items-center space-x-2">
-                                  <span className="text-blue-400">📄</span>
-                                  <span className="font-medium text-slate-200">{doc.name}</span>
-                                  <span className="text-slate-500 text-[10px]">({doc.size})</span>
+                                  <button onClick={() => setViewingDoc(doc)} className="bg-blue-900/60 text-blue-200 text-[11px] px-2.5 py-1 rounded">View</button>
+                                  <a href={doc.url} download={doc.name} className="bg-slate-800 text-slate-200 text-[11px] px-2.5 py-1 rounded">Download</a>
                                 </div>
-                                <span className="text-slate-500 font-mono text-[11px]">{doc.uploadDate}</span>
                               </div>
                             ))}
-
                             {(!currentCase.documents?.[activeDocTab] || currentCase.documents[activeDocTab].length === 0) && (
-                              <div className="p-4 text-center text-xs text-red-400 bg-red-950/20 border border-red-900/40 rounded">
-                                Category empty. Upload a document to clear the red alert tab.
-                              </div>
+                              <div className="p-4 text-center text-xs text-red-400 bg-red-950/20 border border-red-900/40 rounded">Empty category. Upload a file to trigger auto-pathway logging.</div>
                             )}
                           </div>
                         </div>
                       </div>
+
+                      {/* CSTAG DETERMINATION PHASE */}
+                      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
+                        <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
+                          <span className="text-purple-400">⚖️</span>
+                          <span>CSTAG Classification Determination</span>
+                        </h3>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-bold">
+                          {[
+                            { key: 'Not-A-Threat', label: 'Not-A-Threat', color: 'bg-green-950 text-green-300 border-green-700' },
+                            { key: 'Transient Threat', label: 'Transient Threat', color: 'bg-yellow-950 text-yellow-300 border-yellow-700' },
+                            { key: 'Serious Substantive', label: 'Serious Substantive', color: 'bg-pink-950 text-pink-300 border-pink-700' },
+                            { key: 'Very Serious Substantive', label: 'Very Serious Substantive', color: 'bg-red-950 text-red-300 border-red-700' }
+                          ].map(item => (
+                            <button
+                              key={item.key}
+                              onClick={() => handleCstagChange(item.key)}
+                              className={`p-3 rounded-lg border text-center transition-all ${
+                                currentCase.cstagClassification === item.key ? `${item.color} ring-2 ring-blue-500 scale-105` : 'bg-slate-950 border-slate-800 text-slate-400 opacity-60'
+                              }`}
+                            >
+                              {item.label}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* CSTAG Document Upload */}
+                        <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 flex justify-between items-center text-xs">
+                          <div>
+                            <span className="text-slate-400 block text-[10px]">CSTAG Determination Report</span>
+                            <span className="font-semibold text-slate-200">{currentCase.cstagDoc ? currentCase.cstagDoc.name : 'No CSTAG Document Inputted'}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            {currentCase.cstagDoc && <button onClick={() => setViewingDoc(currentCase.cstagDoc)} className="bg-blue-900/60 text-blue-200 px-3 py-1 rounded">View</button>}
+                            <label className="cursor-pointer bg-purple-600 hover:bg-purple-500 text-white px-3 py-1 rounded font-semibold">
+                              Upload Report
+                              <input type="file" className="hidden" onChange={handleCstagDocUpload} />
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* BRANCHING WORKFLOW 1: IMMEDIATE SUBSTANTIVE RESPONSE (For Serious & Very Serious Substantive) */}
+                      {(currentCase.cstagClassification === 'Serious Substantive' || currentCase.cstagClassification === 'Very Serious Substantive') && (
+                        <div className="bg-slate-900 border border-red-900/60 rounded-xl p-5 space-y-3 shadow-xl">
+                          <h3 className="text-sm font-bold text-red-200 flex items-center space-x-2">
+                            <span className="text-red-400">🚨</span>
+                            <span>Immediate Substantive Response Checklist</span>
+                          </h3>
+
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                            {[
+                              { key: 'victimNotification', label: 'Victim Notification' },
+                              { key: 'vulnerabilityReduction', label: 'Victim Vulnerability Reduction' },
+                              { key: 'conflictResolution', label: 'Conflict Resolution' }
+                            ].map(chk => (
+                              <label key={chk.key} className="flex items-center space-x-2 bg-slate-950 p-3 rounded border border-slate-800 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={!!currentCase.immediateResponse?.[chk.key]}
+                                  onChange={() => toggleImmediateCheck(chk.key)}
+                                  className="rounded bg-slate-900 border-slate-700 text-red-600"
+                                />
+                                <span className="font-semibold text-slate-200">{chk.label}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* BRANCHING WORKFLOW 2: STUDENT SUPPORT / SAFETY PLAN */}
+                      {(currentCase.cstagClassification !== 'Not-A-Threat' && currentCase.cstagClassification !== 'Pending Assessment') && (
+                        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
+                          <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
+                            <span className="text-blue-400">📋</span>
+                            <span>{currentCase.cstagClassification === 'Transient Threat' ? 'Student Support Plan' : 'Student Safety Plan'}</span>
+                          </h3>
+
+                          <div className="space-y-3 text-xs">
+                            <div>
+                              <label className="text-slate-400 block mb-1">Plan Progress Status</label>
+                              <select
+                                value={currentCase.planStatus || 'Not Completed'}
+                                onChange={(e) => updatePlanDetail('planStatus', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 focus:border-blue-500"
+                              >
+                                <option value="Not Completed">Not Completed</option>
+                                <option value="Waiting on Re-Entry">Waiting on Re-Entry</option>
+                                <option value="Meeting Scheduled">Meeting Scheduled</option>
+                                <option value="Waiting on Team">Waiting on Team</option>
+                                <option value="Support Plan Created">Support Plan Created</option>
+                              </select>
+                            </div>
+
+                            {/* UNLOCKED WHEN "Support Plan Created" IS SELECTED */}
+                            {currentCase.planStatus === 'Support Plan Created' && (
+                              <div className="p-4 bg-slate-950 border border-slate-800 rounded-lg space-y-4">
+                                <div className="flex justify-between items-center pb-2 border-b border-slate-800">
+                                  <span className="font-bold text-slate-200">Plan Document Upload</span>
+                                  <div className="flex items-center space-x-2">
+                                    {currentCase.planDoc && <button onClick={() => setViewingDoc(currentCase.planDoc)} className="bg-blue-900/60 text-blue-200 px-3 py-1 rounded">View</button>}
+                                    <label className="cursor-pointer bg-blue-600 text-white px-3 py-1 rounded font-semibold">
+                                      Upload Plan PDF
+                                      <input type="file" className="hidden" onChange={handlePlanDocUpload} />
+                                    </label>
+                                  </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                  <div>
+                                    <label className="text-slate-400 block mb-1">Plan Start Date (Moves to Active Plan Tab)</label>
+                                    <input
+                                      type="date"
+                                      value={currentCase.planStartDate || ''}
+                                      onChange={(e) => updatePlanDetail('planStartDate', e.target.value)}
+                                      className="w-full bg-slate-900 border border-slate-800 p-2 rounded text-slate-100"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <label className="text-slate-400 block mb-1">Plan End Date</label>
+                                    <input
+                                      type="date"
+                                      value={currentCase.planEndDate || ''}
+                                      onChange={(e) => updatePlanDetail('planEndDate', e.target.value)}
+                                      className="w-full bg-slate-900 border border-slate-800 p-2 rounded text-slate-100"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <label className="text-slate-400 block mb-1">Next Progress Check-in Date</label>
+                                    <input
+                                      type="date"
+                                      value={currentCase.planCheckinDate || ''}
+                                      onChange={(e) => updatePlanDetail('planCheckinDate', e.target.value)}
+                                      className="w-full bg-slate-900 border border-slate-800 p-2 rounded text-slate-100"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </>
                   ) : null}
                 </div>
@@ -870,9 +809,8 @@
                         <th className="p-3">Student / ID</th>
                         <th className="p-3">School Location</th>
                         <th className="p-3">TIPS #</th>
-                        <th className="p-3">Triage Priority</th>
-                        <th className="p-3">IEP Status</th>
-                        <th className="p-3">Suspension / Re-entry</th>
+                        <th className="p-3">CSTAG Classification</th>
+                        <th className="p-3">Plan Status</th>
                         <th className="p-3">Case Status</th>
                       </tr>
                     </thead>
@@ -882,18 +820,8 @@
                           <td className="p-3 font-semibold text-slate-100">{c.studentName} <span className="text-slate-500 font-mono text-[10px]">#{c.studentId}</span></td>
                           <td className="p-3">{c.schoolLocation}</td>
                           <td className="p-3 font-mono">{c.tipsReportNum}</td>
-                          <td className="p-3">
-                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              c.triagePriority === 'High' ? 'bg-red-950 text-red-300 border border-red-800' :
-                              c.triagePriority === 'Medium' ? 'bg-yellow-950 text-yellow-300 border border-yellow-800' :
-                              c.triagePriority === 'Low' ? 'bg-slate-800 text-slate-300 border border-slate-700' :
-                              'bg-purple-950 text-purple-300 border border-purple-800'
-                            }`}>
-                              {c.triagePriority}
-                            </span>
-                          </td>
-                          <td className="p-3">{c.isIep ? <span className="text-amber-400 font-bold">YES</span> : 'No'}</td>
-                          <td className="p-3">{c.suspended ? `OSS (${c.reEntryDate})` : 'Not Suspended'}</td>
+                          <td className="p-3 font-bold">{c.cstagClassification || 'Pending'}</td>
+                          <td className="p-3">{c.planStatus || 'Not Completed'}</td>
                           <td className="p-3 font-semibold text-blue-400">{c.caseStatus}</td>
                         </tr>
                       ))}
@@ -904,58 +832,79 @@
             )}
           </main>
 
-          {/* NEW INTAKE MODAL (PARSES TIPS PDF & TRIAGE FORM PDF) */}
+          {/* INLINE DOCUMENT VIEWER MODAL */}
+          {viewingDoc && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-4xl w-full h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+                <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
+                  <h3 className="text-sm font-bold text-slate-100">{viewingDoc.name}</h3>
+                  <div className="flex items-center space-x-3">
+                    <a href={viewingDoc.url} download={viewingDoc.name} className="bg-blue-600 text-white text-xs px-3 py-1.5 rounded font-semibold">Download</a>
+                    <button onClick={() => setViewingDoc(null)} className="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+                  </div>
+                </div>
+                <div className="flex-1 bg-slate-950 p-2">
+                  <iframe src={viewingDoc.url} className="w-full h-full rounded border border-slate-800" title={viewingDoc.name} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ADD PATHWAY EVENT MODAL */}
+          {showAddPathwayModal && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <h3 className="text-base font-bold text-slate-100">Add Pathway Event</h3>
+                  <button onClick={() => setShowAddPathwayModal(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
+                </div>
+                <form onSubmit={handleAddPathwayEvent} className="space-y-3 text-xs">
+                  <div>
+                    <label className="text-slate-400 block mb-1">Select Stage</label>
+                    <select value={newEventStage} onChange={(e) => setNewEventStage(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
+                      {PATHWAY_STAGES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-slate-400 block mb-1">Description</label>
+                    <textarea rows="3" required value={newEventDesc} onChange={(e) => setNewEventDesc(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                  </div>
+                  <div>
+                    <label className="text-slate-400 block mb-1">Incident Date</label>
+                    <input type="date" required value={newEventDate} onChange={(e) => setNewEventDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                  </div>
+                  <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
+                    <button type="button" onClick={() => setShowAddPathwayModal(false)} className="bg-slate-800 px-4 py-2 rounded text-slate-300">Cancel</button>
+                    <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Save Event</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* NEW INTAKE MODAL */}
           {showNewIntakeModal && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
                 <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                  <h3 className="text-base font-bold text-slate-100">New Threat Intake (Upload TIPS Report & Triage PDF)</h3>
+                  <h3 className="text-base font-bold text-slate-100">New Threat Intake</h3>
                   <button onClick={() => setShowNewIntakeModal(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
                 </div>
-
                 <form onSubmit={handleCreateCase} className="space-y-4 text-xs">
-                  {/* DUAL PDF UPLOAD ZONE */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {/* 1. TIPS REPORT PDF UPLOADER */}
-                    <div className="border-2 border-dashed border-slate-700 hover:border-blue-500 p-4 rounded-lg text-center bg-slate-950/50">
-                      <span className="text-2xl block mb-1">📄</span>
+                    <div className="border-2 border-dashed border-slate-700 p-4 rounded-lg text-center bg-slate-950/50">
                       <p className="font-semibold text-slate-200 mb-1">Upload TIPS Report PDF</p>
-                      <p className="text-[10px] text-slate-400 mb-2">Auto-extracts Student Name, ID#, & Brief</p>
                       <input type="file" accept="application/pdf" onChange={handleTipsFileUpload} className="text-xs text-slate-400 w-full" />
-                      {uploadedTipsFile && <p className="mt-2 text-blue-400 text-[10px] font-mono">Loaded: {uploadedTipsFile.name}</p>}
                     </div>
-
-                    {/* 2. TRIAGE FORM PDF UPLOADER */}
-                    <div className="border-2 border-dashed border-slate-700 hover:border-purple-500 p-4 rounded-lg text-center bg-slate-950/50">
-                      <span className="text-2xl block mb-1">📋</span>
+                    <div className="border-2 border-dashed border-slate-700 p-4 rounded-lg text-center bg-slate-950/50">
                       <p className="font-semibold text-slate-200 mb-1">Upload Threat Triage PDF</p>
-                      <p className="text-[10px] text-slate-400 mb-2">App analyzes score & checks automatically</p>
                       <input type="file" accept="application/pdf" onChange={handleTriageFileUpload} className="text-xs text-slate-400 w-full" />
-                      {uploadedTriageFile && <p className="mt-2 text-purple-400 text-[10px] font-mono">Loaded: {uploadedTriageFile.name}</p>}
                     </div>
                   </div>
 
-                  {/* AUTOMATED ANALYSIS SUMMARY BANNER */}
-                  {uploadedTriageFile && (
-                    <div className="p-3 bg-slate-950 border border-slate-800 rounded flex justify-between items-center">
-                      <div>
-                        <span className="text-slate-400 block text-[10px]">Triage PDF Analysis Outcome</span>
-                        <span className="font-bold text-slate-200">Extracted Risk Level Score</span>
-                      </div>
-                      <span className={`px-3 py-1 rounded font-bold text-xs ${
-                        detectedTriageScore === 'High' ? 'bg-red-950 text-red-300 border border-red-800' :
-                        detectedTriageScore === 'Medium' ? 'bg-yellow-950 text-yellow-300 border border-yellow-800' :
-                        'bg-slate-800 text-slate-300 border border-slate-700'
-                      }`}>
-                        {detectedTriageScore} Risk Level
-                      </span>
-                    </div>
-                  )}
-
-                  {/* PARSED FORM FIELDS */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-slate-400 block mb-1">Perpetrator Student Name</label>
+                      <label className="text-slate-400 block mb-1">Student Name</label>
                       <input type="text" required value={intakeStudentName} onChange={(e) => setIntakeStudentName(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                     </div>
                     <div>
@@ -964,44 +913,14 @@
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-slate-400 block mb-1">School Location</label>
-                      <input type="text" value={intakeSchool} onChange={(e) => setIntakeSchool(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
-                    </div>
-                    <div>
-                      <label className="text-slate-400 block mb-1">TIPS Report Number</label>
-                      <input type="text" value={intakeTipsNum} onChange={(e) => setIntakeTipsNum(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
-                    </div>
-                  </div>
-
                   <div>
-                    <label className="text-slate-400 block mb-1">Generated 1-Sentence Threat Brief (Editable)</label>
+                    <label className="text-slate-400 block mb-1">Threat Brief</label>
                     <textarea rows="2" value={intakeBrief} onChange={(e) => setIntakeBrief(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 pt-2">
-                    <div className="flex items-center space-x-2">
-                      <input type="checkbox" id="iepCheck" checked={intakeIsIep} onChange={(e) => setIntakeIsIep(e.target.checked)} className="rounded bg-slate-950 border-slate-800 text-blue-600" />
-                      <label htmlFor="iepCheck" className="text-slate-300 font-semibold">Student on IEP (OESS Flag)</label>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <input type="checkbox" id="suspensionCheck" checked={intakeSuspended} onChange={(e) => setIntakeSuspended(e.target.checked)} className="rounded bg-slate-950 border-slate-800 text-blue-600" />
-                      <label htmlFor="suspensionCheck" className="text-slate-300">OSS Suspension Active?</label>
-                    </div>
-                  </div>
-
-                  {intakeSuspended && (
-                    <div>
-                      <label className="text-slate-400 block mb-1">OSS Re-entry Date</label>
-                      <input type="date" value={intakeReEntryDate} onChange={(e) => setIntakeReEntryDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
-                    </div>
-                  )}
-
                   <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
                     <button type="button" onClick={() => setShowNewIntakeModal(false)} className="bg-slate-800 px-4 py-2 rounded text-slate-300 font-semibold">Cancel</button>
-                    <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded font-semibold">Initialize Case</button>
+                    <button type="submit" className="bg-blue-600 text-white px-5 py-2 rounded font-semibold">Initialize Case</button>
                   </div>
                 </form>
               </div>
@@ -1012,44 +931,20 @@
           {showCloseCaseModal && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-                <h3 className="text-base font-bold text-slate-100">Close Case & Move to Archive</h3>
-
-                <p className="text-xs text-slate-300">
-                  You are closing case <strong>{currentCase?.studentName} (#{currentCase?.studentId})</strong>. This will move the case into the <strong>Closed Cases Archive</strong>.
-                </p>
-
+                <h3 className="text-base font-bold text-slate-100">Close Case & Archive</h3>
                 <div className="space-y-3 text-xs">
                   <div>
-                    <label className="text-slate-400 block mb-1">Case Close Date</label>
-                    <input
-                      type="date"
-                      required
-                      value={closeCaseDate}
-                      onChange={(e) => setCloseCaseDate(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-slate-100"
-                    />
+                    <label className="text-slate-400 block mb-1">Close Date</label>
+                    <input type="date" required value={closeCaseDate} onChange={(e) => setCloseCaseDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                   </div>
-
                   <div>
-                    <label className="text-slate-400 block mb-1">Resolution / Action Steps Taken</label>
-                    <textarea
-                      rows="3"
-                      required
-                      placeholder="Specify resolution steps, support outcomes, or mediation actions taken..."
-                      value={closeCaseNotes}
-                      onChange={(e) => setCloseCaseNotes(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded p-2.5 text-slate-100 focus:outline-none focus:border-blue-500"
-                    />
+                    <label className="text-slate-400 block mb-1">Resolution Notes</label>
+                    <textarea rows="3" required value={closeCaseNotes} onChange={(e) => setCloseCaseNotes(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded text-slate-100" />
                   </div>
                 </div>
-
                 <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
-                  <button onClick={() => setShowCloseCaseModal(false)} className="bg-slate-800 text-slate-300 px-4 py-2 rounded font-semibold">
-                    Cancel
-                  </button>
-                  <button onClick={handleConfirmCloseCase} className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded font-semibold">
-                    Confirm & Move to Closed Archive
-                  </button>
+                  <button onClick={() => setShowCloseCaseModal(false)} className="bg-slate-800 text-slate-300 px-4 py-2 rounded font-semibold">Cancel</button>
+                  <button onClick={handleConfirmCloseCase} className="bg-red-600 text-white px-4 py-2 rounded font-semibold">Confirm & Archive</button>
                 </div>
               </div>
             </div>
