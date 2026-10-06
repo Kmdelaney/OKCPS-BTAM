@@ -1,836 +1,389 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OKCPS BTAM - Behavioral Threat Assessment & Management System</title>
+  <title>OKCPS BTAM - Behavioral Threat Assessment Management</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    .step-active { border-color: #2563eb; background-color: #eff6ff; color: #1e40af; }
-    .step-complete { border-color: #16a34a; background-color: #f0fdf4; color: #166534; }
-    .tab-red { background-color: #fef2f2 !important; border-color: #ef4444 !important; color: #991b1b !important; animation: pulse-red 2s infinite; }
-    @keyframes pulse-red { 0%, 100% { border-color: #ef4444; } 50% { border-color: #dc2626; box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); } }
-  </style>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              navy: '#0f172a',
+              card: '#1e293b',
+              border: '#334155'
+            }
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body class="bg-slate-100 font-sans text-slate-800 min-h-screen flex flex-col">
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
 
-  <!-- TOP HEADER -->
-  <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <div class="bg-amber-500 text-slate-900 p-2 rounded-lg font-extrabold text-xl">OKCPS</div>
+  <!-- Header / Navigation -->
+  <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="bg-blue-600 text-white p-2 rounded-lg font-black tracking-widest text-sm">OKCPS</div>
         <div>
-          <h1 class="text-lg font-bold leading-tight">BTAM Threat Assessment Engine</h1>
-          <p class="text-xs text-slate-400">CSTAG Aligned • District Safety & Legal Compliance</p>
+          <h1 class="text-lg font-bold leading-tight">BTAM & CSTAG Case Portal</h1>
+          <p class="text-xs text-slate-400">Student Behavioral Threat Assessment Management</p>
         </div>
       </div>
-      <div class="flex items-center space-x-3 text-xs">
-        <span class="bg-red-900 text-red-200 px-2.5 py-1 rounded-full font-bold border border-red-700 flex items-center gap-1">
-          <i class="fa-solid fa-phone-volume"></i> Emergency Dispatch: 405-587-SAFE
+      <div class="flex items-center gap-3">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-950 text-emerald-400 border border-emerald-800">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> FERPA / HIPAA Compliant Mode
         </span>
-        <button onclick="openNewIntakeModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition">
-          <i class="fa-solid fa-plus"></i> New Threat Intake (TIPS)
-        </button>
       </div>
     </div>
   </header>
 
-  <!-- MAIN NAVIGATION TABS -->
-  <nav class="bg-white border-b border-slate-200 px-6 py-2 shadow-sm">
-    <div class="max-w-7xl mx-auto flex justify-between items-center">
-      <div class="flex space-x-2">
-        <button onclick="switchMainTab('dashboard')" id="nav-dashboard" class="px-4 py-2 font-semibold text-sm rounded-md bg-blue-50 text-blue-700 border-b-2 border-blue-600">
-          <i class="fa-solid fa-chart-line mr-1.5"></i> District Matrix
-        </button>
-        <button onclick="switchMainTab('medium-high')" id="nav-medium-high" class="px-4 py-2 font-semibold text-sm rounded-md text-slate-600 hover:bg-slate-50">
-          <i class="fa-solid fa-triangle-exclamation mr-1.5 text-amber-500"></i> Active Medium/High Cases <span id="count-med-high" class="ml-1 bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full">3</span>
-        </button>
-        <button onclick="switchMainTab('low')" id="nav-low" class="px-4 py-2 font-semibold text-sm rounded-md text-slate-600 hover:bg-slate-50">
-          <i class="fa-solid fa-circle-info mr-1.5 text-blue-500"></i> Low Risk Cases <span id="count-low" class="ml-1 bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full">2</span>
-        </button>
-        <button onclick="switchMainTab('closed')" id="nav-closed" class="px-4 py-2 font-semibold text-sm rounded-md text-slate-600 hover:bg-slate-50">
-          <i class="fa-solid fa-box-archive mr-1.5 text-slate-500"></i> Closed Cases <span id="count-closed" class="ml-1 bg-slate-200 text-slate-700 text-xs px-2 py-0.5 rounded-full">1</span>
-        </button>
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+    <!-- Section 1: Dashboard Overview Header -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex flex-col justify-between shadow-md">
+        <span class="text-xs text-slate-400 uppercase font-semibold">Active BTAM Cases</span>
+        <div class="text-3xl font-extrabold text-white mt-2">12</div>
+        <span class="text-xs text-slate-400 mt-1">4 Substantive · 8 Transient</span>
       </div>
-      <div class="text-xs text-slate-500">
-        <i class="fa-solid fa-building-columns mr-1"></i> Oklahoma City Public Schools • CSTAG Model
+      
+      <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex flex-col justify-between shadow-md">
+        <span class="text-xs text-slate-400 uppercase font-semibold">Doc Outreach Health</span>
+        <div class="text-xl font-bold text-amber-400 mt-2 flex items-center gap-2">
+          <span>⚠️ 3 Overdue</span>
+        </div>
+        <span class="text-xs text-slate-400 mt-1">Re-outreach required (&gt;5 days)</span>
+      </div>
+
+      <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex flex-col justify-between shadow-md">
+        <span class="text-xs text-slate-400 uppercase font-semibold">Active Suspensions</span>
+        <div class="text-xl font-bold text-rose-400 mt-2">2 Students</div>
+        <span class="text-xs text-slate-400 mt-1">Pending Re-Entry Meetings</span>
+      </div>
+
+      <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex flex-col justify-between shadow-md">
+        <span class="text-xs text-slate-400 uppercase font-semibold">CSTAG Workflow Status</span>
+        <div class="text-xl font-bold text-blue-400 mt-2">Step 4 / Level 2</div>
+        <span class="text-xs text-slate-400 mt-1">Comprehensive Assessment</span>
       </div>
     </div>
-  </nav>
 
-  <!-- CONTENT CONTAINER -->
-  <main class="max-w-7xl mx-auto px-4 py-6 flex-1 w-full">
-
-    <!-- VIEW 1: DISTRICT DASHBOARD MATRIX -->
-    <section id="view-dashboard" class="space-y-6">
-      
-      <!-- AUDIT ALERT BANNER -->
-      <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm flex items-start justify-between">
-        <div class="flex items-start space-x-3">
-          <i class="fa-solid fa-shield-halved text-amber-600 text-xl mt-0.5"></i>
-          <div>
-            <h3 class="font-bold text-amber-900 text-sm">District BTAM Policy Compliance Notice</h3>
-            <p class="text-xs text-amber-800 mt-0.5">
-              OESS must be consulted for all students with an active IEP. High Risk cases require immediate Security Dispatch (405-587-SAFE) & Mental Health Department notification.
-            </p>
-          </div>
-        </div>
-        <span class="text-xs font-semibold bg-amber-200 text-amber-900 px-2.5 py-1 rounded">2026-2027 Academic Year</span>
-      </div>
-
-      <!-- SUMMARY CARDS -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-          <p class="text-xs font-medium text-slate-500">Total BTAM Cases</p>
-          <p id="stat-total" class="text-2xl font-black text-slate-800 mt-1">6</p>
-          <p class="text-xs text-slate-400 mt-1">Across 5 Campuses</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-          <p class="text-xs font-medium text-slate-500">High / Very Serious Risk</p>
-          <p id="stat-high" class="text-2xl font-black text-red-600 mt-1">3</p>
-          <p class="text-xs text-red-500 mt-1">Requires 10-Step Workflow</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-          <p class="text-xs font-medium text-slate-500">Transient / Medium Risk</p>
-          <p id="stat-medium" class="text-2xl font-black text-amber-600 mt-1">2</p>
-          <p class="text-xs text-amber-600 mt-1">Active Support Plans</p>
-        </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-          <p class="text-xs font-medium text-slate-500">Missing Documentation Alerts</p>
-          <p id="stat-missing-docs" class="text-2xl font-black text-red-500 mt-1">2</p>
-          <p class="text-xs text-red-500 mt-1">> 2 Weeks Pending Tabs</p>
-        </div>
-      </div>
-
-      <!-- MASTER CASES MATRIX TABLE -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-          <h2 class="font-bold text-slate-800 flex items-center gap-2">
-            <i class="fa-solid fa-list-check text-blue-600"></i> Master District Threat Assessment Matrix
+    <!-- Section 2: Custom Pathway to Violence Timeline -->
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>Pathway to Violence Progression</span>
           </h2>
-          <div class="flex items-center space-x-2">
-            <input type="text" id="table-search" onkeyup="filterTable()" placeholder="Search student or ID..." class="text-xs px-3 py-1.5 border border-slate-300 rounded-md w-64 focus:outline-none focus:ring-1 focus:ring-blue-500">
+          <p class="text-xs text-slate-400">Classify behavioral markers according to CSTAG threat indicators.</p>
+        </div>
+        <span class="text-xs bg-slate-700 text-slate-300 px-3 py-1 rounded-md border border-slate-600">Active Assessment Stage</span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+        <!-- Stage 1: Grievance (Dark Blue) -->
+        <div class="bg-blue-950/80 border border-blue-800 rounded-xl p-4 flex flex-col justify-between hover:border-blue-500 transition-all">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-blue-400">Stage 1</span>
+              <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+            </div>
+            <h3 class="text-sm font-bold text-blue-200 mt-1">Grievance</h3>
           </div>
+          <p class="text-xs text-blue-300/80 mt-3">Perceived injury, injustice, or loss of status.</p>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs text-slate-600" id="matrix-table">
-            <thead class="bg-slate-100 text-slate-700 uppercase tracking-wider font-semibold border-b border-slate-200">
-              <tr>
-                <th class="py-3 px-4">Case Title / Student</th>
-                <th class="py-3 px-4">Campus</th>
-                <th class="py-3 px-4">TIPS #</th>
-                <th class="py-3 px-4">Risk Level</th>
-                <th class="py-3 px-4">CSTAG Classification</th>
-                <th class="py-3 px-4">Plan Status</th>
-                <th class="py-3 px-4">Next Mtg Date</th>
-                <th class="py-3 px-4">Doc Health</th>
-                <th class="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="matrix-tbody" class="divide-y divide-slate-200">
-              <!-- Dynamically populated from JS -->
-            </tbody>
-          </table>
+        <!-- Stage 2: Violent Ideation (Teal) -->
+        <div class="bg-teal-950/80 border border-teal-800 rounded-xl p-4 flex flex-col justify-between hover:border-teal-500 transition-all">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-teal-400">Stage 2</span>
+              <span class="w-2 h-2 rounded-full bg-teal-400"></span>
+            </div>
+            <h3 class="text-sm font-bold text-teal-200 mt-1">Violent Ideation</h3>
+          </div>
+          <p class="text-xs text-teal-300/80 mt-3">Fantasies or expressed thoughts of harm.</p>
+        </div>
+
+        <!-- Stage 3: Research & Planning (Yellow) -->
+        <div class="bg-amber-950/80 border border-amber-700 rounded-xl p-4 flex flex-col justify-between hover:border-amber-500 transition-all">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Stage 3</span>
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+            </div>
+            <h3 class="text-sm font-bold text-amber-200 mt-1">Research & Planning</h3>
+          </div>
+          <p class="text-xs text-amber-300/80 mt-3">Target selection & tactical logistics.</p>
+        </div>
+
+        <!-- Stage 4: Preparation (Pink) -->
+        <div class="bg-pink-950/80 border border-pink-800 rounded-xl p-4 flex flex-col justify-between hover:border-pink-500 transition-all">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-pink-400">Stage 4</span>
+              <span class="w-2 h-2 rounded-full bg-pink-400"></span>
+            </div>
+            <h3 class="text-sm font-bold text-pink-200 mt-1">Preparation</h3>
+          </div>
+          <p class="text-xs text-pink-300/80 mt-3">Acquiring weapons, gear, or equipment.</p>
+        </div>
+
+        <!-- Stage 5: Probing / Breaching (Pink / Fuchsia) -->
+        <div class="bg-fuchsia-950/80 border border-fuchsia-800 rounded-xl p-4 flex flex-col justify-between hover:border-fuchsia-500 transition-all">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-fuchsia-400">Stage 5</span>
+              <span class="w-2 h-2 rounded-full bg-fuchsia-400"></span>
+            </div>
+            <h3 class="text-sm font-bold text-fuchsia-200 mt-1">Probing / Breaching</h3>
+          </div>
+          <p class="text-xs text-fuchsia-300/80 mt-3">Testing security parameters or site entry.</p>
+        </div>
+
+        <!-- Stage 6: Attack (Red) -->
+        <div class="bg-red-950/80 border border-red-800 rounded-xl p-4 flex flex-col justify-between hover:border-red-500 transition-all">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-red-400">Stage 6</span>
+              <span class="w-2 h-2 rounded-full bg-red-400"></span>
+            </div>
+            <h3 class="text-sm font-bold text-red-200 mt-1">Attack</h3>
+          </div>
+          <p class="text-xs text-red-300/80 mt-3">Direct execution of targeted violence.</p>
         </div>
       </div>
     </section>
 
-    <!-- VIEW 2: CASE DETAIL VIEW -->
-    <section id="view-case-detail" class="hidden space-y-6">
-      
-      <!-- BACK BUTTON HEADER -->
-      <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex items-center space-x-3">
-          <button onclick="switchMainTab('dashboard')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition">
-            <i class="fa-solid fa-arrow-left"></i> Back to Matrix
-          </button>
-          <div id="detail-header-info">
-            <!-- Populated via JS -->
-          </div>
-        </div>
-        <div class="flex items-center space-x-2" id="detail-header-actions">
-          <!-- Populated via JS -->
-        </div>
-      </div>
+    <!-- Section 3: Active Case Detail & Date Tracker Controls -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-      <!-- PRIOR TOV WARNING BANNER -->
-      <div id="prior-tov-banner" class="hidden bg-amber-100 border-l-4 border-amber-600 p-4 rounded-r-lg text-xs text-amber-900">
-        <i class="fa-solid fa-clock-rotate-left text-amber-700 text-sm mr-1"></i>
-        <strong>Prior Threats of Violence Identified:</strong> This student has prior recorded TOV history in OKCPS. 
-        <span class="underline cursor-pointer font-semibold ml-1" onclick="showPriorTOVModal()">Click to view past incident notes.</span>
-      </div>
-
-      <!-- CASE BRIEF CARD -->
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex justify-between items-start">
+      <!-- Module A: Team Outreach & Document Health Panel -->
+      <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
+        <div class="border-b border-slate-700 pb-3 flex justify-between items-center">
           <div>
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">Threat Brief Summary (Generated from TIPS Report)</span>
-            <p id="case-brief-text" class="text-sm font-medium text-slate-800 mt-1"></p>
+            <h2 class="text-base font-bold text-white">Team Outreach & Document Tracking</h2>
+            <p class="text-xs text-slate-400">Log requests for CSTAG paperwork, Safety/Support plans, & evidence.</p>
           </div>
-          <button onclick="editCaseBrief()" class="text-xs text-blue-600 hover:underline"><i class="fa-solid fa-pen-to-square"></i> Edit Brief</button>
+          <span id="outreachBadge" class="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-950 text-emerald-400 border border-emerald-800">
+            Up to date
+          </span>
         </div>
+
+        <div class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Last Date Team Reached Out To (Docs / Plan Request)</label>
+            <input type="datetime-local" id="lastOutreachDate" onchange="updateOutreachTracker()"
+                   class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-300 mb-1">Outreach Notes / Recipient Team Members</label>
+            <input type="text" id="outreachNotes" placeholder="e.g. Emailed Special Ed Director & School Psychologist for Assessment Docs"
+                   class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+          </div>
+
+          <div class="p-3 bg-slate-900/60 rounded-lg border border-slate-700/80 text-xs text-slate-300 space-y-1">
+            <div class="flex justify-between">
+              <span class="text-slate-400">Days Elapsed Since Last Contact:</span>
+              <span id="daysElapsed" class="font-bold text-white">0 days</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Next Follow-Up Recommended:</span>
+              <span id="nextFollowUp" class="font-bold text-blue-400">--</span>
+            </div>
+          </div>
+
+          <button onclick="logOutreachNow()" class="w-full py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-lg transition-colors">
+            📅 Log Team Outreach Timestamp (Now)
+          </button>
+        </div>
+      </section>
+
+      <!-- Module B: Suspension & Re-entry Tracker -->
+      <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-4">
+        <div class="border-b border-slate-700 pb-3 flex justify-between items-center">
+          <div>
+            <h2 class="text-base font-bold text-white">Suspension & Re-Entry Management</h2>
+            <p class="text-xs text-slate-400">Monitor disciplinary absence and mandate re-entry BTAM review.</p>
+          </div>
+          <span id="suspensionStatusBadge" class="px-2.5 py-1 text-xs font-semibold rounded-md bg-slate-700 text-slate-300">
+            Not Suspended
+          </span>
+        </div>
+
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="isSuspended" onchange="toggleSuspensionFields()" class="w-4 h-4 rounded border-slate-700 text-blue-600 focus:ring-0 bg-slate-900">
+            <label for="isSuspended" class="text-sm font-medium text-slate-200">Student is currently under Disciplinary Suspension</label>
+          </div>
+
+          <div id="suspensionFields" class="space-y-3 opacity-50 pointer-events-none transition-all">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Suspension Start Date</label>
+                <input type="date" id="suspensionStartDate" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1">Expected Re-Entry Date</label>
+                <input type="date" id="reentryDate" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 pt-1">
+              <input type="checkbox" id="reentryMeetingDone" class="w-4 h-4 rounded border-slate-700 text-blue-600 focus:ring-0 bg-slate-900">
+              <label for="reentryMeetingDone" class="text-xs text-slate-300">Safety & Re-Entry Plan Meeting completed prior to return</label>
+            </div>
+          </div>
+
+          <button onclick="saveSuspensionData()" class="w-full py-2 bg-slate-700 hover:bg-slate-600 text-white font-medium text-xs rounded-lg transition-colors border border-slate-600">
+            💾 Save Suspension & Re-entry Log
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Section 4: Safety & Support Plan Management -->
+    <section class="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-xl space-y-6">
+      <div class="border-b border-slate-700 pb-3">
+        <h2 class="text-lg font-bold text-white">Integrated Support & Safety Plans</h2>
+        <p class="text-xs text-slate-400">Set active plan lifecycles with scheduled follow-up dates and attached documentation.</p>
       </div>
 
-      <!-- UPDATED MANAGEMENT PLAN PANELS (SAFETY PLAN vs SUPPORT PLAN) WITH START, NEXT MTG, END DATES & DOC UPLOAD -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <!-- PANEL A: SUPPORT PLAN (TRANSIENT THREATS) -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
-          <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-              <i class="fa-solid fa-user-shield text-blue-600"></i> Support / Re-Entry Plan (Transient)
-            </h3>
-            <span class="text-[10px] bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded">CSTAG Step 5</span>
+        <!-- Support Plan (Transient Cases) -->
+        <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-teal-400">Support Plan (Transient Risk)</h3>
+            <span class="text-[10px] uppercase font-bold bg-teal-950 text-teal-300 border border-teal-800 px-2 py-0.5 rounded">Low Risk Workflow</span>
           </div>
 
-          <div class="grid grid-cols-3 gap-2 text-xs">
+          <div class="space-y-3">
             <div>
-              <label class="block font-bold text-slate-700 mb-1">Plan Start Date</label>
-              <input type="date" id="support-start-date" onchange="updateSupportPlanData()" class="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500">
-            </div>
-            <div>
-              <label class="block font-bold text-slate-700 mb-1">Next Meeting Date</label>
-              <input type="date" id="support-next-date" onchange="updateSupportPlanData()" class="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500">
+              <label class="block text-xs text-slate-400 mb-1">Plan Start Date</label>
+              <input type="date" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
             </div>
             <div>
-              <label class="block font-bold text-slate-700 mb-1">Plan End Date</label>
-              <input type="date" id="support-end-date" onchange="updateSupportPlanData()" class="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500">
+              <label class="block text-xs text-slate-400 mb-1">Scheduled Progress Review Meeting</label>
+              <input type="date" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
             </div>
-          </div>
-
-          <!-- DOCUMENT UPLOAD FOR SUPPORT PLAN -->
-          <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs space-y-2">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-slate-700"><i class="fa-solid fa-paperclip text-slate-500 mr-1"></i> Support Plan Document:</span>
-              <input type="file" id="support-doc-input" class="hidden" onchange="uploadSupportDoc(event)">
-              <button onclick="triggerFileInput('support-doc-input')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded font-semibold text-[11px]">
-                Upload Document
-              </button>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Attach Completed Support Plan PDF</label>
+              <input type="file" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1 text-xs text-slate-300">
             </div>
-            <p id="support-doc-filename" class="text-slate-500 italic">No support plan file attached.</p>
           </div>
         </div>
 
-        <!-- PANEL B: SAFETY PLAN (SUBSTANTIVE THREATS) -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
-          <div class="flex justify-between items-center border-b border-slate-200 pb-2">
-            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-              <i class="fa-solid fa-shield-halved text-red-600"></i> Safety / Management Plan (Substantive)
-            </h3>
-            <span class="text-[10px] bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded">CSTAG Step 7</span>
+        <!-- Safety Plan (Substantive Cases) -->
+        <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-rose-400">Safety Plan (Substantive Risk)</h3>
+            <span class="text-[10px] uppercase font-bold bg-rose-950 text-rose-300 border border-rose-800 px-2 py-0.5 rounded">High Risk Workflow</span>
           </div>
 
-          <div class="grid grid-cols-3 gap-2 text-xs">
+          <div class="space-y-3">
             <div>
-              <label class="block font-bold text-slate-700 mb-1">Plan Start Date</label>
-              <input type="date" id="safety-start-date" onchange="updateSafetyPlanData()" class="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500">
+              <label class="block text-xs text-slate-400 mb-1">Plan Start Date</label>
+              <input type="date" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
             </div>
             <div>
-              <label class="block font-bold text-slate-700 mb-1">Next Meeting Date</label>
-              <input type="date" id="safety-next-date" onchange="updateSafetyPlanData()" class="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500">
+              <label class="block text-xs text-slate-400 mb-1">Mandatory Re-evaluation Date</label>
+              <input type="date" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-xs text-white">
             </div>
             <div>
-              <label class="block font-bold text-slate-700 mb-1">Plan End Date</label>
-              <input type="date" id="safety-end-date" onchange="updateSafetyPlanData()" class="w-full p-2 border border-slate-300 rounded focus:ring-1 focus:ring-blue-500">
+              <label class="block text-xs text-slate-400 mb-1">Attach Signed Safety Plan & Agreement PDF</label>
+              <input type="file" class="w-full bg-slate-800 border border-slate-700 rounded px-3 py-1 text-xs text-slate-300">
             </div>
           </div>
-
-          <!-- DOCUMENT UPLOAD FOR SAFETY PLAN -->
-          <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs space-y-2">
-            <div class="flex justify-between items-center">
-              <span class="font-bold text-slate-700"><i class="fa-solid fa-paperclip text-slate-500 mr-1"></i> Safety Plan Document:</span>
-              <input type="file" id="safety-doc-input" class="hidden" onchange="uploadSafetyDoc(event)">
-              <button onclick="triggerFileInput('safety-doc-input')" class="bg-red-600 hover:bg-red-700 text-white px-2.5 py-1 rounded font-semibold text-[11px]">
-                Upload Document
-              </button>
-            </div>
-            <p id="safety-doc-filename" class="text-slate-500 italic">No safety plan file attached.</p>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- 4-CATEGORY DOCUMENT HEALTH PANELS -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-            <i class="fa-solid fa-folder-open text-blue-600"></i> 360-Degree Assessment Documentation Categories
-          </h3>
-          <span class="text-xs text-slate-500">Tabs turn red if missing uploads for &gt; 2 weeks (Medium/High Risk Cases)</span>
-        </div>
-
-        <div class="flex border-b border-slate-200 space-x-2 text-xs font-semibold" id="doc-tabs-header">
-          <button onclick="switchDocTab('student')" id="doc-tab-student" class="px-4 py-2.5 rounded-t-lg border-t border-x border-slate-300 bg-slate-50 text-slate-700 flex items-center gap-1.5">
-            <i class="fa-solid fa-user-graduate"></i> Student Interview <span id="badge-student" class="text-xs px-1.5 py-0.5 rounded-full bg-slate-200"></span>
-          </button>
-          <button onclick="switchDocTab('parent')" id="doc-tab-parent" class="px-4 py-2.5 rounded-t-lg border-t border-x border-transparent hover:bg-slate-50 text-slate-600 flex items-center gap-1.5">
-            <i class="fa-solid fa-users"></i> Parent Interview <span id="badge-parent" class="text-xs px-1.5 py-0.5 rounded-full bg-slate-200"></span>
-          </button>
-          <button onclick="switchDocTab('witness')" id="doc-tab-witness" class="px-4 py-2.5 rounded-t-lg border-t border-x border-transparent hover:bg-slate-50 text-slate-600 flex items-center gap-1.5">
-            <i class="fa-solid fa-eye"></i> Witness Statements <span id="badge-witness" class="text-xs px-1.5 py-0.5 rounded-full bg-slate-200"></span>
-          </button>
-          <button onclick="switchDocTab('records')" id="doc-tab-records" class="px-4 py-2.5 rounded-t-lg border-t border-x border-transparent hover:bg-slate-50 text-slate-600 flex items-center gap-1.5">
-            <i class="fa-solid fa-file-invoice"></i> Records Review <span id="badge-records" class="text-xs px-1.5 py-0.5 rounded-full bg-slate-200"></span>
-          </button>
-        </div>
-
-        <div class="p-4 bg-slate-50 border-x border-b border-slate-200 rounded-b-lg text-xs" id="doc-tab-content">
-          <!-- Loaded dynamically -->
         </div>
       </div>
-
-      <!-- PATHWAY TO VIOLENCE TIMELINE CHART -->
-      <div id="pathway-section" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
-        <div class="flex justify-between items-center">
-          <div>
-            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-              <i class="fa-solid fa-route text-red-600"></i> Pathway to Violence Timeline & AI Scanner
-            </h3>
-            <p class="text-xs text-slate-500">Visual mapping of behavior progression triggered for Medium and High risk cases</p>
-          </div>
-          <span class="text-xs bg-red-100 text-red-800 px-2.5 py-1 rounded-full font-bold">CSTAG Threat Progression</span>
-        </div>
-
-        <div class="grid grid-cols-6 gap-2 text-center text-xs font-bold pt-2">
-          <div id="stage-grievance" class="p-2.5 rounded-lg border border-slate-200 bg-slate-100 text-slate-600">1. Grievance</div>
-          <div id="stage-ideation" class="p-2.5 rounded-lg border border-slate-200 bg-slate-100 text-slate-600">2. Violent Ideation</div>
-          <div id="stage-planning" class="p-2.5 rounded-lg border border-slate-200 bg-slate-100 text-slate-600">3. Research & Planning</div>
-          <div id="stage-preparation" class="p-2.5 rounded-lg border border-slate-200 bg-slate-100 text-slate-600">4. Preparation</div>
-          <div id="stage-probing" class="p-2.5 rounded-lg border border-slate-200 bg-slate-100 text-slate-600">5. Probing / Breach</div>
-          <div id="stage-attack" class="p-2.5 rounded-lg border border-slate-200 bg-slate-100 text-slate-600">6. Attack</div>
-        </div>
-
-        <div class="mt-4 border-l-2 border-slate-300 pl-4 space-y-3" id="pathway-timeline-events">
-          <!-- AI Timeline Events -->
-        </div>
-      </div>
-
-      <!-- 10-STEP BTAM WORKFLOW ENGINE -->
-      <div id="workflow-section" class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
-        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-          <i class="fa-solid fa-diagram-project text-blue-600"></i> CSTAG 10-Step Procedural Workflow Tracker
-        </h3>
-
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
-          <button onclick="renderStepDetail(1)" id="step-btn-1" class="p-2 rounded border text-left font-medium">1. Intake & Triage</button>
-          <button onclick="renderStepDetail(2)" id="step-btn-2" class="p-2 rounded border text-left font-medium">2. Team Activation</button>
-          <button onclick="renderStepDetail(3)" id="step-btn-3" class="p-2 rounded border text-left font-medium">3. 360° Assessment</button>
-          <button onclick="renderStepDetail(4)" id="step-btn-4" class="p-2 rounded border text-left font-medium">4. CSTAG Decision</button>
-          <button onclick="renderStepDetail(5)" id="step-btn-5" class="p-2 rounded border text-left font-medium">5. Transient Resolution</button>
-          <button onclick="renderStepDetail(6)" id="step-btn-6" class="p-2 rounded border text-left font-medium">6. Substantive Response</button>
-          <button onclick="renderStepDetail(7)" id="step-btn-7" class="p-2 rounded border text-left font-medium">7. Management Plan</button>
-          <button onclick="renderStepDetail(8)" id="step-btn-8" class="p-2 rounded border text-left font-medium">8. Formal Safety Eval</button>
-          <button onclick="renderStepDetail(9)" id="step-btn-9" class="p-2 rounded border text-left font-medium">9. Reassessment</button>
-          <button onclick="renderStepDetail(10)" id="step-btn-10" class="p-2 rounded border text-left font-medium">10. Case Retirement</button>
-        </div>
-
-        <div id="step-detail-container" class="bg-slate-50 border border-slate-200 p-4 rounded-lg text-xs">
-          <!-- Step detail -->
-        </div>
-      </div>
-
     </section>
 
   </main>
 
-  <!-- MODALS (INTAKE, TRIAGE, LOW-RISK CLOSE) -->
-  <div id="modal-intake" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-2xl max-w-xl w-full p-6 space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-200 pb-3">
-        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-          <i class="fa-solid fa-file-pdf text-red-600"></i> New Threat Intake (Upload TIPS Report PDF)
-        </h3>
-        <button onclick="closeNewIntakeModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
-
-      <p class="text-xs text-slate-500">
-        Upload a TIPS Incident Report PDF to extract student details and generate a threat summary.
-      </p>
-
-      <div class="border-2 border-dashed border-slate-300 rounded-lg p-6 text-center hover:bg-slate-50 transition cursor-pointer" onclick="triggerFileInput('tips-file-input')">
-        <i class="fa-solid fa-cloud-arrow-up text-3xl text-blue-500 mb-2"></i>
-        <p class="text-xs font-semibold text-slate-700">Click to attach TIPS Report PDF</p>
-        <input type="file" id="tips-file-input" class="hidden" accept=".pdf,.doc,.docx" onchange="handleTipsUpload(event)">
-      </div>
-
-      <div id="tips-parsed-preview" class="hidden bg-blue-50 border border-blue-200 p-3 rounded-lg text-xs space-y-2">
-        <p class="font-bold text-blue-900 flex items-center gap-1"><i class="fa-solid fa-circle-check text-green-600"></i> TIPS Data Extracted Successfully:</p>
-        <div class="grid grid-cols-2 gap-2 text-slate-700">
-          <div><strong>Student:</strong> <span id="parse-student">--</span></div>
-          <div><strong>ID #:</strong> <span id="parse-id">--</span></div>
-          <div><strong>School:</strong> <span id="parse-school">--</span></div>
-          <div><strong>TIPS #:</strong> <span id="parse-tips">--</span></div>
-        </div>
-        <div>
-          <strong>Auto-Generated Brief:</strong>
-          <textarea id="parse-brief" class="w-full mt-1 p-2 border border-slate-300 rounded text-xs bg-white" rows="2"></textarea>
-        </div>
-      </div>
-
-      <div class="flex justify-end space-x-2 pt-2 border-t border-slate-200">
-        <button onclick="closeNewIntakeModal()" class="px-4 py-2 border border-slate-300 text-slate-600 text-xs rounded-md font-semibold hover:bg-slate-50">Cancel</button>
-        <button id="btn-proceed-triage" onclick="proceedToTriageModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md font-semibold disabled:opacity-50" disabled>Proceed to Triage Form</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- TRIAGE MODAL -->
-  <div id="modal-triage" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center border-b border-slate-200 pb-3">
-        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-          <i class="fa-solid fa-clipboard-check text-blue-600"></i> Threats of Violence Triage Form (Items 1–4)
-        </h3>
-        <button onclick="closeTriageModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
-
-      <form id="triage-form" class="space-y-3 text-xs">
-        <div class="p-3 bg-slate-50 rounded border border-slate-200 space-y-1">
-          <p class="font-bold text-slate-800">1. Specificity of Who, What, When</p>
-          <div class="flex gap-4">
-            <label><input type="radio" name="q1" value="1" checked onchange="calculateTriageScore()"> Low (Vague)</label>
-            <label><input type="radio" name="q1" value="2" onchange="calculateTriageScore()"> Medium (Some specifics)</label>
-            <label><input type="radio" name="q1" value="3" onchange="calculateTriageScore()"> High (Well thought out)</label>
-          </div>
-        </div>
-        <div class="p-3 bg-slate-50 rounded border border-slate-200 space-y-1">
-          <p class="font-bold text-slate-800">1a. Target & Grievance Cited</p>
-          <div class="flex gap-4">
-            <label><input type="radio" name="q1a" value="1" checked onchange="calculateTriageScore()"> Low (General / No Target)</label>
-            <label><input type="radio" name="q1a" value="2" onchange="calculateTriageScore()"> Medium (Group target)</label>
-            <label><input type="radio" name="q1a" value="3" onchange="calculateTriageScore()"> High (Specific individual target)</label>
-          </div>
-        </div>
-        <div class="p-3 bg-slate-50 rounded border border-slate-200 space-y-1">
-          <p class="font-bold text-slate-800">2. Access to Weapons</p>
-          <div class="flex gap-4">
-            <label><input type="radio" name="q2" value="1" checked onchange="calculateTriageScore()"> Low (Unavailable)</label>
-            <label><input type="radio" name="q2" value="2" onchange="calculateTriageScore()"> Medium (Ability to obtain)</label>
-            <label><input type="radio" name="q2" value="3" onchange="calculateTriageScore()"> High (In hand / Easy access)</label>
-          </div>
-        </div>
-        <div class="p-3 bg-slate-50 rounded border border-slate-200 space-y-1">
-          <p class="font-bold text-slate-800">3. Time Horizon</p>
-          <div class="flex gap-4">
-            <label><input type="radio" name="q3" value="1" checked onchange="calculateTriageScore()"> Low (No specific time)</label>
-            <label><input type="radio" name="q3" value="2" onchange="calculateTriageScore()"> Medium (Within a few hours)</label>
-            <label><input type="radio" name="q3" value="3" onchange="calculateTriageScore()"> High (Immediate)</label>
-          </div>
-        </div>
-        <div class="p-3 bg-slate-50 rounded border border-slate-200 space-y-1">
-          <p class="font-bold text-slate-800">4. Plan Viability & Leakage</p>
-          <div class="flex gap-4">
-            <label><input type="radio" name="q4" value="1" checked onchange="calculateTriageScore()"> Low (Unrealistic)</label>
-            <label><input type="radio" name="q4" value="2" onchange="calculateTriageScore()"> Medium (Plausible)</label>
-            <label><input type="radio" name="q4" value="3" onchange="calculateTriageScore()"> High (Realistic)</label>
-          </div>
-        </div>
-
-        <div class="p-3 bg-slate-900 text-white rounded-lg flex justify-between items-center">
-          <span class="font-bold">Calculated Risk Urgency:</span>
-          <span id="calculated-risk-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-500 text-white">LOW RISK</span>
-        </div>
-      </form>
-
-      <div class="flex justify-end space-x-2 pt-2 border-t border-slate-200">
-        <button onclick="closeTriageModal()" class="px-4 py-2 border border-slate-300 text-slate-600 text-xs rounded-md font-semibold hover:bg-slate-50">Cancel</button>
-        <button onclick="submitTriageAndCreateCase()" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs rounded-md font-semibold">Finalize & Open Case</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- LOW RISK RESOLUTION MODAL -->
-  <div id="modal-low-risk-close" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 space-y-4">
-      <div class="flex justify-between items-center border-b border-slate-200 pb-3">
-        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
-          <i class="fa-solid fa-circle-check text-blue-600"></i> Low Risk Case Resolution Protocol
-        </h3>
-        <button onclick="closeLowRiskModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-      </div>
-
-      <p class="text-xs text-slate-600">
-        Enter action steps taken prior to closing or archiving this case.
-      </p>
-
-      <div>
-        <label class="block text-xs font-bold text-slate-700 mb-1">Administrative Action Steps Taken:</label>
-        <textarea id="low-risk-actions" class="w-full p-2.5 border border-slate-300 rounded-lg text-xs" rows="4" placeholder="Enter actions taken..."></textarea>
-      </div>
-
-      <div class="flex justify-end space-x-2 pt-2 border-t border-slate-200">
-        <button onclick="saveLowRiskAsActive()" class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs rounded-md font-semibold">Save Active</button>
-        <button onclick="finalizeAndCloseLowRiskCase()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs rounded-md font-semibold">Close Case Now</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- JAVASCRIPT APP LOGIC -->
+  <!-- Interactive JavaScript Logic -->
   <script>
-    let btamCases = [
-      {
-        id: "345290",
-        studentName: "Jorge Jimenez",
-        title: "Jorge Jimenez (#345290)",
-        school: "Capitol Hill High School",
-        tipsNum: "26-03093",
-        riskLevel: "High",
-        cstagClassification: "Very Serious Substantive",
-        threatBrief: "Posted Instagram highlight reels holding firearm and sent DMs to victims stating 'you better watch out'.",
-        planStatus: "Awaiting Re-entry Meeting",
-        supportPlan: { startDate: "2026-09-14", nextMtgDate: "2026-10-15", endDate: "2026-10-29", docFilename: "Jorge_Jimenez_Support_Contract.pdf" },
-        safetyPlan: { startDate: "2026-09-14", nextMtgDate: "2026-10-29", endDate: "2026-11-15", docFilename: "Safety_Plan_ReEntry_Jorge_Jimenez.pdf" },
-        lastOutreachDate: "2026-09-30",
-        docs: {
-          student: { uploaded: true, date: "2026-09-08", filename: "Jorge_Jimenez_Student_Interview.pdf" },
-          parent: { uploaded: true, date: "2026-09-08", filename: "Jimenez_Parent_Interview.pdf" },
-          witness: { uploaded: true, date: "2026-09-07", filename: "Witness_Statements_Erick_Ruben.pdf" },
-          records: { uploaded: true, date: "2026-09-08", filename: "IC_Behavioral_Records_345290.pdf" }
-        },
-        pathwayStage: 4,
-        pathwayTimeline: [
-          { date: "2026-09-04", stage: "1. Grievance", desc: "Conflict over stolen ring outside school setting." },
-          { date: "2026-09-05", stage: "2. Violent Ideation", desc: "Sent DMs indicating targets were being watched and monitored." },
-          { date: "2026-09-07", stage: "4. Preparation", desc: "Posted Instagram reel holding firearm and pointing at victims." }
-        ],
-        activeStep: 6,
-        priorTOVCount: 0,
-        isClosed: false
-      },
-      {
-        id: "332545",
-        studentName: "Jesus Garcia-Reyes",
-        title: "Jesus Garcia-Reyes (#332545)",
-        school: "U.S. Grant High School",
-        tipsNum: "26-02602",
-        riskLevel: "High",
-        cstagClassification: "Very Serious Substantive",
-        threatBrief: "Stated 'Raymond does not deserve to live' following interpersonal grievance.",
-        planStatus: "Active Monitoring",
-        supportPlan: { startDate: "2026-08-27", nextMtgDate: "2026-10-14", endDate: "2026-11-01", docFilename: null },
-        safetyPlan: { startDate: "2026-08-27", nextMtgDate: "2026-10-14", endDate: "2026-11-01", docFilename: "Jesus_Garcia_Safety_Plan_Signed.pdf" },
-        lastOutreachDate: "2026-09-16",
-        docs: {
-          student: { uploaded: true, date: "2026-08-15", filename: "Garcia_Reyes_Student_Interview.pdf" },
-          parent: { uploaded: true, date: "2026-08-16", filename: "Parent_Assessment_CRC.pdf" },
-          witness: { uploaded: true, date: "2026-08-15", filename: "Teacher_Witness_Log.pdf" },
-          records: { uploaded: true, date: "2026-08-14", filename: "CRC_Hospitalization_Release_Records.pdf" }
-        },
-        pathwayStage: 3,
-        pathwayTimeline: [
-          { date: "2026-08-12", stage: "1. Grievance", desc: "Interpersonal conflict regarding target." },
-          { date: "2026-08-12", stage: "2. Violent Ideation", desc: "Stated 'Raymond does not deserve to live'." }
-        ],
-        activeStep: 9,
-        priorTOVCount: 0,
-        isClosed: false
-      },
-      {
-        id: "1043118",
-        studentName: "Le'Terrance Bills",
-        title: "Le'Terrance Bills (#1043118)",
-        school: "Rogers Middle School",
-        tipsNum: "26-02740",
-        riskLevel: "High",
-        cstagClassification: "Very Serious Substantive",
-        threatBrief: "Sharpened plastic ruler into knife and threatened 'I am going to kill you'.",
-        planStatus: "Active Monitoring",
-        supportPlan: { startDate: "2026-09-14", nextMtgDate: "2026-10-20", endDate: "2026-11-15", docFilename: null },
-        safetyPlan: { startDate: "2026-09-14", nextMtgDate: "2026-10-20", endDate: "2026-11-15", docFilename: "LB_Safety_Plan_Web_Search_Addendum.pdf" },
-        lastOutreachDate: "2026-09-22",
-        docs: {
-          student: { uploaded: true, date: "2026-08-22", filename: "LB_Student_Interview.pdf" },
-          parent: { uploaded: false, date: null, filename: null },
-          witness: { uploaded: true, date: "2026-08-22", filename: "Witness_Ruler_Incident.pdf" },
-          records: { uploaded: true, date: "2026-09-25", filename: "Serial_Killer_Web_Search_Log.pdf" }
-        },
-        pathwayStage: 4,
-        pathwayTimeline: [
-          { date: "2026-08-20", stage: "4. Preparation", desc: "Fashioned weapon from ruler in classroom." }
-        ],
-        activeStep: 7,
-        priorTOVCount: 0,
-        isClosed: false
-      },
-      {
-        id: "1071436",
-        studentName: "Elijah Jameson",
-        title: "Elijah Jameson (#1071436)",
-        school: "Skyline Middle School",
-        tipsNum: "26-02880",
-        riskLevel: "Medium",
-        cstagClassification: "Transient Threat",
-        threatBrief: "Stated 'I'm gonna have my Grandma come up to the school and shoot you.'",
-        planStatus: "Pending Parent Signature",
-        supportPlan: { startDate: "2026-09-30", nextMtgDate: "2026-10-12", endDate: "2026-10-30", docFilename: "Draft_BIP_Elijah_Jameson.pdf" },
-        safetyPlan: { startDate: null, nextMtgDate: null, endDate: null, docFilename: null },
-        lastOutreachDate: "2026-09-28",
-        docs: {
-          student: { uploaded: true, date: "2026-08-28", filename: "Jameson_Student_Statement.pdf" },
-          parent: { uploaded: false, date: null, filename: null },
-          witness: { uploaded: true, date: "2026-08-28", filename: "Staff_Witness_Form.pdf" },
-          records: { uploaded: true, date: "2026-08-28", filename: "Skyline_Disciplinary_History.pdf" }
-        },
-        pathwayStage: 2,
-        pathwayTimeline: [],
-        activeStep: 5,
-        priorTOVCount: 0,
-        isClosed: false
-      }
-    ];
-
-    let currentSelectedCase = null;
-    let currentDocTab = 'student';
-    let pendingParsedData = null;
-
-    document.addEventListener("DOMContentLoaded", function() {
-      renderDashboardMatrix();
-      updateStatCounters();
+    // Initialize default timestamps
+    document.addEventListener('DOMContentLoaded', () => {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      document.getElementById('lastOutreachDate').value = now.toISOString().slice(0, 16);
+      updateOutreachTracker();
     });
 
-    function renderDashboardMatrix(filter = 'all') {
-      const tbody = document.getElementById("matrix-tbody");
-      tbody.innerHTML = "";
-
-      let filtered = btamCases;
-      if (filter === 'medium-high') filtered = btamCases.filter(c => (c.riskLevel === 'High' || c.riskLevel === 'Medium') && !c.isClosed);
-      else if (filter === 'low') filtered = btamCases.filter(c => c.riskLevel === 'Low' && !c.isClosed);
-      else if (filter === 'closed') filtered = btamCases.filter(c => c.isClosed);
-
-      filtered.forEach(c => {
-        const isMedHigh = c.riskLevel === 'High' || c.riskLevel === 'Medium';
-        const hasMissingDoc = isMedHigh && Object.values(c.docs).some(d => !d.uploaded);
-
-        let riskBadgeClass = "bg-slate-100 text-slate-800";
-        if (c.riskLevel === "High") riskBadgeClass = "bg-red-100 text-red-800 font-bold border border-red-300";
-        else if (c.riskLevel === "Medium") riskBadgeClass = "bg-amber-100 text-amber-800 font-bold border border-amber-300";
-
-        let docBadgeHtml = isMedHigh 
-          ? (hasMissingDoc ? `<span class="px-2 py-0.5 rounded bg-red-100 text-red-700 font-bold">Action Required</span>` : `<span class="px-2 py-0.5 rounded bg-green-100 text-green-700 font-bold">Complete</span>`)
-          : `<span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600">Optional</span>`;
-
-        const nextMtg = (c.riskLevel === 'High' ? c.safetyPlan.nextMtgDate : c.supportPlan.nextMtgDate) || '--';
-
-        const row = document.createElement("tr");
-        row.className = "hover:bg-slate-50 transition cursor-pointer";
-        row.onclick = (e) => {
-          if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'I') openCaseDetail(c.id);
-        };
-
-        row.innerHTML = `
-          <td class="py-3 px-4 font-bold text-slate-800">${c.title}</td>
-          <td class="py-3 px-4">${c.school}</td>
-          <td class="py-3 px-4 font-mono">${c.tipsNum}</td>
-          <td class="py-3 px-4"><span class="px-2.5 py-1 rounded-full text-xs ${riskBadgeClass}">${c.riskLevel}</span></td>
-          <td class="py-3 px-4">${c.cstagClassification}</td>
-          <td class="py-3 px-4">${c.planStatus}</td>
-          <td class="py-3 px-4 text-slate-700 font-medium">${nextMtg}</td>
-          <td class="py-3 px-4">${docBadgeHtml}</td>
-          <td class="py-3 px-4 text-right">
-            <button onclick="openCaseDetail('${c.id}')" class="bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1 rounded text-xs">View Case</button>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
+    // Helper: Log team outreach instantly
+    function logOutreachNow() {
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      document.getElementById('lastOutreachDate').value = now.toISOString().slice(0, 16);
+      updateOutreachTracker();
+      alert('Outreach timestamp updated!');
     }
 
-    function updateStatCounters() {
-      document.getElementById("stat-total").innerText = btamCases.length;
-      document.getElementById("stat-high").innerText = btamCases.filter(c => c.riskLevel === 'High' && !c.isClosed).length;
-      document.getElementById("stat-medium").innerText = btamCases.filter(c => c.riskLevel === 'Medium' && !c.isClosed).length;
+    // Helper: Calculate days elapsed and set visual health indicators
+    function updateOutreachTracker() {
+      const dateVal = document.getElementById('lastOutreachDate').value;
+      if (!dateVal) return;
 
-      let missingCount = 0;
-      btamCases.forEach(c => {
-        if ((c.riskLevel === 'High' || c.riskLevel === 'Medium') && !c.isClosed) {
-          if (Object.values(c.docs).some(d => !d.uploaded)) missingCount++;
-        }
-      });
-      document.getElementById("stat-missing-docs").innerText = missingCount;
+      const lastDate = new Date(dateVal);
+      const today = new Date();
+      const diffTime = Math.abs(today - lastDate);
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-      document.getElementById("count-med-high").innerText = btamCases.filter(c => (c.riskLevel === 'High' || c.riskLevel === 'Medium') && !c.isClosed).length;
-      document.getElementById("count-low").innerText = btamCases.filter(c => c.riskLevel === 'Low' && !c.isClosed).length;
-      document.getElementById("count-closed").innerText = btamCases.filter(c => c.isClosed).length;
-    }
+      document.getElementById('daysElapsed').textContent = `${diffDays} day(s) ago`;
 
-    function openCaseDetail(caseId) {
-      const c = btamCases.find(item => item.id === caseId);
-      if (!c) return;
-      currentSelectedCase = c;
+      // Set recommended follow up (+5 days)
+      const followUp = new Date(lastDate);
+      followUp.setDate(followUp.getDate() + 5);
+      document.getElementById('nextFollowUp').textContent = followUp.toLocaleDateString();
 
-      document.getElementById('view-dashboard').classList.add('hidden');
-      document.getElementById('view-case-detail').classList.remove('hidden');
-
-      document.getElementById('detail-header-info').innerHTML = `
-        <h2 class="text-base font-bold text-slate-900">${c.title}</h2>
-        <p class="text-xs text-slate-500">${c.school} • TIPS Report #${c.tipsNum}</p>
-      `;
-
-      document.getElementById('detail-header-actions').innerHTML = `
-        <span class="px-3 py-1 rounded-full text-xs font-bold ${c.riskLevel === 'High' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}">${c.riskLevel} Risk</span>
-      `;
-
-      document.getElementById('case-brief-text').innerText = c.threatBrief;
-
-      // POPULATE SUPPORT PLAN DATES & DOC
-      document.getElementById('support-start-date').value = c.supportPlan.startDate || '';
-      document.getElementById('support-next-date').value = c.supportPlan.nextMtgDate || '';
-      document.getElementById('support-end-date').value = c.supportPlan.endDate || '';
-      document.getElementById('support-doc-filename').innerText = c.supportPlan.docFilename ? `Attached File: ${c.supportPlan.docFilename}` : 'No support plan file attached.';
-
-      // POPULATE SAFETY PLAN DATES & DOC
-      document.getElementById('safety-start-date').value = c.safetyPlan.startDate || '';
-      document.getElementById('safety-next-date').value = c.safetyPlan.nextMtgDate || '';
-      document.getElementById('safety-end-date').value = c.safetyPlan.endDate || '';
-      document.getElementById('safety-doc-filename').innerText = c.safetyPlan.docFilename ? `Attached File: ${c.safetyPlan.docFilename}` : 'No safety plan file attached.';
-
-      updateDocTabBadgesAndAlerts();
-      switchDocTab('student');
-      renderPathwayTimeline();
-      renderStepDetail(c.activeStep || 1);
-    }
-
-    function updateSupportPlanData() {
-      if (!currentSelectedCase) return;
-      currentSelectedCase.supportPlan.startDate = document.getElementById('support-start-date').value;
-      currentSelectedCase.supportPlan.nextMtgDate = document.getElementById('support-next-date').value;
-      currentSelectedCase.supportPlan.endDate = document.getElementById('support-end-date').value;
-    }
-
-    function updateSafetyPlanData() {
-      if (!currentSelectedCase) return;
-      currentSelectedCase.safetyPlan.startDate = document.getElementById('safety-start-date').value;
-      currentSelectedCase.safetyPlan.nextMtgDate = document.getElementById('safety-next-date').value;
-      currentSelectedCase.safetyPlan.endDate = document.getElementById('safety-end-date').value;
-    }
-
-    function uploadSupportDoc(event) {
-      const file = event.target.files[0];
-      if (!file || !currentSelectedCase) return;
-      currentSelectedCase.supportPlan.docFilename = file.name;
-      document.getElementById('support-doc-filename').innerText = `Attached File: ${file.name}`;
-      alert("Support Plan document attached successfully.");
-    }
-
-    function uploadSafetyDoc(event) {
-      const file = event.target.files[0];
-      if (!file || !currentSelectedCase) return;
-      currentSelectedCase.safetyPlan.docFilename = file.name;
-      document.getElementById('safety-doc-filename').innerText = `Attached File: ${file.name}`;
-      alert("Safety Plan document attached successfully.");
-    }
-
-    function updateDocTabBadgesAndAlerts() {
-      if (!currentSelectedCase) return;
-      const c = currentSelectedCase;
-      const isMedHigh = c.riskLevel === 'High' || c.riskLevel === 'Medium';
-
-      ['student', 'parent', 'witness', 'records'].forEach(cat => {
-        const docInfo = c.docs[cat];
-        const tabBtn = document.getElementById(`doc-tab-${cat}`);
-        const badge = document.getElementById(`badge-${cat}`);
-
-        if (docInfo.uploaded) {
-          tabBtn.classList.remove('tab-red');
-          badge.className = "text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-bold";
-          badge.innerText = "Uploaded";
-        } else {
-          badge.className = "text-xs px-2 py-0.5 rounded-full bg-slate-200 text-slate-700";
-          badge.innerText = "Missing";
-          if (isMedHigh) tabBtn.classList.add('tab-red');
-        }
-      });
-    }
-
-    function switchDocTab(tabCategory) {
-      currentDocTab = tabCategory;
-      if (!currentSelectedCase) return;
-      const doc = currentSelectedCase.docs[tabCategory];
-
-      ['student', 'parent', 'witness', 'records'].forEach(cat => {
-        const btn = document.getElementById(`doc-tab-${cat}`);
-        if (cat === tabCategory) btn.classList.add('border-t-blue-600', 'bg-white', 'text-blue-700');
-        else btn.classList.remove('border-t-blue-600', 'bg-white', 'text-blue-700');
-      });
-
-      const contentBox = document.getElementById('doc-tab-content');
-      contentBox.innerHTML = `
-        <div class="space-y-3">
-          <div class="flex justify-between items-center bg-white p-3 rounded border border-slate-200">
-            <div>
-              <p class="font-bold text-slate-800 uppercase text-[11px] text-slate-400">Category Status</p>
-              <p class="font-bold ${doc.uploaded ? 'text-green-700' : 'text-red-600'}">
-                ${doc.uploaded ? `<i class="fa-solid fa-file-circle-check"></i> File Attached: ${doc.filename}` : `<i class="fa-solid fa-triangle-exclamation"></i> Document Missing`}
-              </p>
-            </div>
-            <div>
-              <input type="file" id="cat-file-input" class="hidden" onchange="uploadCategoryDoc(event, '${tabCategory}')">
-              <button onclick="triggerFileInput('cat-file-input')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded font-semibold text-xs">
-                ${doc.uploaded ? 'Replace Document' : 'Upload File'}
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function uploadCategoryDoc(event, cat) {
-      const file = event.target.files[0];
-      if (!file || !currentSelectedCase) return;
-      currentSelectedCase.docs[cat] = { uploaded: true, date: new Date().toISOString().split('T')[0], filename: file.name };
-      updateDocTabBadgesAndAlerts();
-      switchDocTab(cat);
-    }
-
-    function renderPathwayTimeline() {
-      if (!currentSelectedCase) return;
-      const c = currentSelectedCase;
-
-      const stages = ['grievance', 'ideation', 'planning', 'preparation', 'probing', 'attack'];
-      stages.forEach((stg, idx) => {
-        const el = document.getElementById(`stage-${stg}`);
-        if (idx + 1 === c.pathwayStage) el.className = "p-2.5 rounded-lg border-2 border-red-600 bg-red-50 text-red-900 font-extrabold shadow-sm";
-        else if (idx + 1 < c.pathwayStage) el.className = "p-2.5 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 font-bold";
-        else el.className = "p-2.5 rounded-lg border border-slate-200 bg-slate-100 text-slate-400";
-      });
-
-      const timelineContainer = document.getElementById("pathway-timeline-events");
-      timelineContainer.innerHTML = "";
-      c.pathwayTimeline.forEach(evt => {
-        const item = document.createElement("div");
-        item.className = "relative bg-slate-50 p-2.5 rounded border border-slate-200 text-xs";
-        item.innerHTML = `<div class="flex justify-between font-bold text-red-700"><span>${evt.stage}</span><span>${evt.date}</span></div><p class="mt-1">${evt.desc}</p>`;
-        timelineContainer.appendChild(item);
-      });
-    }
-
-    function renderStepDetail(stepNum) {
-      if (!currentSelectedCase) return;
-      currentSelectedCase.activeStep = stepNum;
-      for (let i = 1; i <= 10; i++) {
-        const btn = document.getElementById(`step-btn-${i}`);
-        if (i === stepNum) btn.className = "p-2 rounded border text-left font-medium step-active";
-        else if (i < stepNum) btn.className = "p-2 rounded border text-left font-medium step-complete";
-        else btn.className = "p-2 rounded border text-left font-medium bg-white border-slate-200 text-slate-600";
+      // Update Health Badge
+      const badge = document.getElementById('outreachBadge');
+      if (diffDays >= 5) {
+        badge.textContent = '⚠️ Follow-up Overdue';
+        badge.className = 'px-2.5 py-1 text-xs font-semibold rounded-md bg-amber-950 text-amber-400 border border-amber-800 animate-pulse';
+      } else {
+        badge.textContent = 'Up to date';
+        badge.className = 'px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-950 text-emerald-400 border border-emerald-800';
       }
-      document.getElementById("step-detail-container").innerHTML = `<strong>Step ${stepNum}: Procedural Step Active</strong>`;
     }
 
-    function switchMainTab(tab) {
-      document.getElementById('view-dashboard').classList.remove('hidden');
-      document.getElementById('view-case-detail').classList.add('hidden');
-      renderDashboardMatrix(tab);
+    // Helper: Enable/Disable suspension tracking inputs
+    function toggleSuspensionFields() {
+      const isChecked = document.getElementById('isSuspended').checked;
+      const fields = document.getElementById('suspensionFields');
+      const badge = document.getElementById('suspensionStatusBadge');
+
+      if (isChecked) {
+        fields.classList.remove('opacity-50', 'pointer-events-none');
+        badge.textContent = 'Student Suspended';
+        badge.className = 'px-2.5 py-1 text-xs font-semibold rounded-md bg-rose-950 text-rose-400 border border-rose-800';
+      } else {
+        fields.classList.add('opacity-50', 'pointer-events-none');
+        badge.textContent = 'Not Suspended';
+        badge.className = 'px-2.5 py-1 text-xs font-semibold rounded-md bg-slate-700 text-slate-300';
+      }
     }
 
-    function openNewIntakeModal() { document.getElementById("modal-intake").classList.remove("hidden"); }
-    function closeNewIntakeModal() { document.getElementById("modal-intake").classList.add("hidden"); }
-    function closeTriageModal() { document.getElementById("modal-triage").classList.add("hidden"); }
-    function closeLowRiskModal() { document.getElementById("modal-low-risk-close").classList.add("hidden"); }
-    function triggerFileInput(id) { document.getElementById(id).click(); }
-    function filterTable() {}
-    function showPriorTOVModal() { alert("Prior TOV history logged."); }
-    function editCaseBrief() {}
+    // Helper: Save suspension status feedback
+    function saveSuspensionData() {
+      const isChecked = document.getElementById('isSuspended').checked;
+      const startDate = document.getElementById('suspensionStartDate').value;
+      const reentryDate = document.getElementById('reentryDate').value;
+
+      if (isChecked && (!startDate || !reentryDate)) {
+        alert('Please fill out both the Suspension Start Date and Expected Re-Entry Date.');
+        return;
+      }
+      alert('Suspension and Re-entry log updated successfully!');
+    }
   </script>
 </body>
 </html>
