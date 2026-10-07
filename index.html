@@ -81,6 +81,7 @@
         reEntryDate: '2026-09-21',
         caseStatus: 'Active',
         closeDate: '',
+        closeNotes: '',
         lastTeamContactDate: '2026-09-08',
         teamReachoutCount: 3,
         pastTovCount: 1,
@@ -96,9 +97,9 @@
           recordsReview: [{ name: 'Instagram_Firearm_Screenshots.pdf', uploadDate: '2026-09-07', size: '4.2 MB', url: createMockPdfBlobUrl('Evidence', 'Instagram highlights screenshots.') }]
         },
         pathwayEvents: [
-          { id: 1, stage: 'Grievance', description: 'Peer dispute involving stolen ring during physical education class.', date: '2026-08-28' },
-          { id: 2, stage: 'Violent Ideation', description: 'Instagram highlights updated showing subject posing with firearms.', date: '2026-09-05' },
-          { id: 3, stage: 'Probing/Breaching', description: 'Targeted peers reported feeling watched and followed after school.', date: '2026-09-07' }
+          { id: 1, stage: 'Grievance', description: 'Peer dispute involving stolen ring during physical education class.', date: '2026-08-28', moveNote: '' },
+          { id: 2, stage: 'Violent Ideation', description: 'Instagram highlights updated showing subject posing with firearms.', date: '2026-09-05', moveNote: '' },
+          { id: 3, stage: 'Probing/Breaching', description: 'Targeted peers reported feeling watched and followed after school.', date: '2026-09-07', moveNote: '' }
         ]
       },
       {
@@ -125,6 +126,7 @@
         reEntryDate: '2026-08-27',
         caseStatus: 'Monitored',
         closeDate: '',
+        closeNotes: '',
         lastTeamContactDate: '2026-09-16',
         teamReachoutCount: 4,
         pastTovCount: 0,
@@ -140,8 +142,8 @@
           recordsReview: [{ name: 'CRC_Hospital_Release_Summary.pdf', uploadDate: '2026-08-25', size: '2.4 MB', url: createMockPdfBlobUrl('Records', 'Hospital summary.') }]
         },
         pathwayEvents: [
-          { id: 1, stage: 'Grievance', description: 'Verbal confrontation with student Raymond in cafeteria line.', date: '2026-08-10' },
-          { id: 2, stage: 'Violent Ideation', description: 'Stated directly to peer: "Raymond does not deserve to live".', date: '2026-08-12' }
+          { id: 1, stage: 'Grievance', description: 'Verbal confrontation with student Raymond in cafeteria line.', date: '2026-08-10', moveNote: '' },
+          { id: 2, stage: 'Violent Ideation', description: 'Stated directly to peer: "Raymond does not deserve to live".', date: '2026-08-12', moveNote: '' }
         ]
       },
       {
@@ -168,6 +170,7 @@
         reEntryDate: '2026-09-03',
         caseStatus: 'Active',
         closeDate: '',
+        closeNotes: '',
         lastTeamContactDate: '2026-10-05',
         teamReachoutCount: 2,
         pastTovCount: 0,
@@ -183,8 +186,8 @@
           recordsReview: [{ name: 'Elijah_Behavior_Logs.pdf', uploadDate: '2026-10-05', size: '2.0 MB', url: createMockPdfBlobUrl('Records Review', 'Behavior logs.') }]
         },
         pathwayEvents: [
-          { id: 1, stage: 'Grievance', description: 'Disciplinary encounter with hall monitor over phone confiscation.', date: '2026-08-26' },
-          { id: 2, stage: 'Violent Ideation', description: 'Threatened shooting via family member in main office.', date: '2026-08-26' }
+          { id: 1, stage: 'Grievance', description: 'Disciplinary encounter with hall monitor over phone confiscation.', date: '2026-08-26', moveNote: '' },
+          { id: 2, stage: 'Violent Ideation', description: 'Threatened shooting via family member in main office.', date: '2026-08-26', moveNote: '' }
         ]
       }
     ];
@@ -202,11 +205,16 @@
       const [showNewIntakeModal, setShowNewIntakeModal] = useState(false);
       const [showCloseCaseModal, setShowCloseCaseModal] = useState(false);
       const [showAddPathwayModal, setShowAddPathwayModal] = useState(false);
+      const [editingPathwayEvent, setEditingPathwayEvent] = useState(null);
 
       // Pathway Add Form
       const [newEventStage, setNewEventStage] = useState('Grievance');
       const [newEventDesc, setNewEventDesc] = useState('');
       const [newEventDate, setNewEventDate] = useState(new Date().toISOString().split('T')[0]);
+
+      // Pathway Move/Edit Form
+      const [moveTargetStage, setMoveTargetStage] = useState('Grievance');
+      const [moveReasonNote, setMoveReasonNote] = useState('');
 
       // Close Case Form
       const [closeCaseDate, setCloseCaseDate] = useState(new Date().toISOString().split('T')[0]);
@@ -263,7 +271,6 @@
           let extractedTips = '';
           let extractedBrief = '';
 
-          // Regex Matchers against standard TIPS fields
           const nameMatch = fullText.match(/(?:Student Name|Subject|Student|Name):\s*([A-Za-z\s-]+?)(?=\s+(?:ID|School|TIPS|Date|DOB|$))/i);
           const idMatch = fullText.match(/(?:Student ID|ID #|ID|STU ID):\s*(\d{5,8})/i);
           const schoolMatch = fullText.match(/(?:School|Campus|Location):\s*([A-Za-z0-9\s.-]+?)(?=\s+(?:TIPS|Report|ID|Date|$))/i);
@@ -276,7 +283,6 @@
           if (tipsMatch) extractedTips = tipsMatch[1].trim();
           if (briefMatch) extractedBrief = briefMatch[1].trim();
 
-          // Fallback parsing from file structure if PDF text stream is empty
           if (!extractedName || !extractedSchool) {
             const fileNameUpper = file.name.toUpperCase();
             if (fileNameUpper.includes('JIMENEZ') || fileNameUpper.includes('JORGE')) {
@@ -369,7 +375,8 @@
           id: Date.now(),
           stage: mappedStage,
           description: `Auto-Logged via 360 Upload (${category.replace(/([A-Z])/g, ' $1')}): ${file.name}`,
-          date: new Date().toISOString().split('T')[0]
+          date: new Date().toISOString().split('T')[0],
+          moveNote: ''
         };
 
         setCases(cases.map(c => {
@@ -424,10 +431,36 @@
         e.preventDefault();
         if (!newEventDesc.trim() || !currentCase) return;
 
-        const newEvent = { id: Date.now(), stage: newEventStage, description: newEventDesc, date: newEventDate };
+        const newEvent = { id: Date.now(), stage: newEventStage, description: newEventDesc, date: newEventDate, moveNote: '' };
         setCases(cases.map(c => c.id === currentCase.id ? { ...c, pathwayEvents: [...(c.pathwayEvents || []), newEvent] } : c));
         setShowAddPathwayModal(false);
         setNewEventDesc('');
+      };
+
+      const handleOpenMoveEventModal = (evt) => {
+        setEditingPathwayEvent(evt);
+        setMoveTargetStage(evt.stage);
+        setMoveReasonNote(evt.moveNote || '');
+      };
+
+      const handleSaveMovedPathwayEvent = (e) => {
+        e.preventDefault();
+        if (!editingPathwayEvent || !currentCase) return;
+
+        const updatedEvents = (currentCase.pathwayEvents || []).map(evt => {
+          if (evt.id === editingPathwayEvent.id) {
+            return {
+              ...evt,
+              stage: moveTargetStage,
+              moveNote: moveReasonNote.trim() ? `Moved to ${moveTargetStage} on ${new Date().toISOString().split('T')[0]}: "${moveReasonNote.trim()}"` : evt.moveNote
+            };
+          }
+          return evt;
+        });
+
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, pathwayEvents: updatedEvents } : c));
+        setEditingPathwayEvent(null);
+        setMoveReasonNote('');
       };
 
       // CREATE CASE & ROUTE TO CORRECT TAB
@@ -470,6 +503,7 @@
           reEntryDate: intakeSuspended ? (intakeReEntryDate || 'Pending') : 'N/A',
           caseStatus: 'Active',
           closeDate: '',
+          closeNotes: '',
           lastTeamContactDate: new Date().toISOString().split('T')[0],
           teamReachoutCount: 1,
           pastTovCount: pastMatches.length,
@@ -479,7 +513,7 @@
             triagePdf: uploadedTriageFile ? { name: uploadedTriageFile.name, uploadDate: new Date().toISOString().split('T')[0], size: '540 KB', scoreDetected: finalPriority, url: uploadedTriageFile.url } : null
           },
           documents: { studentInterview: [], parentInterview: [], witnessStatements: [], recordsReview: autoRecordsDocs },
-          pathwayEvents: (isTriageProvided && finalPriority !== 'Low') ? [{ id: Date.now(), stage: 'Grievance', description: `Initial threat logged via TIPS #${intakeTipsNum}`, date: new Date().toISOString().split('T')[0] }] : []
+          pathwayEvents: (isTriageProvided && finalPriority !== 'Low') ? [{ id: Date.now(), stage: 'Grievance', description: `Initial threat logged via TIPS #${intakeTipsNum}`, date: new Date().toISOString().split('T')[0], moveNote: '' }] : []
         };
 
         setCases([newCase, ...cases]);
@@ -498,8 +532,15 @@
 
       const handleConfirmCloseCase = () => {
         if (!currentCase) return;
-        setCases(cases.map(c => c.id === currentCase.id ? { ...c, caseStatus: 'Closed', closeDate: closeCaseDate, supportPlanStatus: `Closed (${closeCaseDate}): ${closeCaseNotes}` } : c));
-        setShowCloseCaseModal(false); setCloseCaseNotes(''); setMainTab('closed');
+        setCases(cases.map(c => c.id === currentCase.id ? { 
+          ...c, 
+          caseStatus: 'Closed', 
+          closeDate: closeCaseDate, 
+          closeNotes: closeCaseNotes 
+        } : c));
+        setShowCloseCaseModal(false); 
+        setCloseCaseNotes(''); 
+        setMainTab('closed');
       };
 
       return (
@@ -599,7 +640,7 @@
                         <p className="text-xs text-slate-300 line-clamp-2 bg-slate-950 p-2 rounded border border-slate-800/80 mb-2">"{c.tovBrief}"</p>
                         <div className="flex items-center justify-between text-[11px] text-slate-400">
                           <span>{c.schoolLocation}</span>
-                          <span className="text-blue-400 font-semibold">{c.caseStatus}</span>
+                          <span className={`font-semibold ${c.caseStatus === 'Closed' ? 'text-red-400' : 'text-blue-400'}`}>{c.caseStatus}</span>
                         </div>
                       </div>
                     ))}
@@ -649,16 +690,16 @@
                         </div>
                       </div>
 
-                      {/* PATHWAY TO VIOLENCE */}
+                      {/* EDITABLE PATHWAY TO VIOLENCE TIMELINE */}
                       {(currentCase.triagePriority === 'Medium' || currentCase.triagePriority === 'High') && (
                         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
                           <div className="flex justify-between items-center">
                             <div>
                               <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
                                 <span className="text-blue-400">📈</span>
-                                <span>Pathway to Violence Timeline</span>
+                                <span>Pathway to Violence Timeline (Movable / Editable)</span>
                               </h3>
-                              <p className="text-[10px] text-slate-400">Events auto-generate on 360 Document Upload</p>
+                              <p className="text-[10px] text-slate-400">Auto-logs on 360 uploads. Events can be moved between stages with notes.</p>
                             </div>
                             <button onClick={() => setShowAddPathwayModal(true)} className="bg-blue-600/80 hover:bg-blue-600 text-white text-xs px-3 py-1.5 rounded font-semibold">+ Add Event</button>
                           </div>
@@ -672,11 +713,28 @@
                                     <span className={`px-2 py-0.5 text-[10px] font-bold rounded border ${stageObj.color}`}>{stageObj.label}</span>
                                     <span className="text-[11px] text-slate-400">({stageEvents.length} Event{stageEvents.length !== 1 ? 's' : ''})</span>
                                   </div>
+
                                   <div className="space-y-1.5 pl-2 border-l-2 border-slate-800">
                                     {stageEvents.map(evt => (
-                                      <div key={evt.id} className="bg-slate-900 p-2 rounded border border-slate-800 text-xs flex justify-between items-start">
-                                        <p className="text-slate-200 pr-2">{evt.description}</p>
-                                        <span className="text-slate-500 font-mono text-[10px]">{evt.date}</span>
+                                      <div key={evt.id} className="bg-slate-900 p-2.5 rounded border border-slate-800 text-xs space-y-1">
+                                        <div className="flex justify-between items-start">
+                                          <p className="text-slate-200 pr-2 font-medium">{evt.description}</p>
+                                          <div className="flex items-center space-x-2 shrink-0">
+                                            <span className="text-slate-500 font-mono text-[10px]">{evt.date}</span>
+                                            <button
+                                              onClick={() => handleOpenMoveEventModal(evt)}
+                                              className="bg-slate-800 hover:bg-slate-700 text-blue-300 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-semibold"
+                                            >
+                                              Move / Edit
+                                            </button>
+                                          </div>
+                                        </div>
+
+                                        {evt.moveNote && (
+                                          <p className="text-[10px] text-purple-300 bg-purple-950/60 p-1.5 rounded border border-purple-900/60 italic">
+                                            📌 {evt.moveNote}
+                                          </p>
+                                        )}
                                       </div>
                                     ))}
                                     {stageEvents.length === 0 && <p className="text-[11px] text-slate-600 italic">No incidents logged.</p>}
@@ -890,6 +948,31 @@
                           </div>
                         </div>
                       )}
+
+                      {/* CASE CLOSURE SUMMARY (VISIBLE WHEN CASE IS CLOSED) */}
+                      {currentCase.caseStatus === 'Closed' && (
+                        <div className="bg-red-950/40 border border-red-900/80 rounded-xl p-5 space-y-3 shadow-xl">
+                          <div className="flex items-center space-x-2 border-b border-red-900/60 pb-2">
+                            <span className="text-red-400 text-base">📁</span>
+                            <h3 className="text-sm font-bold text-red-200 uppercase tracking-wide">Case Closure & Resolution Record</h3>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
+                            <div>
+                              <span className="text-slate-400 block text-[10px] uppercase font-semibold">Case Status</span>
+                              <span className="font-bold text-red-400">Closed & Archived</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-400 block text-[10px] uppercase font-semibold">Closure Date</span>
+                              <span className="font-mono text-slate-200 font-bold">{currentCase.closeDate || 'N/A'}</span>
+                            </div>
+                            <div className="sm:col-span-3 bg-slate-950 p-3 rounded border border-slate-800/80">
+                              <span className="text-slate-400 block text-[10px] uppercase font-semibold mb-1">Resolution & Final Closure Notes</span>
+                              <p className="text-slate-200 text-xs whitespace-pre-wrap">{currentCase.closeNotes || 'No closure notes recorded.'}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </>
                   ) : null}
                 </div>
@@ -980,7 +1063,53 @@
             </div>
           )}
 
-          {/* NEW INTAKE MODAL WITH AUTOMATED PDF PARSER & EDITABLE PRE-FILL */}
+          {/* MOVE / EDIT PATHWAY EVENT MODAL */}
+          {editingPathwayEvent && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <h3 className="text-base font-bold text-slate-100">Move Pathway Event to New Stage</h3>
+                  <button onClick={() => setEditingPathwayEvent(null)} className="text-slate-400 hover:text-white font-bold">✕</button>
+                </div>
+
+                <form onSubmit={handleSaveMovedPathwayEvent} className="space-y-3 text-xs">
+                  <div className="bg-slate-950 p-2.5 rounded border border-slate-800 text-slate-300">
+                    <span className="text-[10px] text-slate-500 block uppercase font-bold">Selected Event</span>
+                    "{editingPathwayEvent.description}"
+                  </div>
+
+                  <div>
+                    <label className="text-slate-400 block mb-1">Target Stage</label>
+                    <select
+                      value={moveTargetStage}
+                      onChange={(e) => setMoveTargetStage(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 focus:border-blue-500"
+                    >
+                      {PATHWAY_STAGES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-slate-400 block mb-1">Relocation Reason / Note</label>
+                    <textarea
+                      rows="3"
+                      placeholder="e.g., Re-categorized following parent interview and background evidence review..."
+                      value={moveReasonNote}
+                      onChange={(e) => setMoveReasonNote(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded text-slate-100 focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
+                    <button type="button" onClick={() => setEditingPathwayEvent(null)} className="bg-slate-800 px-4 py-2 rounded text-slate-300 font-semibold">Cancel</button>
+                    <button type="submit" className="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded font-semibold">Save Relocation</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* NEW INTAKE MODAL */}
           {showNewIntakeModal && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
@@ -994,7 +1123,7 @@
                     <div className="border-2 border-dashed border-slate-700 hover:border-blue-500 p-4 rounded-lg text-center bg-slate-950/50">
                       <span className="text-2xl block mb-1">📄</span>
                       <p className="font-semibold text-slate-200 mb-1">Upload TIPS Report PDF</p>
-                      <p className="text-[10px] text-slate-400 mb-2">Auto-scrapes Student Name, ID#, Campus, & Brief</p>
+                      <p className="text-[10px] text-slate-400 mb-2">Auto-populates Student Name, ID#, Campus, & Brief</p>
                       <input type="file" accept="application/pdf" onChange={handleTipsFileUpload} className="text-xs text-slate-400 w-full" />
                       {isParsingPdf && <p className="mt-2 text-yellow-400 text-[10px] animate-pulse">Reading TIPS PDF text streams...</p>}
                       {uploadedTipsFile && !isParsingPdf && <p className="mt-2 text-blue-400 text-[10px] font-mono">Loaded: {uploadedTipsFile.name}</p>}
