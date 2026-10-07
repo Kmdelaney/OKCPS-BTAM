@@ -62,6 +62,7 @@
         studentName: 'Jorge Jimenez',
         studentId: '345290',
         schoolLocation: 'Capitol Hill High School',
+        involvedStudents: 'Erick Ruben (ID: 390112), Carlos M. (ID: 401882)',
         tovBrief: 'Reported online threats, firearm-related imagery on Instagram highlights, and alleged stalking/intimidation behavior toward peers.',
         incidentDate: '2026-09-04',
         dateReported: '2026-09-07',
@@ -107,6 +108,7 @@
         studentName: 'Jesus Garcia-Reyes',
         studentId: '332545',
         schoolLocation: 'U.S. Grant HS',
+        involvedStudents: 'Raymond Vance (ID: 332901)',
         tovBrief: '"Raymond does not deserve to live"',
         incidentDate: '2026-08-12',
         dateReported: '2026-08-12',
@@ -151,6 +153,7 @@
         studentName: 'Elijah Jameson',
         studentId: '1071436',
         schoolLocation: 'Skyline MS',
+        involvedStudents: 'Hall Monitor Staff, Grandma (Guardian)',
         tovBrief: '"I\'m gonna have my Grandma come up to the school and shoot you."',
         incidentDate: '2026-08-26',
         dateReported: '2026-08-27',
@@ -198,6 +201,9 @@
       const [selectedCaseId, setSelectedCaseId] = useState(INITIAL_CASES[0].id);
       const [activeDocTab, setActiveDocTab] = useState('studentInterview');
 
+      // Student Lookup State
+      const [searchQuery, setSearchQuery] = useState('');
+
       // Viewer Modal
       const [viewingDoc, setViewingDoc] = useState(null);
 
@@ -229,6 +235,7 @@
       const [intakeStudentName, setIntakeStudentName] = useState('');
       const [intakeStudentId, setIntakeStudentId] = useState('');
       const [intakeSchool, setIntakeSchool] = useState('');
+      const [intakeInvolvedStudents, setIntakeInvolvedStudents] = useState('');
       const [intakeBrief, setIntakeBrief] = useState('');
       const [intakeTipsNum, setIntakeTipsNum] = useState('');
       const [intakeIsIep, setIntakeIsIep] = useState(false);
@@ -243,6 +250,16 @@
       const closedCases = cases.filter(c => c.caseStatus === 'Closed');
 
       const currentCase = cases.find(c => c.id === selectedCaseId) || activeMediumHighCases[0] || cases[0];
+
+      // GLOBAL SEARCH / LOOKUP RESULTS (SEARCHES ALL CASES IN SYSTEM INCLUDING CLOSED)
+      const lookupResults = searchQuery.trim() === '' ? [] : cases.filter(c => {
+        const q = searchQuery.toLowerCase();
+        return (
+          c.studentName.toLowerCase().includes(q) ||
+          c.studentId.toLowerCase().includes(q) ||
+          (c.involvedStudents && c.involvedStudents.toLowerCase().includes(q))
+        );
+      });
 
       // DIRECT PDF TEXT PARSER ENGINE VIA PDF.JS
       const handleTipsFileUpload = async (e) => {
@@ -270,18 +287,21 @@
           let extractedSchool = '';
           let extractedTips = '';
           let extractedBrief = '';
+          let extractedInvolved = '';
 
           const nameMatch = fullText.match(/(?:Student Name|Subject|Student|Name):\s*([A-Za-z\s-]+?)(?=\s+(?:ID|School|TIPS|Date|DOB|$))/i);
           const idMatch = fullText.match(/(?:Student ID|ID #|ID|STU ID):\s*(\d{5,8})/i);
           const schoolMatch = fullText.match(/(?:School|Campus|Location):\s*([A-Za-z0-9\s.-]+?)(?=\s+(?:TIPS|Report|ID|Date|$))/i);
           const tipsMatch = fullText.match(/(?:TIPS Report #|TIPS #|Incident #|Report #):\s*(26-\d{4,5}|\d{5,7})/i);
           const briefMatch = fullText.match(/(?:Brief|Threat Description|Incident Details|Details):\s*([\s\S]{10,250}?)(?=\s+(?:Action|Reported|Witness|$))/i);
+          const involvedMatch = fullText.match(/(?:Involved Students|Other Students|Associated Students|Witnesses):\s*([A-Za-z0-9\s.,()-]+?)(?=\s+(?:Brief|Details|Action|$))/i);
 
           if (nameMatch) extractedName = nameMatch[1].trim();
           if (idMatch) extractedId = idMatch[1].trim();
           if (schoolMatch) extractedSchool = schoolMatch[1].trim();
           if (tipsMatch) extractedTips = tipsMatch[1].trim();
           if (briefMatch) extractedBrief = briefMatch[1].trim();
+          if (involvedMatch) extractedInvolved = involvedMatch[1].trim();
 
           if (!extractedName || !extractedSchool) {
             const fileNameUpper = file.name.toUpperCase();
@@ -291,24 +311,21 @@
               extractedSchool = extractedSchool || 'Capitol Hill High School';
               extractedTips = extractedTips || '26-03093';
               extractedBrief = extractedBrief || 'Reported online threats, firearm imagery on Instagram highlights, and peer intimidation.';
+              extractedInvolved = extractedInvolved || 'Erick Ruben (ID: 390112), Carlos M. (ID: 401882)';
             } else if (fileNameUpper.includes('GARCIA') || fileNameUpper.includes('JESUS')) {
               extractedName = extractedName || 'Jesus Garcia-Reyes';
               extractedId = extractedId || '332545';
               extractedSchool = extractedSchool || 'U.S. Grant HS';
               extractedTips = extractedTips || '26-02602';
               extractedBrief = extractedBrief || 'Stated "Raymond does not deserve to live" following altercation.';
+              extractedInvolved = extractedInvolved || 'Raymond Vance (ID: 332901)';
             } else if (fileNameUpper.includes('JAMESON') || fileNameUpper.includes('ELIJAH')) {
               extractedName = extractedName || 'Elijah Jameson';
               extractedId = extractedId || '1071436';
               extractedSchool = extractedSchool || 'Skyline MS';
               extractedTips = extractedTips || '26-02880';
               extractedBrief = extractedBrief || 'Threatened shooting via family member in main office.';
-            } else if (fileNameUpper.includes('VANCE') || fileNameUpper.includes('MARCUS')) {
-              extractedName = extractedName || 'Marcus Vance';
-              extractedId = extractedId || '1098421';
-              extractedSchool = extractedSchool || 'NW Classen HS';
-              extractedTips = extractedTips || '26-02511';
-              extractedBrief = extractedBrief || 'Verbal disagreement regarding athletic equipment.';
+              extractedInvolved = extractedInvolved || 'Hall Monitor Staff, Grandma (Guardian)';
             } else {
               const cleanName = file.name.replace('.pdf', '').replace(/_/g, ' ').replace(/-/g, ' ');
               extractedName = extractedName || cleanName;
@@ -316,6 +333,7 @@
               extractedSchool = extractedSchool || 'OKCPS Campus';
               extractedTips = extractedTips || `26-${Math.floor(1000 + Math.random() * 9000)}`;
               extractedBrief = extractedBrief || 'TIPS Incident report uploaded. Ready for review.';
+              extractedInvolved = extractedInvolved || 'None listed';
             }
           }
 
@@ -324,6 +342,7 @@
           setIntakeSchool(extractedSchool);
           setIntakeTipsNum(extractedTips);
           setIntakeBrief(extractedBrief);
+          setIntakeInvolvedStudents(extractedInvolved);
         } catch (err) {
           console.warn('PDF Parsing fallback engaged:', err);
           const cleanName = file.name.replace('.pdf', '').replace(/_/g, ' ').replace(/-/g, ' ');
@@ -332,6 +351,7 @@
           setIntakeSchool('OKCPS Campus');
           setIntakeTipsNum(`26-${Math.floor(1000 + Math.random() * 9000)}`);
           setIntakeBrief('TIPS Incident report uploaded. Ready for review.');
+          setIntakeInvolvedStudents('');
         } finally {
           setIsParsingPdf(false);
         }
@@ -484,6 +504,7 @@
           studentName: intakeStudentName || 'New Student',
           studentId: intakeStudentId || '000000',
           schoolLocation: intakeSchool || 'OKCPS Campus',
+          involvedStudents: intakeInvolvedStudents || 'None Listed',
           tovBrief: intakeBrief || 'No description provided.',
           incidentDate: new Date().toISOString().split('T')[0],
           dateReported: new Date().toISOString().split('T')[0],
@@ -523,7 +544,7 @@
         setUploadedTipsFile(null);
         setUploadedTriageFile(null);
         setDetectedTriageScore('Pending Triage');
-        setIntakeStudentName(''); setIntakeStudentId(''); setIntakeSchool(''); setIntakeBrief(''); setIntakeTipsNum('');
+        setIntakeStudentName(''); setIntakeStudentId(''); setIntakeSchool(''); setIntakeBrief(''); setIntakeTipsNum(''); setIntakeInvolvedStudents('');
 
         if (!isTriageProvided) setMainTab('noTriage');
         else if (finalPriority === 'Low') setMainTab('low');
@@ -541,6 +562,14 @@
         setShowCloseCaseModal(false); 
         setCloseCaseNotes(''); 
         setMainTab('closed');
+      };
+
+      const selectCaseFromSearch = (c) => {
+        setSelectedCaseId(c.id);
+        if (c.caseStatus === 'Closed') setMainTab('closed');
+        else if (!c.triageCompleted) setMainTab('noTriage');
+        else if (c.triagePriority === 'Low') setMainTab('low');
+        else setMainTab('active');
       };
 
       return (
@@ -580,6 +609,72 @@
               </div>
             </div>
           )}
+
+          {/* GLOBAL STUDENT SEARCH / LOOKUP TOOLBAR (ACCESSIBLE ACROSS ALL TABS) */}
+          <div className="bg-slate-900/80 border-b border-slate-800 px-4 py-2.5">
+            <div className="max-w-7xl mx-auto flex items-center space-x-3">
+              <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">🔍 Student Lookup:</span>
+              <div className="relative flex-1">
+                <input
+                  type="text"
+                  placeholder="Type student name or ID# to view all historical cases (Active, Monitored, Closed)..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-xs text-slate-100 focus:border-blue-500 focus:outline-none"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery('')} className="absolute right-2.5 top-1.5 text-slate-400 hover:text-white text-xs font-bold">✕</button>
+                )}
+              </div>
+            </div>
+
+            {/* SEARCH RESULTS OVERLAY PANEL */}
+            {searchQuery.trim() !== '' && (
+              <div className="max-w-7xl mx-auto mt-2 bg-slate-900 border border-blue-500/60 rounded-xl p-4 space-y-3 shadow-2xl">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-2">
+                  <span className="text-xs font-bold text-blue-400 uppercase">Student Lookup Results for "{searchQuery}" ({lookupResults.length} Cases Found)</span>
+                  <button onClick={() => setSearchQuery('')} className="text-xs text-slate-400 hover:text-white">Close Lookup Panel</button>
+                </div>
+
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                  {lookupResults.map(rc => (
+                    <div key={rc.id} onClick={() => { selectCaseFromSearch(rc); setSearchQuery(''); }} className="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg cursor-pointer flex justify-between items-start text-xs transition-all">
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-bold text-slate-100 text-sm">{rc.studentName}</span>
+                          <span className="text-[10px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded">ID #{rc.studentId}</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${rc.caseStatus === 'Closed' ? 'bg-red-950 text-red-300 border-red-800' : 'bg-blue-950 text-blue-300 border-blue-800'}`}>
+                            {rc.caseStatus}
+                          </span>
+                        </div>
+                        <p className="text-slate-400 text-[11px]">Campus: <span className="text-slate-200">{rc.schoolLocation}</span> | TIPS #{rc.tipsReportNum}</p>
+                        {rc.involvedStudents && <p className="text-[11px] text-amber-300/90 font-medium">Involved Students: {rc.involvedStudents}</p>}
+                        
+                        {/* CLOSURE STATUS & RESOLUTION CONCLUSION DISPLAY */}
+                        {rc.caseStatus === 'Closed' && (
+                          <div className="mt-1.5 p-2 bg-red-950/40 border border-red-900/60 rounded text-[11px]">
+                            <span className="font-bold text-red-300 block">Case Closed on {rc.closeDate || 'Archived Date'}:</span>
+                            <span className="text-slate-200 italic">"{rc.closeNotes || 'No conclusion details recorded.'}"</span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="text-right shrink-0 pl-2">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${rc.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' : 'bg-yellow-950 text-yellow-300 border-yellow-800'}`}>
+                          {rc.triagePriority} Risk
+                        </span>
+                        <span className="block text-[10px] text-blue-400 font-semibold mt-2">Open Case ➔</span>
+                      </div>
+                    </div>
+                  ))}
+
+                  {lookupResults.length === 0 && (
+                    <div className="p-4 text-center text-xs text-slate-400">No student records found matching "{searchQuery}".</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* NAVIGATION TABS WITH REAL-TIME CASE COUNTERS */}
           <div className="max-w-7xl mx-auto px-4 pt-4">
@@ -672,6 +767,15 @@
                               </button>
                             )}
                           </div>
+                        </div>
+
+                        {/* OTHER INVOLVED STUDENTS BADGE CARD */}
+                        <div className="bg-slate-950 p-3 rounded-lg border border-slate-800/80 flex items-center justify-between text-xs">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-amber-400 font-bold">👥</span>
+                            <span className="font-semibold text-slate-400 uppercase text-[10px]">Other Involved Students & ID #s:</span>
+                          </div>
+                          <span className="font-medium text-amber-200 bg-amber-950/60 border border-amber-800/80 px-2.5 py-1 rounded">{currentCase.involvedStudents || 'None Listed'}</span>
                         </div>
 
                         {/* INTAKE FILES */}
@@ -989,6 +1093,7 @@
                       <tr>
                         <th className="p-3">Student / ID</th>
                         <th className="p-3">School Location</th>
+                        <th className="p-3">Involved Students & ID #s</th>
                         <th className="p-3">TIPS #</th>
                         <th className="p-3">CSTAG Classification</th>
                         <th className="p-3">Plan Status</th>
@@ -1000,6 +1105,7 @@
                         <tr key={c.id} className="hover:bg-slate-800/40">
                           <td className="p-3 font-semibold text-slate-100">{c.studentName} <span className="text-slate-500 font-mono text-[10px]">#{c.studentId}</span></td>
                           <td className="p-3">{c.schoolLocation}</td>
+                          <td className="p-3 text-amber-300/90">{c.involvedStudents || 'None'}</td>
                           <td className="p-3 font-mono">{c.tipsReportNum}</td>
                           <td className="p-3 font-bold">{c.cstagClassification || 'Pending'}</td>
                           <td className="p-3">{c.planStatus || 'Not Completed'}</td>
@@ -1109,7 +1215,7 @@
             </div>
           )}
 
-          {/* NEW INTAKE MODAL */}
+          {/* NEW INTAKE MODAL WITH INVOLVED STUDENTS FIELD */}
           {showNewIntakeModal && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
@@ -1140,7 +1246,7 @@
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-slate-400 block mb-1">Student Name</label>
+                      <label className="text-slate-400 block mb-1">Primary Student Name</label>
                       <input type="text" required value={intakeStudentName} onChange={(e) => setIntakeStudentName(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 focus:border-blue-500" />
                     </div>
                     <div>
@@ -1158,6 +1264,18 @@
                       <label className="text-slate-400 block mb-1">TIPS Report Number</label>
                       <input type="text" required value={intakeTipsNum} onChange={(e) => setIntakeTipsNum(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 focus:border-blue-500" />
                     </div>
+                  </div>
+
+                  {/* INVOLVED / ASSOCIATED STUDENTS BOX */}
+                  <div>
+                    <label className="text-slate-400 block mb-1">Involved / Associated Students & ID #s</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g., Raymond Vance (ID: 332901), Sarah Lopez (ID: 441029)" 
+                      value={intakeInvolvedStudents} 
+                      onChange={(e) => setIntakeInvolvedStudents(e.target.value)} 
+                      className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 focus:border-blue-500" 
+                    />
                   </div>
 
                   <div>
