@@ -39,7 +39,7 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useEffect } = React;
 
     const PATHWAY_STAGES = [
       { key: 'Grievance', label: 'Grievance', color: 'bg-blue-900 text-blue-200 border-blue-600' },
@@ -64,6 +64,8 @@
         schoolLocation: 'Capitol Hill High School',
         involvedStudents: 'Erick Ruben (ID: 390112), Carlos M. (ID: 401882)',
         tovBrief: 'Reported online threats, firearm-related imagery on Instagram highlights, and alleged stalking/intimidation behavior toward peers.',
+        caseTeamStatusNotes: 'Spoke with principal regarding OSS re-entry plan. Security updated on dismissal monitoring.',
+        caseTeamStatusLastUpdated: '2026-10-08',
         incidentDate: '2026-09-04',
         dateReported: '2026-09-07',
         tipsReportNum: '26-03093',
@@ -110,6 +112,8 @@
         schoolLocation: 'U.S. Grant HS',
         involvedStudents: 'Raymond Vance (ID: 332901)',
         tovBrief: '"Raymond does not deserve to live"',
+        caseTeamStatusNotes: 'OESS consultation completed due to IEP. Follow-up meeting scheduled with parent.',
+        caseTeamStatusLastUpdated: '2026-09-16',
         incidentDate: '2026-08-12',
         dateReported: '2026-08-12',
         tipsReportNum: '26-02602',
@@ -155,6 +159,8 @@
         schoolLocation: 'Skyline MS',
         involvedStudents: 'Hall Monitor Staff, Grandma (Guardian)',
         tovBrief: '"I\'m gonna have my Grandma come up to the school and shoot you."',
+        caseTeamStatusNotes: 'Support plan active. Bi-weekly counselor check-ins ongoing.',
+        caseTeamStatusLastUpdated: '2026-10-05',
         incidentDate: '2026-08-26',
         dateReported: '2026-08-27',
         tipsReportNum: '26-02880',
@@ -204,6 +210,9 @@
       // Student Lookup State
       const [searchQuery, setSearchQuery] = useState('');
 
+      // Case / Team Status Note Form State
+      const [tempStatusNotes, setTempStatusNotes] = useState('');
+
       // Viewer Modal
       const [viewingDoc, setViewingDoc] = useState(null);
 
@@ -250,6 +259,24 @@
       const closedCases = cases.filter(c => c.caseStatus === 'Closed');
 
       const currentCase = cases.find(c => c.id === selectedCaseId) || activeMediumHighCases[0] || cases[0];
+
+      // Sync local status note state when selected case changes
+      useEffect(() => {
+        if (currentCase) {
+          setTempStatusNotes(currentCase.caseTeamStatusNotes || '');
+        }
+      }, [selectedCaseId, currentCase?.id]);
+
+      // Save Case/Team Status Notes with today's timestamp
+      const handleSaveStatusNotes = () => {
+        if (!currentCase) return;
+        const today = new Date().toISOString().split('T')[0];
+        setCases(cases.map(c => c.id === currentCase.id ? {
+          ...c,
+          caseTeamStatusNotes: tempStatusNotes,
+          caseTeamStatusLastUpdated: today
+        } : c));
+      };
 
       // GLOBAL SEARCH / LOOKUP RESULTS (SEARCHES ALL CASES IN SYSTEM INCLUDING CLOSED)
       const lookupResults = searchQuery.trim() === '' ? [] : cases.filter(c => {
@@ -506,6 +533,8 @@
           schoolLocation: intakeSchool || 'OKCPS Campus',
           involvedStudents: intakeInvolvedStudents || 'None Listed',
           tovBrief: intakeBrief || 'No description provided.',
+          caseTeamStatusNotes: '',
+          caseTeamStatusLastUpdated: new Date().toISOString().split('T')[0],
           incidentDate: new Date().toISOString().split('T')[0],
           dateReported: new Date().toISOString().split('T')[0],
           tipsReportNum: intakeTipsNum || 'Pending',
@@ -792,6 +821,38 @@
                             </div>
                           </div>
                         </div>
+
+                        {/* CASE / TEAM STATUS UPDATING AREA (VISIBLE FOR OPEN CASES) */}
+                        {currentCase.caseStatus !== 'Closed' && (
+                          <div className="bg-slate-950 p-4 rounded-lg border border-blue-900/60 space-y-2">
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-blue-400 font-bold text-xs">💬</span>
+                                <h4 className="text-xs font-bold text-slate-100 uppercase tracking-wide">Case / Team Status</h4>
+                              </div>
+                              <span className="text-[10px] text-slate-400 font-mono">
+                                Last Updated: <strong className="text-blue-300">{currentCase.caseTeamStatusLastUpdated || 'Not set'}</strong>
+                              </span>
+                            </div>
+
+                            <textarea
+                              rows="3"
+                              placeholder="Type ongoing updates, team communications, contact logs, or status notes here..."
+                              value={tempStatusNotes}
+                              onChange={(e) => setTempStatusNotes(e.target.value)}
+                              className="w-full bg-slate-900 border border-slate-800 p-2.5 rounded text-xs text-slate-100 focus:border-blue-500 focus:outline-none"
+                            />
+
+                            <div className="flex justify-end">
+                              <button
+                                onClick={handleSaveStatusNotes}
+                                className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-semibold transition-colors shadow"
+                              >
+                                Save Status Update
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* EDITABLE PATHWAY TO VIOLENCE TIMELINE */}
