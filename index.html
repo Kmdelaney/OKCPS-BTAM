@@ -50,6 +50,13 @@
       { key: 'Attack', label: 'Attack', color: 'bg-red-900 text-red-200 border-red-600' }
     ];
 
+    const PLAN_STATUS_OPTIONS = [
+      { label: 'Waiting on team to schedule', color: 'bg-red-900/80 text-red-200 border-red-600' },
+      { label: 'Waiting on Re-Entry', color: 'bg-yellow-900/80 text-yellow-200 border-yellow-600' },
+      { label: 'Meeting Scheduled', color: 'bg-sky-900/80 text-sky-200 border-sky-600' },
+      { label: 'Meeting Completed', color: 'bg-emerald-900/80 text-emerald-200 border-emerald-600' }
+    ];
+
     const createMockPdfBlobUrl = (title, details) => {
       const pdfContent = `%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n4 0 obj\n<< /Length 120 >>\nstream\nBT\n/F1 16 Tf\n50 700 Td\n(${title}) Tj\n0 -30 Td\n/F1 10 Tf\n(${details}) Tj\nET\nendstream\nendobj\n5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000244 00000 n \n0000000415 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n492\n%%EOF`;
       const blob = new Blob([pdfContent], { type: 'application/pdf' });
@@ -72,10 +79,10 @@
         tipsReportNum: '26-03093',
         triagePriority: 'High',
         triageCompleted: true,
-        cstagClassification: 'Very Serious Substantive',
-        cstagDoc: { name: 'CSTAG_Determination_Jimenez_VSS.pdf', uploadDate: '2026-09-08', size: '740 KB', url: createMockPdfBlobUrl('CSTAG Determination', 'Classification: Very Serious Substantive') },
+        cstagClassification: 'Very Serious Substantive Threat',
+        cstagDoc: { name: 'CSTAG_Determination_Jimenez_VSS.pdf', uploadDate: '2026-09-08', size: '740 KB', url: createMockPdfBlobUrl('CSTAG Determination', 'Classification: Very Serious Substantive Threat') },
         immediateResponse: { victimNotification: true, vulnerabilityReduction: true, conflictResolution: false },
-        planStatus: 'Support Plan Created',
+        planStatus: 'Meeting Scheduled',
         planDoc: { name: 'Safety_Plan_Jorge_Jimenez.pdf', uploadDate: '2026-09-08', size: '1.2 MB', url: createMockPdfBlobUrl('Safety Plan', 'Student Safety Plan') },
         planStartDate: '2026-09-08',
         planEndDate: '2026-12-18',
@@ -125,14 +132,14 @@
         tipsReportNum: '26-02602',
         triagePriority: 'High',
         triageCompleted: true,
-        cstagClassification: 'Very Serious Substantive',
+        cstagClassification: 'Serious Substantive Threat',
         cstagDoc: null,
         immediateResponse: { victimNotification: true, vulnerabilityReduction: false, conflictResolution: false },
-        planStatus: 'Meeting Scheduled',
+        planStatus: 'Waiting on Re-Entry',
         planDoc: null,
-        planStartDate: '',
-        planEndDate: '',
-        planCheckinDate: '',
+        planStartDate: '2026-08-27',
+        planEndDate: '2026-11-20',
+        planCheckinDate: '2026-09-25',
         isIep: true,
         suspended: true,
         reEntryDate: '2026-08-27',
@@ -157,7 +164,7 @@
       }
     ];
 
-    // INITIAL "KEEPING AN EYE ON" RECORDS (EXCLUDED FROM DASHBOARD)
+    // INITIAL "KEEPING AN EYE ON" RECORDS
     const INITIAL_WATCH_STUDENTS = [
       {
         studentName: 'Ethan Capulin',
@@ -179,23 +186,12 @@
           {
             id: 'inc-2',
             tipsNum: '26-03047',
-            details: 'VICTIM OF THREAT - CAT-IN-THE-HAT: He was mentioned in the instagram story from the cat-in-the-hat situation at TAFT. He was not at school the day of that incident. This incident the day after he was supposed to have a suspension meeting about the incident TIPS #26-03007.',
+            details: 'VICTIM OF THREAT - CAT-IN-THE-HAT: He was mentioned in the instagram story from the cat-in-the-hat situation at TAFT. He was not at school the day of that incident.',
             date: '9/3/2026',
             triage: 'Not completed',
-            resolution: 'Efforts to protect the school were taken place with multiple teams involved. Investigation and assessment yielded no results to finding the instagram account holder.',
-            notes: 'Questioned Josiah (Son of RP of Ethans prior threat) to determine if he had made the account to scare Ethan, concluded no evidence on his phone to suggest he was the account holder.',
+            resolution: 'Efforts to protect the school were taken place with multiple teams involved.',
+            notes: 'Questioned Josiah to determine if he had made the account to scare Ethan.',
             tipsDoc: { name: 'TIPS_26-03047.pdf', url: createMockPdfBlobUrl('TIPS 26-03047', 'Instagram cat-in-the-hat mention') },
-            recordsDocs: []
-          },
-          {
-            id: 'inc-3',
-            tipsNum: '26-03225',
-            details: 'Victim of threat: Ethan was seen with his two friends cornering H.J. and pushing him. H.J. Responded to the "bullying" by stating "I will shoot you n***a"',
-            date: '9/10/26',
-            triage: 'Low-Risk for HJ',
-            resolution: 'EC and other two students pushing were OSS for 2 days. Pam Miller (bullying coordinator) has reached out to PSED and Landers to see if they would like resources for EC.',
-            notes: 'The two students who engaged in the cornering/pushing was O.R.(#1007910) and FC(#1000078), the same two students from the TIPS #26-03007. A meeting was held with the principal about EC... He has 34 incidents in IC from last year.',
-            tipsDoc: { name: 'TIPS_26-03225.pdf', url: createMockPdfBlobUrl('TIPS 26-03225', 'Cafeteria altercation') },
             recordsDocs: []
           }
         ]
@@ -270,7 +266,16 @@
 
       // Filtered Case Categories
       const activeMediumHighCases = cases.filter(c => c.triageCompleted && (c.triagePriority === 'Medium' || c.triagePriority === 'High') && c.caseStatus !== 'Closed');
-      const casesOnPlan = cases.filter(c => c.planStartDate && c.planStartDate.trim() !== '' && c.caseStatus !== 'Closed');
+      
+      // CASES ON SUPPORT OR SAFETY PLAN: Includes Transient, Serious Substantive, or Very Serious Substantive or cases with active plan dates
+      const casesOnPlan = cases.filter(c => 
+        c.caseStatus !== 'Closed' && (
+          (c.cstagClassification && c.cstagClassification !== 'Not-a-Threat' && c.cstagClassification !== 'Pending Assessment') ||
+          (c.planStartDate && c.planStartDate.trim() !== '') ||
+          c.planDoc !== null
+        )
+      );
+
       const lowRiskCases = cases.filter(c => c.triageCompleted && c.triagePriority === 'Low' && c.caseStatus !== 'Closed');
       const openNoTriageCases = cases.filter(c => !c.triageCompleted && c.caseStatus !== 'Closed');
       const closedCases = cases.filter(c => c.caseStatus === 'Closed');
@@ -293,7 +298,7 @@
         }
       }, [selectedCaseId, currentCase?.id]);
 
-      // Save Case/Team Status Notes with today's timestamp
+      // Save Case/Team Status Notes
       const handleSaveStatusNotes = () => {
         if (!currentCase) return;
         const today = new Date().toISOString().split('T')[0];
@@ -336,7 +341,7 @@
         }));
       };
 
-      // SEARCH LOOKUP ENGINE ACROSS OPEN, CLOSED AND WATCH CASES
+      // SEARCH LOOKUP ENGINE
       const lookupResults = searchQuery.trim() === '' ? [] : cases.filter(c => {
         const q = searchQuery.toLowerCase();
         return (
@@ -346,7 +351,7 @@
         );
       });
 
-      // DIRECT PDF TEXT PARSER ENGINE VIA PDF.JS
+      // PDF TEXT PARSER
       const handleTipsFileUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -407,14 +412,6 @@
               extractedBrief = extractedBrief || 'Reported online threats, firearm imagery on Instagram highlights, and peer intimidation.';
               extractedInvolved = extractedInvolved || 'Erick Ruben (ID: 390112), Carlos M. (ID: 401882)';
               extractedDate = extractedDate || '2026-09-04';
-            } else if (fileNameUpper.includes('GARCIA') || fileNameUpper.includes('JESUS')) {
-              extractedName = extractedName || 'Jesus Garcia-Reyes';
-              extractedId = extractedId || '332545';
-              extractedSchool = extractedSchool || 'U.S. Grant HS';
-              extractedTips = extractedTips || '26-02602';
-              extractedBrief = extractedBrief || 'Stated "Raymond does not deserve to live" following altercation.';
-              extractedInvolved = extractedInvolved || 'Raymond Vance (ID: 332901)';
-              extractedDate = extractedDate || '2026-08-12';
             } else {
               const cleanName = file.name.replace('.pdf', '').replace(/_/g, ' ').replace(/-/g, ' ');
               extractedName = extractedName || cleanName;
@@ -536,7 +533,7 @@
         setWatchName(''); setWatchId(''); setWatchSchool(''); setWatchTipsNum(''); setWatchDetails(''); setWatchResolution(''); setWatchNotes('');
       };
 
-      // ADD INCIDENT ROW TO EXISTING WATCH LIST STUDENT
+      // ADD INCIDENT ROW TO WATCH LIST STUDENT
       const handleAddWatchIncident = (studentId) => {
         const tipsNum = prompt("Enter TIPS Report # for this new incident:");
         if (!tipsNum) return;
@@ -571,7 +568,7 @@
         }));
       };
 
-      // UPLOAD TIPS FILE DIRECTLY TO KEEPING AN EYE ON INCIDENT
+      // UPLOAD TIPS FILE TO WATCH INCIDENT
       const handleWatchTipsUpload = (studentId, incidentId, e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -583,10 +580,7 @@
               ...st,
               incidents: st.incidents.map(inc => {
                 if (inc.id === incidentId) {
-                  return {
-                    ...inc,
-                    tipsDoc: { name: file.name, url: fileUrl }
-                  };
+                  return { ...inc, tipsDoc: { name: file.name, url: fileUrl } };
                 }
                 return inc;
               })
@@ -596,7 +590,7 @@
         }));
       };
 
-      // UPLOAD RECORDS REVIEW FILES TO KEEPING AN EYE ON INCIDENT
+      // UPLOAD RECORDS REVIEW FILES TO WATCH INCIDENT
       const handleWatchRecordsUpload = (studentId, incidentId, e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -609,10 +603,7 @@
               ...st,
               incidents: st.incidents.map(inc => {
                 if (inc.id === incidentId) {
-                  return {
-                    ...inc,
-                    recordsDocs: [...(inc.recordsDocs || []), newDoc]
-                  };
+                  return { ...inc, recordsDocs: [...(inc.recordsDocs || []), newDoc] };
                 }
                 return inc;
               })
@@ -622,6 +613,7 @@
         }));
       };
 
+      // CSTAG DOCUMENT UPLOAD
       const handleCstagDocUpload = (e) => {
         const file = e.target.files[0];
         if (!file || !currentCase) return;
@@ -631,6 +623,7 @@
         setCases(cases.map(c => c.id === currentCase.id ? { ...c, cstagDoc: newDoc } : c));
       };
 
+      // SAFETY OR SUPPORT PLAN DOCUMENT UPLOAD
       const handlePlanDocUpload = (e) => {
         const file = e.target.files[0];
         if (!file || !currentCase) return;
@@ -640,10 +633,17 @@
         setCases(cases.map(c => c.id === currentCase.id ? { ...c, planDoc: newDoc } : c));
       };
 
+      // CHANGE CSTAG CLASSIFICATION DETERMINATION
       const handleCstagChange = (classification) => {
-        setCases(cases.map(c => c.id === currentCase.id ? { ...c, cstagClassification: classification } : c));
+        if (!currentCase) return;
+        setCases(cases.map(c => c.id === currentCase.id ? {
+          ...c,
+          cstagClassification: classification,
+          planStatus: (classification === 'Not-a-Threat') ? 'Not Completed' : (c.planStatus === 'Not Completed' ? 'Waiting on team to schedule' : c.planStatus)
+        } : c));
       };
 
+      // TOGGLE IMMEDIATE SUBSTANTIVE RESPONSE CHECKBOXES
       const toggleImmediateCheck = (field) => {
         if (!currentCase) return;
         const currentChecks = currentCase.immediateResponse || { victimNotification: false, vulnerabilityReduction: false, conflictResolution: false };
@@ -651,7 +651,9 @@
         setCases(cases.map(c => c.id === currentCase.id ? { ...c, immediateResponse: updatedChecks } : c));
       };
 
+      // UPDATE PLAN FIELD DETAILS
       const updatePlanDetail = (field, val) => {
+        if (!currentCase) return;
         setCases(cases.map(c => c.id === currentCase.id ? { ...c, [field]: val } : c));
       };
 
@@ -691,11 +693,10 @@
         setMoveReasonNote('');
       };
 
-      // CREATE CASE OR MERGE INTO EXISTING OPEN CASE IF STUDENT HAS OPEN CASE
+      // CREATE CASE OR MERGE INTO EXISTING OPEN CASE
       const handleCreateCase = (e) => {
         e.preventDefault();
 
-        // Check if there is an existing OPEN case for this perpetrator (matching Student ID or Name)
         const existingOpenCase = cases.find(c => 
           c.caseStatus !== 'Closed' && 
           ((intakeStudentId.trim() !== '' && c.studentId === intakeStudentId.trim()) ||
@@ -705,7 +706,6 @@
         const newTipsDoc = uploadedTipsFile ? { name: uploadedTipsFile.name, url: uploadedTipsFile.url } : { name: `TIPS_${intakeTipsNum}.pdf`, url: createMockPdfBlobUrl(`TIPS ${intakeTipsNum}`, intakeBrief) };
 
         if (existingOpenCase) {
-          // APPEND NEW TIPS DIRECTLY TO EXISTING OPEN CASE
           const newTipsEntry = {
             tipsNum: intakeTipsNum || `26-${Math.floor(1000 + Math.random() * 9000)}`,
             incidentDate: intakeIncidentDate || new Date().toISOString().split('T')[0],
@@ -738,11 +738,10 @@
 
           setSelectedCaseId(existingOpenCase.id);
           setShowNewIntakeModal(false);
-          alert(`Automated Merge Complete: TIPS #${newTipsEntry.tipsNum} has been added directly to ${existingOpenCase.studentName}'s open case file and 360 Assessment Vault.`);
+          alert(`Automated Merge Complete: TIPS #${newTipsEntry.tipsNum} has been added directly to ${existingOpenCase.studentName}'s open case file.`);
           return;
         }
 
-        // NO EXISTING OPEN CASE - CREATE NEW CASE
         const pastMatches = cases.filter(c => c.studentId === intakeStudentId && intakeStudentId.trim() !== '');
 
         const autoRecordsDocs = [];
@@ -771,10 +770,10 @@
           tipsReportNum: intakeTipsNum || 'Pending',
           triagePriority: finalPriority,
           triageCompleted: isTriageProvided,
-          cstagClassification: !isTriageProvided ? 'Pending Assessment' : finalPriority === 'Low' ? 'Not-A-Threat' : 'Serious Substantive',
+          cstagClassification: !isTriageProvided ? 'Pending Assessment' : finalPriority === 'Low' ? 'Not-a-Threat' : 'Serious Substantive Threat',
           cstagDoc: null,
           immediateResponse: { victimNotification: false, vulnerabilityReduction: false, conflictResolution: false },
-          planStatus: 'Not Completed',
+          planStatus: 'Waiting on team to schedule',
           planDoc: null,
           planStartDate: '',
           planEndDate: '',
@@ -789,7 +788,6 @@
           lastTeamContactDate: new Date().toISOString().split('T')[0],
           teamReachoutCount: 1,
           pastTovCount: pastMatches.length,
-          previousTovHistory: pastMatches.map(m => ({ date: m.incidentDate, brief: m.tovBrief, actionTaken: m.supportPlanStatus })),
           intakeFiles: {
             tipsPdf: uploadedTipsFile ? { name: uploadedTipsFile.name, uploadDate: new Date().toISOString().split('T')[0], size: '1.2 MB', url: uploadedTipsFile.url } : null,
             triagePdf: uploadedTriageFile ? { name: uploadedTriageFile.name, uploadDate: new Date().toISOString().split('T')[0], size: '540 KB', scoreDetected: finalPriority, url: uploadedTriageFile.url } : null
@@ -837,6 +835,12 @@
         setViewingDoc(doc);
         setZoomLevel(1);
         setIsFullscreen(false);
+      };
+
+      // HELPER: Get Dynamic Plan Status Badge Class
+      const getPlanStatusStyle = (statusName) => {
+        const found = PLAN_STATUS_OPTIONS.find(p => p.label === statusName);
+        return found ? found.color : 'bg-slate-800 text-slate-200 border-slate-700';
       };
 
       return (
@@ -930,7 +934,6 @@
                 Open Cases without Triage ({openNoTriageCases.length})
               </button>
 
-              {/* KEEPING AN EYE ON TAB */}
               <button onClick={() => setMainTab('watchTab')} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'watchTab' ? 'border-teal-500 text-teal-300 font-bold' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
                 👁️ Keeping an Eye On ({watchStudents.length})
               </button>
@@ -1216,6 +1219,175 @@
                           </div>
                         </div>
                       </div>
+
+                      {/* STEP 1: CSTAG DETERMINATION STEP BOX */}
+                      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
+                        <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                          <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
+                            <span className="text-purple-400">⚖️</span>
+                            <span>CSTAG Protocol Threat Determination Step</span>
+                          </h3>
+                          <span className="text-[10px] text-slate-400 uppercase font-semibold">CSTAG Step 2</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                          <div>
+                            <label className="text-slate-400 block mb-1.5 font-semibold">Select CSTAG Determination:</label>
+                            <select
+                              value={currentCase.cstagClassification || 'Pending Assessment'}
+                              onChange={(e) => handleCstagChange(e.target.value)}
+                              className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded text-slate-100 focus:border-purple-500 font-bold"
+                            >
+                              <option value="Not-a-Threat">Not-a-Threat</option>
+                              <option value="Transient Threat">Transient Threat</option>
+                              <option value="Serious Substantive Threat">Serious Substantive Threat</option>
+                              <option value="Very Serious Substantive Threat">Very Serious Substantive Threat</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="text-slate-400 block mb-1.5 font-semibold">CSTAG Determination Document:</label>
+                            {currentCase.cstagDoc ? (
+                              <div className="flex items-center justify-between p-2 bg-slate-950 border border-slate-800 rounded">
+                                <span className="text-slate-200 font-mono truncate">{currentCase.cstagDoc.name}</span>
+                                <div className="flex space-x-1 shrink-0">
+                                  <button onClick={() => openDocViewer(currentCase.cstagDoc)} className="bg-purple-900/80 text-purple-200 text-[10px] px-2 py-1 rounded">View</button>
+                                  <a href={currentCase.cstagDoc.url} download={currentCase.cstagDoc.name} className="bg-slate-800 text-slate-200 text-[10px] px-2 py-1 rounded">Download</a>
+                                </div>
+                              </div>
+                            ) : (
+                              <label className="cursor-pointer bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-700 px-3 py-2 rounded block text-center font-medium">
+                                + Upload CSTAG Determination Document
+                                <input type="file" accept="application/pdf" className="hidden" onChange={handleCstagDocUpload} />
+                              </label>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* STEP 2: IMMEDIATE SUBSTANTIVE RESPONSE CHECKLIST (SERIOUS OR VERY SERIOUS SUBSTANTIVE THREATS) */}
+                      {(currentCase.cstagClassification === 'Serious Substantive Threat' || currentCase.cstagClassification === 'Very Serious Substantive Threat') && (
+                        <div className="bg-slate-900 border border-red-900/60 rounded-xl p-5 space-y-3 shadow-xl">
+                          <div className="flex items-center space-x-2 border-b border-red-900/50 pb-2">
+                            <span className="text-red-400 text-base">🚨</span>
+                            <h3 className="text-xs font-bold text-red-200 uppercase tracking-wide">
+                              Immediate Substantive Response Checklist
+                            </h3>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1 text-xs">
+                            <label className="flex items-center space-x-2.5 bg-slate-950 p-3 rounded border border-slate-800 cursor-pointer hover:border-slate-700">
+                              <input
+                                type="checkbox"
+                                checked={currentCase.immediateResponse?.victimNotification || false}
+                                onChange={() => toggleImmediateCheck('victimNotification')}
+                                className="rounded bg-slate-900 border-slate-700 text-red-600 focus:ring-0 w-4 h-4"
+                              />
+                              <span className="text-slate-200 font-semibold">Victim Notification</span>
+                            </label>
+
+                            <label className="flex items-center space-x-2.5 bg-slate-950 p-3 rounded border border-slate-800 cursor-pointer hover:border-slate-700">
+                              <input
+                                type="checkbox"
+                                checked={currentCase.immediateResponse?.vulnerabilityReduction || false}
+                                onChange={() => toggleImmediateCheck('vulnerabilityReduction')}
+                                className="rounded bg-slate-900 border-slate-700 text-red-600 focus:ring-0 w-4 h-4"
+                              />
+                              <span className="text-slate-200 font-semibold">Victim Vulnerability Reduction</span>
+                            </label>
+
+                            <label className="flex items-center space-x-2.5 bg-slate-950 p-3 rounded border border-slate-800 cursor-pointer hover:border-slate-700">
+                              <input
+                                type="checkbox"
+                                checked={currentCase.immediateResponse?.conflictResolution || false}
+                                onChange={() => toggleImmediateCheck('conflictResolution')}
+                                className="rounded bg-slate-900 border-slate-700 text-red-600 focus:ring-0 w-4 h-4"
+                              />
+                              <span className="text-slate-200 font-semibold">Conflict Resolution</span>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* STEP 3: STUDENT SUPPORT PLAN OR STUDENT SAFETY PLAN BOX */}
+                      {currentCase.cstagClassification && currentCase.cstagClassification !== 'Not-a-Threat' && currentCase.cstagClassification !== 'Pending Assessment' && (
+                        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
+                          <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                            <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
+                              <span className="text-emerald-400">📝</span>
+                              <span>
+                                {currentCase.cstagClassification === 'Transient Threat' ? 'Student Support Plan' : 'Student Safety Plan'}
+                              </span>
+                            </h3>
+
+                            {/* SELECTABLE PLAN STATUS WITH COLOR CODING */}
+                            <div className="flex items-center space-x-2">
+                              <span className="text-[10px] text-slate-400 font-semibold uppercase">Plan Status:</span>
+                              <select
+                                value={currentCase.planStatus || 'Waiting on team to schedule'}
+                                onChange={(e) => updatePlanDetail('planStatus', e.target.value)}
+                                className={`text-xs font-bold px-3 py-1 rounded border focus:outline-none ${getPlanStatusStyle(currentCase.planStatus)}`}
+                              >
+                                {PLAN_STATUS_OPTIONS.map(opt => (
+                                  <option key={opt.label} value={opt.label} className="bg-slate-950 text-slate-100">{opt.label}</option>
+                                ))}
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                            <div>
+                              <label className="text-slate-400 block mb-1">Plan Start Date</label>
+                              <input
+                                type="date"
+                                value={currentCase.planStartDate || ''}
+                                onChange={(e) => updatePlanDetail('planStartDate', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 focus:border-blue-500"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="text-slate-400 block mb-1">Plan End Date</label>
+                              <input
+                                type="date"
+                                value={currentCase.planEndDate || ''}
+                                onChange={(e) => updatePlanDetail('planEndDate', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 focus:border-blue-500"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="text-slate-400 block mb-1">Next Progress Check-In Date</label>
+                              <input
+                                type="date"
+                                value={currentCase.planCheckinDate || ''}
+                                onChange={(e) => updatePlanDetail('planCheckinDate', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 focus:border-blue-500"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="pt-2 border-t border-slate-800/80 text-xs">
+                            <label className="text-slate-400 block mb-1 font-semibold">
+                              Upload {currentCase.cstagClassification === 'Transient Threat' ? 'Support Plan' : 'Safety Plan'} Document:
+                            </label>
+                            {currentCase.planDoc ? (
+                              <div className="flex items-center justify-between p-2.5 bg-slate-950 border border-slate-800 rounded">
+                                <span className="text-slate-200 font-mono truncate">{currentCase.planDoc.name}</span>
+                                <div className="flex space-x-1 shrink-0">
+                                  <button onClick={() => openDocViewer(currentCase.planDoc)} className="bg-blue-900/80 text-blue-200 text-[10px] px-2.5 py-1 rounded font-medium">View</button>
+                                  <a href={currentCase.planDoc.url} download={currentCase.planDoc.name} className="bg-slate-800 text-slate-200 text-[10px] px-2.5 py-1 rounded font-medium">Download</a>
+                                </div>
+                              </div>
+                            ) : (
+                              <label className="cursor-pointer bg-blue-900/60 hover:bg-blue-800 text-blue-200 border border-blue-700 px-3 py-2 rounded block text-center font-medium">
+                                + Upload {currentCase.cstagClassification === 'Transient Threat' ? 'Support Plan' : 'Safety Plan'} PDF
+                                <input type="file" accept="application/pdf" className="hidden" onChange={handlePlanDocUpload} />
+                              </label>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </>
                   ) : null}
                 </div>
@@ -1275,7 +1447,6 @@
                             <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
                             <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
                             <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
-                            {/* EDITABLE LAST UPDATED FIELD */}
                             <td className="p-3 text-amber-300 font-mono">
                               <span 
                                 onClick={() => handleEditWatchLastUpdated(st.studentId)}
@@ -1392,7 +1563,11 @@
                             </span>
                           </td>
                           <td className="p-3 font-bold">{c.cstagClassification || 'Pending'}</td>
-                          <td className="p-3">{c.planStatus || 'Not Completed'}</td>
+                          <td className="p-3">
+                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded border ${getPlanStatusStyle(c.planStatus)}`}>
+                              {c.planStatus || 'Not Completed'}
+                            </span>
+                          </td>
                           <td className="p-3">
                             <span className={`font-semibold ${c.caseStatus === 'Closed' ? 'text-red-400' : 'text-blue-400'}`}>
                               {c.caseStatus}
@@ -1407,7 +1582,7 @@
             )}
           </main>
 
-          {/* ADVANCED DOCUMENT VIEWER MODAL WITH FULLSCREEN & ZOOM CONTROLS */}
+          {/* ADVANCED DOCUMENT VIEWER MODAL */}
           {viewingDoc && (
             <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4">
               <div className={`bg-slate-900 border border-slate-800 rounded-xl flex flex-col shadow-2xl overflow-hidden transition-all ${
