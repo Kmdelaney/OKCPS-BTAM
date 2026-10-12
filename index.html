@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
@@ -56,6 +56,7 @@
       return URL.createObjectURL(blob);
     };
 
+    // MOCK INITIAL CASES
     const INITIAL_CASES = [
       {
         id: '26-03093',
@@ -88,16 +89,21 @@
         lastTeamContactDate: '2026-09-08',
         teamReachoutCount: 3,
         pastTovCount: 1,
-        previousTovHistory: [{ date: '2026-08-28', brief: 'Stolen ring incident resulting in OSS discipline.', actionTaken: 'OSS Assigned' }],
+        additionalTipsList: [
+          { tipsNum: '26-03120', incidentDate: '2026-10-02', brief: 'Follow-up report: Student posted encrypted photo message on social media referencing prior dispute.', doc: { name: 'TIPS_26-03120_Followup.pdf', url: createMockPdfBlobUrl('TIPS #26-03120', 'Follow up threat statement') } }
+        ],
         intakeFiles: {
           tipsPdf: { name: 'TIPS_Report_26-03093_Jimenez.pdf', uploadDate: '2026-09-07', size: '1.4 MB', url: createMockPdfBlobUrl('TIPS Report #26-03093', 'Subject: Jorge Jimenez (ID: 345290)') },
           triagePdf: { name: 'JJ_Triage_HIGH.pdf', uploadDate: '2026-09-07', size: '620 KB', scoreDetected: 'High', url: createMockPdfBlobUrl('Triage Form: JJ Triage - HIGH', 'Assessment: Very Serious Substantive Threat.') }
         },
         documents: {
-          studentInterview: [{ name: 'Jorge_Jimenez_Statement.pdf', uploadDate: '2026-09-08', size: '1.1 MB', url: createMockPdfBlobUrl('Student Statement', 'Jorge Jimenez interview notes.') }],
+          studentInterview: [{ id: 'doc-1', name: 'Jorge_Jimenez_Statement.pdf', uploadDate: '2026-09-08', size: '1.1 MB', url: createMockPdfBlobUrl('Student Statement', 'Jorge Jimenez interview notes.') }],
           parentInterview: [],
-          witnessStatements: [{ name: 'Witness_Statement_Erick_Ruben.pdf', uploadDate: '2026-09-07', size: '890 KB', url: createMockPdfBlobUrl('Witness Statement', 'Erick Ruben witness report.') }],
-          recordsReview: [{ name: 'Instagram_Firearm_Screenshots.pdf', uploadDate: '2026-09-07', size: '4.2 MB', url: createMockPdfBlobUrl('Evidence', 'Instagram highlights screenshots.') }]
+          witnessStatements: [{ id: 'doc-2', name: 'Witness_Statement_Erick_Ruben.pdf', uploadDate: '2026-09-07', size: '890 KB', url: createMockPdfBlobUrl('Witness Statement', 'Erick Ruben witness report.') }],
+          recordsReview: [
+            { id: 'doc-3', name: 'Instagram_Firearm_Screenshots.pdf', uploadDate: '2026-09-07', size: '4.2 MB', url: createMockPdfBlobUrl('Evidence', 'Instagram highlights screenshots.') },
+            { id: 'doc-3b', name: 'TIPS_26-03120_Followup.pdf', uploadDate: '2026-10-02', size: '1.1 MB', url: createMockPdfBlobUrl('TIPS #26-03120', 'Follow up threat statement') }
+          ]
         },
         pathwayEvents: [
           { id: 1, stage: 'Grievance', description: 'Peer dispute involving stolen ring during physical education class.', date: '2026-08-28', moveNote: '' },
@@ -133,76 +139,72 @@
         caseStatus: 'Monitored',
         closeDate: '',
         closeNotes: '',
-        lastTeamContactDate: '2026-09-16',
-        teamReachoutCount: 4,
-        pastTovCount: 0,
-        previousTovHistory: [],
+        additionalTipsList: [],
         intakeFiles: {
           tipsPdf: { name: 'TIPS_26-02602_GarciaReyes.pdf', uploadDate: '2026-08-12', size: '1.2 MB', url: createMockPdfBlobUrl('TIPS Report #26-02602', 'Subject: Jesus Garcia-Reyes') },
           triagePdf: { name: 'Triage_Worksheet_GarciaReyes_HIGH.pdf', uploadDate: '2026-08-12', size: '580 KB', scoreDetected: 'High', url: createMockPdfBlobUrl('Triage Form', 'Risk Score: High') }
         },
         documents: {
-          studentInterview: [{ name: 'Student_Interview_0812.pdf', uploadDate: '2026-08-13', size: '1.2 MB', url: createMockPdfBlobUrl('Interview', 'Student Interview notes.') }],
-          parentInterview: [{ name: 'Parent_Contact_Notes.pdf', uploadDate: '2026-08-13', size: '850 KB', url: createMockPdfBlobUrl('Parent Contact', 'Parent interview notes.') }],
-          witnessStatements: [{ name: 'Witness_Statement_Raymond.pdf', uploadDate: '2026-08-14', size: '500 KB', url: createMockPdfBlobUrl('Witness', 'Raymond statement.') }],
-          recordsReview: [{ name: 'CRC_Hospital_Release_Summary.pdf', uploadDate: '2026-08-25', size: '2.4 MB', url: createMockPdfBlobUrl('Records', 'Hospital summary.') }]
+          studentInterview: [{ id: 'doc-4', name: 'Student_Interview_0812.pdf', uploadDate: '2026-08-13', size: '1.2 MB', url: createMockPdfBlobUrl('Interview', 'Student Interview notes.') }],
+          parentInterview: [{ id: 'doc-5', name: 'Parent_Contact_Notes.pdf', uploadDate: '2026-08-13', size: '850 KB', url: createMockPdfBlobUrl('Parent Contact', 'Parent interview notes.') }],
+          witnessStatements: [{ id: 'doc-6', name: 'Witness_Statement_Raymond.pdf', uploadDate: '2026-08-14', size: '500 KB', url: createMockPdfBlobUrl('Witness', 'Raymond statement.') }],
+          recordsReview: [{ id: 'doc-7', name: 'CRC_Hospital_Release_Summary.pdf', uploadDate: '2026-08-25', size: '2.4 MB', url: createMockPdfBlobUrl('Records', 'Hospital summary.') }]
         },
         pathwayEvents: [
           { id: 1, stage: 'Grievance', description: 'Verbal confrontation with student Raymond in cafeteria line.', date: '2026-08-10', moveNote: '' },
           { id: 2, stage: 'Violent Ideation', description: 'Stated directly to peer: "Raymond does not deserve to live".', date: '2026-08-12', moveNote: '' }
         ]
-      },
+      }
+    ];
+
+    // INITIAL "KEEPING AN EYE ON" RECORDS (EXCLUDED FROM DASHBOARD)
+    const INITIAL_WATCH_STUDENTS = [
       {
-        id: '26-02880',
-        studentName: 'Elijah Jameson',
-        studentId: '1071436',
-        schoolLocation: 'Skyline MS',
-        involvedStudents: 'Hall Monitor Staff, Grandma (Guardian)',
-        tovBrief: '"I\'m gonna have my Grandma come up to the school and shoot you."',
-        caseTeamStatusNotes: 'Support plan active. Bi-weekly counselor check-ins ongoing.',
-        caseTeamStatusLastUpdated: '2026-10-05',
-        incidentDate: '2026-08-26',
-        dateReported: '2026-08-27',
-        tipsReportNum: '26-02880',
-        triagePriority: 'Medium',
-        triageCompleted: true,
-        cstagClassification: 'Transient Threat',
-        cstagDoc: null,
-        immediateResponse: { victimNotification: false, vulnerabilityReduction: false, conflictResolution: false },
-        planStatus: 'Support Plan Created',
-        planDoc: { name: 'Support_Plan_Elijah.pdf', uploadDate: '2026-09-30', size: '890 KB', url: createMockPdfBlobUrl('Support Plan', 'Transient Threat Support Plan') },
-        planStartDate: '2026-09-30',
-        planEndDate: '2026-11-30',
-        planCheckinDate: '2026-10-14',
-        isIep: false,
-        suspended: true,
-        reEntryDate: '2026-09-03',
-        caseStatus: 'Active',
-        closeDate: '',
-        closeNotes: '',
-        lastTeamContactDate: '2026-10-05',
-        teamReachoutCount: 2,
-        pastTovCount: 0,
-        previousTovHistory: [],
-        intakeFiles: {
-          tipsPdf: { name: 'TIPS_26-02880_Jameson.pdf', uploadDate: '2026-08-27', size: '1.1 MB', url: createMockPdfBlobUrl('TIPS Report #26-02880', 'Subject: Elijah Jameson') },
-          triagePdf: { name: 'Triage_Form_Jameson_MED.pdf', uploadDate: '2026-08-27', size: '510 KB', scoreDetected: 'Medium', url: createMockPdfBlobUrl('Triage Form', 'Risk Score: Medium') }
-        },
-        documents: {
-          studentInterview: [{ name: 'Elijah_Student_Interview.pdf', uploadDate: '2026-08-28', size: '1.0 MB', url: createMockPdfBlobUrl('Student Interview', 'Elijah statement.') }],
-          parentInterview: [],
-          witnessStatements: [{ name: 'Staff_Witness_Statement.pdf', uploadDate: '2026-08-28', size: '650 KB', url: createMockPdfBlobUrl('Witness Statement', 'Staff report.') }],
-          recordsReview: [{ name: 'Elijah_Behavior_Logs.pdf', uploadDate: '2026-10-05', size: '2.0 MB', url: createMockPdfBlobUrl('Records Review', 'Behavior logs.') }]
-        },
-        pathwayEvents: [
-          { id: 1, stage: 'Grievance', description: 'Disciplinary encounter with hall monitor over phone confiscation.', date: '2026-08-26', moveNote: '' },
-          { id: 2, stage: 'Violent Ideation', description: 'Threatened shooting via family member in main office.', date: '2026-08-26', moveNote: '' }
+        studentName: 'Ethan Capulin',
+        studentId: '1011764',
+        schoolLocation: 'Taft MS',
+        lastUpdatedDate: '9/24/26',
+        incidents: [
+          {
+            id: 'inc-1',
+            tipsNum: '26-03007',
+            details: 'STUDENT OF CONCERN: He told his friends to not attend school the next day or they would get shot.',
+            date: '9/2/2026',
+            triage: 'Low-Risk',
+            resolution: 'Student was suspended for three days for the comment. Conference with the parents and schedule change for RP protection was done.',
+            notes: 'During suspension, he had told his friends (Oscar Rodriguez #1007910 & Fabian Cervantes #1000078) that he wanted to fight Josiah (Son of RP) for snitching on him. The student was spoken to about retaliation against the RP.',
+            tipsDoc: { name: 'TIPS_26-03007.pdf', url: createMockPdfBlobUrl('TIPS 26-03007', 'Ethan Capulin threat') },
+            recordsDocs: [{ id: 'rd-1', name: 'Suspension_Notice_0902.pdf', url: createMockPdfBlobUrl('Suspension Notice', '3-day OSS discipline') }]
+          },
+          {
+            id: 'inc-2',
+            tipsNum: '26-03047',
+            details: 'VICTIM OF THREAT - CAT-IN-THE-HAT: He was mentioned in the instagram story from the cat-in-the-hat situation at TAFT. He was not at school the day of that incident. This incident the day after he was supposed to have a suspension meeting about the incident TIPS #26-03007.',
+            date: '9/3/2026',
+            triage: 'Not completed',
+            resolution: 'Efforts to protect the school were taken place with multiple teams involved. Investigation and assessment yielded no results to finding the instagram account holder.',
+            notes: 'Questioned Josiah (Son of RP of Ethans prior threat) to determine if he had made the account to scare Ethan, concluded no evidence on his phone to suggest he was the account holder.',
+            tipsDoc: { name: 'TIPS_26-03047.pdf', url: createMockPdfBlobUrl('TIPS 26-03047', 'Instagram cat-in-the-hat mention') },
+            recordsDocs: []
+          },
+          {
+            id: 'inc-3',
+            tipsNum: '26-03225',
+            details: 'Victim of threat: Ethan was seen with his two friends cornering H.J. and pushing him. H.J. Responded to the "bullying" by stating "I will shoot you n***a"',
+            date: '9/10/26',
+            triage: 'Low-Risk for HJ',
+            resolution: 'EC and other two students pushing were OSS for 2 days. Pam Miller (bullying coordinator) has reached out to PSED and Landers to see if they would like resources for EC.',
+            notes: 'The two students who engaged in the cornering/pushing was O.R.(#1007910) and FC(#1000078), the same two students from the TIPS #26-03007. A meeting was held with the principal about EC... He has 34 incidents in IC from last year.',
+            tipsDoc: { name: 'TIPS_26-03225.pdf', url: createMockPdfBlobUrl('TIPS 26-03225', 'Cafeteria altercation') },
+            recordsDocs: []
+          }
         ]
       }
     ];
 
     function App() {
       const [cases, setCases] = useState(INITIAL_CASES);
+      const [watchStudents, setWatchStudents] = useState(INITIAL_WATCH_STUDENTS);
       const [mainTab, setMainTab] = useState('active');
       const [selectedCaseId, setSelectedCaseId] = useState(INITIAL_CASES[0].id);
       const [activeDocTab, setActiveDocTab] = useState('studentInterview');
@@ -213,8 +215,10 @@
       // Case / Team Status Note Form State
       const [tempStatusNotes, setTempStatusNotes] = useState('');
 
-      // Viewer Modal
+      // Viewer Modal & Zoom/Fullscreen Controls State
       const [viewingDoc, setViewingDoc] = useState(null);
+      const [zoomLevel, setZoomLevel] = useState(1);
+      const [isFullscreen, setIsFullscreen] = useState(false);
 
       // Modals
       const [showNewIntakeModal, setShowNewIntakeModal] = useState(false);
@@ -279,7 +283,28 @@
         } : c));
       };
 
-      // GLOBAL SEARCH / LOOKUP RESULTS (SEARCHES ALL CASES IN SYSTEM INCLUDING CLOSED)
+      // DELETE 360 DEGREE ASSESSMENT DOCUMENT
+      const handleDeleteDocument = (category, docId) => {
+        if (!currentCase) return;
+        if (!window.confirm("Are you sure you want to delete this document from the 360-degree vault?")) return;
+
+        setCases(cases.map(c => {
+          if (c.id === currentCase.id) {
+            const currentCatDocs = c.documents?.[category] || [];
+            const updatedDocs = currentCatDocs.filter(d => d.id !== docId && d.name !== docId);
+            return {
+              ...c,
+              documents: {
+                ...c.documents,
+                [category]: updatedDocs
+              }
+            };
+          }
+          return c;
+        }));
+      };
+
+      // SEARCH LOOKUP ENGINE ACROSS OPEN, CLOSED AND WATCH CASES
       const lookupResults = searchQuery.trim() === '' ? [] : cases.filter(c => {
         const q = searchQuery.toLowerCase();
         return (
@@ -352,14 +377,6 @@
               extractedBrief = extractedBrief || 'Stated "Raymond does not deserve to live" following altercation.';
               extractedInvolved = extractedInvolved || 'Raymond Vance (ID: 332901)';
               extractedDate = extractedDate || '2026-08-12';
-            } else if (fileNameUpper.includes('JAMESON') || fileNameUpper.includes('ELIJAH')) {
-              extractedName = extractedName || 'Elijah Jameson';
-              extractedId = extractedId || '1071436';
-              extractedSchool = extractedSchool || 'Skyline MS';
-              extractedTips = extractedTips || '26-02880';
-              extractedBrief = extractedBrief || 'Threatened shooting via family member in main office.';
-              extractedInvolved = extractedInvolved || 'Hall Monitor Staff, Grandma (Guardian)';
-              extractedDate = extractedDate || '2026-08-26';
             } else {
               const cleanName = file.name.replace('.pdf', '').replace(/_/g, ' ').replace(/-/g, ' ');
               extractedName = extractedName || cleanName;
@@ -393,7 +410,7 @@
         }
       };
 
-      // DYNAMIC TRIAGE PDF ANALYZER
+      // TRIAGE FILE UPLOAD ANALYZER
       const handleTriageFileUpload = (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -408,17 +425,20 @@
         else setDetectedTriageScore('High');
       };
 
-      // AUTO-GENERATE PATHWAY EVENT ON 360 DOCUMENT UPLOAD
+      // 360 DEGREE FILE UPLOADER
       const handleFileUpload = (category, e) => {
         const file = e.target.files[0];
         if (!file || !currentCase) return;
 
         const fileUrl = URL.createObjectURL(file);
+        const isImage = file.type.startsWith('image/');
         const newDoc = {
+          id: `doc-${Date.now()}`,
           name: file.name,
           uploadDate: new Date().toISOString().split('T')[0],
           size: `${(file.size / 1024).toFixed(0)} KB`,
-          url: fileUrl
+          url: fileUrl,
+          isImage: isImage
         };
 
         let mappedStage = 'Grievance';
@@ -447,6 +467,57 @@
             };
           }
           return c;
+        }));
+      };
+
+      // UPLOAD TIPS FILE DIRECTLY TO KEEPING AN EYE ON INCIDENT
+      const handleWatchTipsUpload = (studentId, incidentId, e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const fileUrl = URL.createObjectURL(file);
+
+        setWatchStudents(watchStudents.map(st => {
+          if (st.studentId === studentId) {
+            return {
+              ...st,
+              incidents: st.incidents.map(inc => {
+                if (inc.id === incidentId) {
+                  return {
+                    ...inc,
+                    tipsDoc: { name: file.name, url: fileUrl }
+                  };
+                }
+                return inc;
+              })
+            };
+          }
+          return st;
+        }));
+      };
+
+      // UPLOAD RECORDS REVIEW FILES TO KEEPING AN EYE ON INCIDENT
+      const handleWatchRecordsUpload = (studentId, incidentId, e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const fileUrl = URL.createObjectURL(file);
+        const newDoc = { id: `rd-${Date.now()}`, name: file.name, url: fileUrl };
+
+        setWatchStudents(watchStudents.map(st => {
+          if (st.studentId === studentId) {
+            return {
+              ...st,
+              incidents: st.incidents.map(inc => {
+                if (inc.id === incidentId) {
+                  return {
+                    ...inc,
+                    recordsDocs: [...(inc.recordsDocs || []), newDoc]
+                  };
+                }
+                return inc;
+              })
+            };
+          }
+          return st;
         }));
       };
 
@@ -519,14 +590,64 @@
         setMoveReasonNote('');
       };
 
-      // CREATE CASE & ROUTE TO CORRECT TAB
+      // CREATE CASE OR MERGE INTO EXISTING OPEN CASE IF STUDENT HAS OPEN CASE
       const handleCreateCase = (e) => {
         e.preventDefault();
+
+        // Check if there is an existing OPEN case for this perpetrator (matching Student ID or Name)
+        const existingOpenCase = cases.find(c => 
+          c.caseStatus !== 'Closed' && 
+          ((intakeStudentId.trim() !== '' && c.studentId === intakeStudentId.trim()) ||
+           (intakeStudentName.trim() !== '' && c.studentName.toLowerCase() === intakeStudentName.trim().toLowerCase()))
+        );
+
+        const newTipsDoc = uploadedTipsFile ? { name: uploadedTipsFile.name, url: uploadedTipsFile.url } : { name: `TIPS_${intakeTipsNum}.pdf`, url: createMockPdfBlobUrl(`TIPS ${intakeTipsNum}`, intakeBrief) };
+
+        if (existingOpenCase) {
+          // APPEND NEW TIPS DIRECTLY TO EXISTING OPEN CASE
+          const newTipsEntry = {
+            tipsNum: intakeTipsNum || `26-${Math.floor(1000 + Math.random() * 9000)}`,
+            incidentDate: intakeIncidentDate || new Date().toISOString().split('T')[0],
+            brief: intakeBrief || 'New TIPS Intake appended.',
+            doc: newTipsDoc
+          };
+
+          const newRecordsDoc = {
+            id: `doc-merged-${Date.now()}`,
+            name: newTipsDoc.name,
+            uploadDate: new Date().toISOString().split('T')[0],
+            size: '1.2 MB',
+            url: newTipsDoc.url,
+            isImage: false
+          };
+
+          setCases(cases.map(c => {
+            if (c.id === existingOpenCase.id) {
+              return {
+                ...c,
+                additionalTipsList: [...(c.additionalTipsList || []), newTipsEntry],
+                documents: {
+                  ...c.documents,
+                  recordsReview: [...(c.documents.recordsReview || []), newRecordsDoc]
+                }
+              };
+            }
+            return c;
+          }));
+
+          setSelectedCaseId(existingOpenCase.id);
+          setShowNewIntakeModal(false);
+          alert(`Automated Merge Complete: TIPS #${newTipsEntry.tipsNum} has been added directly to ${existingOpenCase.studentName}'s open case file and 360 Assessment Vault.`);
+          return;
+        }
+
+        // NO EXISTING OPEN CASE - CREATE NEW CASE
         const pastMatches = cases.filter(c => c.studentId === intakeStudentId && intakeStudentId.trim() !== '');
 
         const autoRecordsDocs = [];
         if (pastMatches.length > 0) {
           autoRecordsDocs.push({
+            id: `doc-prior-${Date.now()}`,
             name: `Prior_System_Incident_Summary_ID_${intakeStudentId}.pdf`, uploadDate: new Date().toISOString().split('T')[0], size: '520 KB',
             url: createMockPdfBlobUrl(`Prior Records Summary - Student ID #${intakeStudentId}`, `Found ${pastMatches.length} historical case records.`)
           });
@@ -563,6 +684,7 @@
           caseStatus: 'Active',
           closeDate: '',
           closeNotes: '',
+          additionalTipsList: [],
           lastTeamContactDate: new Date().toISOString().split('T')[0],
           teamReachoutCount: 1,
           pastTovCount: pastMatches.length,
@@ -610,6 +732,12 @@
         else setMainTab('active');
       };
 
+      const openDocViewer = (doc) => {
+        setViewingDoc(doc);
+        setZoomLevel(1);
+        setIsFullscreen(false);
+      };
+
       return (
         <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased">
           {/* HEADER BAR */}
@@ -630,7 +758,7 @@
           </header>
 
           {/* EMERGENCY ALERT BANNERS */}
-          {currentCase?.triagePriority === 'High' && mainTab !== 'dashboard' && currentCase.caseStatus !== 'Closed' && (
+          {currentCase?.triagePriority === 'High' && mainTab !== 'dashboard' && mainTab !== 'watchTab' && currentCase.caseStatus !== 'Closed' && (
             <div className="bg-red-950/90 border-b border-red-800 text-red-200 px-4 py-2 text-xs flex items-center justify-between animate-pulse">
               <div className="max-w-7xl mx-auto w-full flex items-center space-x-2">
                 <span className="text-red-400 font-bold">⚠️</span>
@@ -639,23 +767,14 @@
             </div>
           )}
 
-          {currentCase?.isIep && mainTab !== 'dashboard' && currentCase.caseStatus !== 'Closed' && (
-            <div className="bg-amber-950/90 border-b border-amber-800 text-amber-200 px-4 py-2 text-xs">
-              <div className="max-w-7xl mx-auto w-full flex items-center space-x-2 font-semibold">
-                <span className="text-amber-400">🔒</span>
-                <span>AUTOMATED IEP / OESS ALERT: OESS MUST be consulted for all students on an IEP.</span>
-              </div>
-            </div>
-          )}
-
-          {/* GLOBAL STUDENT SEARCH / LOOKUP TOOLBAR (ACCESSIBLE ACROSS ALL TABS) */}
+          {/* GLOBAL STUDENT SEARCH / LOOKUP TOOLBAR */}
           <div className="bg-slate-900/80 border-b border-slate-800 px-4 py-2.5">
             <div className="max-w-7xl mx-auto flex items-center space-x-3">
               <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">🔍 Student Lookup:</span>
               <div className="relative flex-1">
                 <input
                   type="text"
-                  placeholder="Type student name or ID# to view all historical cases (Active, Monitored, Closed)..."
+                  placeholder="Type student name or ID# to view all historical cases..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-xs text-slate-100 focus:border-blue-500 focus:outline-none"
@@ -670,7 +789,7 @@
             {searchQuery.trim() !== '' && (
               <div className="max-w-7xl mx-auto mt-2 bg-slate-900 border border-blue-500/60 rounded-xl p-4 space-y-3 shadow-2xl">
                 <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                  <span className="text-xs font-bold text-blue-400 uppercase">Student Lookup Results for "{searchQuery}" ({lookupResults.length} Cases Found)</span>
+                  <span className="text-xs font-bold text-blue-400 uppercase">Student Lookup Results for "{searchQuery}"</span>
                   <button onClick={() => setSearchQuery('')} className="text-xs text-slate-400 hover:text-white">Close Lookup Panel</button>
                 </div>
 
@@ -681,34 +800,11 @@
                         <div className="flex items-center space-x-2">
                           <span className="font-bold text-slate-100 text-sm">{rc.studentName}</span>
                           <span className="text-[10px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded">ID #{rc.studentId}</span>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${rc.caseStatus === 'Closed' ? 'bg-red-950 text-red-300 border-red-800' : 'bg-blue-950 text-blue-300 border-blue-800'}`}>
-                            {rc.caseStatus}
-                          </span>
                         </div>
-                        <p className="text-slate-400 text-[11px]">Campus: <span className="text-slate-200">{rc.schoolLocation}</span> | TIPS #{rc.tipsReportNum} | Incident Date: <span className="text-slate-200 font-mono">{rc.incidentDate}</span></p>
-                        {rc.involvedStudents && <p className="text-[11px] text-amber-300/90 font-medium">Involved Students: {rc.involvedStudents}</p>}
-                        
-                        {/* CLOSURE STATUS & RESOLUTION CONCLUSION DISPLAY */}
-                        {rc.caseStatus === 'Closed' && (
-                          <div className="mt-1.5 p-2 bg-red-950/40 border border-red-900/60 rounded text-[11px]">
-                            <span className="font-bold text-red-300 block">Case Closed on {rc.closeDate || 'Archived Date'}:</span>
-                            <span className="text-slate-200 italic">"{rc.closeNotes || 'No conclusion details recorded.'}"</span>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="text-right shrink-0 pl-2">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${rc.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' : 'bg-yellow-950 text-yellow-300 border-yellow-800'}`}>
-                          {rc.triagePriority} Risk
-                        </span>
-                        <span className="block text-[10px] text-blue-400 font-semibold mt-2">Open Case ➔</span>
+                        <p className="text-slate-400 text-[11px]">Campus: {rc.schoolLocation} | TIPS #{rc.tipsReportNum}</p>
                       </div>
                     </div>
                   ))}
-
-                  {lookupResults.length === 0 && (
-                    <div className="p-4 text-center text-xs text-slate-400">No student records found matching "{searchQuery}".</div>
-                  )}
                 </div>
               </div>
             )}
@@ -731,6 +827,11 @@
 
               <button onClick={() => { setMainTab('noTriage'); if (openNoTriageCases.length > 0) setSelectedCaseId(openNoTriageCases[0].id); }} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'noTriage' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
                 Open Cases without Triage ({openNoTriageCases.length})
+              </button>
+
+              {/* NEW KEEPING AN EYE ON TAB */}
+              <button onClick={() => setMainTab('watchTab')} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'watchTab' ? 'border-teal-500 text-teal-300 font-bold' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
+                👁️ Keeping an Eye On ({watchStudents.length})
               </button>
 
               <button onClick={() => { setMainTab('closed'); if (closedCases.length > 0) setSelectedCaseId(closedCases[0].id); }} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'closed' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
@@ -824,14 +925,45 @@
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                             <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded">
                               <span className="font-semibold text-slate-200 truncate">{currentCase.intakeFiles?.tipsPdf?.name || 'TIPS_Report.pdf'}</span>
-                              <button onClick={() => setViewingDoc(currentCase.intakeFiles?.tipsPdf)} className="bg-blue-900/60 text-blue-200 text-[11px] px-2.5 py-1 rounded font-medium">View</button>
+                              <button onClick={() => openDocViewer(currentCase.intakeFiles?.tipsPdf)} className="bg-blue-900/60 text-blue-200 text-[11px] px-2.5 py-1 rounded font-medium">View</button>
                             </div>
                             <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded">
                               <span className="font-semibold text-slate-200 truncate">{currentCase.intakeFiles?.triagePdf?.name || 'Triage_Form.pdf'}</span>
-                              {currentCase.intakeFiles?.triagePdf && <button onClick={() => setViewingDoc(currentCase.intakeFiles?.triagePdf)} className="bg-purple-900/60 text-purple-200 text-[11px] px-2.5 py-1 rounded font-medium">View</button>}
+                              {currentCase.intakeFiles?.triagePdf && <button onClick={() => openDocViewer(currentCase.intakeFiles?.triagePdf)} className="bg-purple-900/60 text-purple-200 text-[11px] px-2.5 py-1 rounded font-medium">View</button>}
                             </div>
                           </div>
                         </div>
+
+                        {/* NEW TIPS SINCE INCIDENT BOX (DISPLAYED ONLY IF >1 INTAKES FOR THIS STUDENT) */}
+                        {currentCase.additionalTipsList && currentCase.additionalTipsList.length > 0 && (
+                          <div className="bg-amber-950/40 border border-amber-800/80 p-4 rounded-lg space-y-3">
+                            <div className="flex items-center space-x-2 border-b border-amber-800/60 pb-2">
+                              <span className="text-amber-400 font-bold">📩</span>
+                              <h4 className="text-xs font-bold text-amber-200 uppercase tracking-wide">
+                                New TIPS Since Incident ({currentCase.additionalTipsList.length} Additional Intakes Logged)
+                              </h4>
+                            </div>
+
+                            <div className="space-y-2">
+                              {currentCase.additionalTipsList.map((at, idx) => (
+                                <div key={idx} className="bg-slate-950 p-3 rounded border border-slate-800 flex justify-between items-start text-xs">
+                                  <div className="space-y-1">
+                                    <div className="flex items-center space-x-2">
+                                      <span className="font-bold text-amber-300">TIPS #{at.tipsNum}</span>
+                                      <span className="text-[10px] font-mono text-slate-400">Incident Date: {at.incidentDate}</span>
+                                    </div>
+                                    <p className="text-slate-300 italic">"{at.brief}"</p>
+                                  </div>
+                                  {at.doc && (
+                                    <button onClick={() => openDocViewer(at.doc)} className="bg-amber-900/60 hover:bg-amber-800 text-amber-100 text-[11px] px-2.5 py-1 rounded font-medium shrink-0 ml-2">
+                                      View TIPS PDF
+                                    </button>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
                         {/* CASE / TEAM STATUS UPDATING AREA (VISIBLE FOR OPEN CASES) */}
                         {currentCase.caseStatus !== 'Closed' && (
@@ -875,7 +1007,6 @@
                                 <span className="text-blue-400">📈</span>
                                 <span>Pathway to Violence Timeline (Movable / Editable)</span>
                               </h3>
-                              <p className="text-[10px] text-slate-400">Auto-logs on 360 uploads. Events can be moved between stages with notes.</p>
                             </div>
                             <button onClick={() => setShowAddPathwayModal(true)} className="bg-blue-600/80 hover:bg-blue-600 text-white text-xs px-3 py-1.5 rounded font-semibold">+ Add Event</button>
                           </div>
@@ -897,23 +1028,11 @@
                                           <p className="text-slate-200 pr-2 font-medium">{evt.description}</p>
                                           <div className="flex items-center space-x-2 shrink-0">
                                             <span className="text-slate-500 font-mono text-[10px]">{evt.date}</span>
-                                            <button
-                                              onClick={() => handleOpenMoveEventModal(evt)}
-                                              className="bg-slate-800 hover:bg-slate-700 text-blue-300 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-semibold"
-                                            >
-                                              Move / Edit
-                                            </button>
+                                            <button onClick={() => handleOpenMoveEventModal(evt)} className="bg-slate-800 text-blue-300 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-semibold">Move / Edit</button>
                                           </div>
                                         </div>
-
-                                        {evt.moveNote && (
-                                          <p className="text-[10px] text-purple-300 bg-purple-950/60 p-1.5 rounded border border-purple-900/60 italic">
-                                            📌 {evt.moveNote}
-                                          </p>
-                                        )}
                                       </div>
                                     ))}
-                                    {stageEvents.length === 0 && <p className="text-[11px] text-slate-600 italic">No incidents logged.</p>}
                                   </div>
                                 </div>
                               );
@@ -922,14 +1041,13 @@
                         </div>
                       )}
 
-                      {/* 360-DEGREE ASSESSMENT VAULT */}
+                      {/* 360-DEGREE ASSESSMENT VAULT WITH DELETE CONTROLS */}
                       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
                         <div className="flex justify-between items-center">
                           <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
                             <span className="text-blue-400">📁</span>
                             <span>360-Degree Assessment Documents</span>
                           </h3>
-                          <span className="text-[11px] text-slate-400">RED = Empty | BLUE = Uploaded</span>
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -960,205 +1078,157 @@
                           <div className="flex justify-between items-center pb-2 border-b border-slate-800">
                             <span className="font-semibold text-slate-200 uppercase text-[11px]">{activeDocTab.replace(/([A-Z])/g, ' $1')} Files</span>
                             <label className="cursor-pointer bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-medium">
-                              + Upload File
-                              <input type="file" className="hidden" onChange={(e) => handleFileUpload(activeDocTab, e)} />
+                              + Upload File / Photo
+                              <input type="file" accept="application/pdf,image/*" className="hidden" onChange={(e) => handleFileUpload(activeDocTab, e)} />
                             </label>
                           </div>
 
                           <div className="space-y-2">
                             {(currentCase.documents?.[activeDocTab] || []).map((doc, idx) => (
-                              <div key={idx} className="flex justify-between items-center p-2.5 bg-slate-900 rounded border border-slate-800">
-                                <span className="font-medium text-slate-200">{doc.name}</span>
-                                <div className="flex items-center space-x-2">
-                                  <button onClick={() => setViewingDoc(doc)} className="bg-blue-900/60 text-blue-200 text-[11px] px-2.5 py-1 rounded">View</button>
-                                  <a href={doc.url} download={doc.name} className="bg-slate-800 text-slate-200 text-[11px] px-2.5 py-1 rounded">Download</a>
+                              <div key={doc.id || idx} className="flex justify-between items-center p-2.5 bg-slate-900 rounded border border-slate-800">
+                                <div className="flex items-center space-x-2 truncate pr-2">
+                                  <span>{doc.isImage ? '🖼️' : '📄'}</span>
+                                  <span className="font-medium text-slate-200 truncate">{doc.name}</span>
+                                </div>
+                                <div className="flex items-center space-x-2 shrink-0">
+                                  <button onClick={() => openDocViewer(doc)} className="bg-blue-900/60 text-blue-200 text-[11px] px-2.5 py-1 rounded hover:bg-blue-800">View / Zoom</button>
+                                  <a href={doc.url} download={doc.name} className="bg-slate-800 text-slate-200 text-[11px] px-2.5 py-1 rounded hover:bg-slate-700">Download</a>
+                                  <button onClick={() => handleDeleteDocument(activeDocTab, doc.id || doc.name)} className="bg-red-950 text-red-300 text-[11px] px-2 py-1 rounded border border-red-800/80 font-semibold">🗑️ Delete</button>
                                 </div>
                               </div>
                             ))}
-                            {(!currentCase.documents?.[activeDocTab] || currentCase.documents[activeDocTab].length === 0) && (
-                              <div className="p-4 text-center text-xs text-red-400 bg-red-950/20 border border-red-900/40 rounded">Empty category. Upload a file to trigger auto-pathway logging.</div>
-                            )}
                           </div>
                         </div>
                       </div>
-
-                      {/* CSTAG DETERMINATION PHASE */}
-                      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
-                        <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
-                          <span className="text-purple-400">⚖️</span>
-                          <span>CSTAG Classification Determination</span>
-                        </h3>
-
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-bold">
-                          {[
-                            { key: 'Not-A-Threat', label: 'Not-A-Threat', color: 'bg-green-950 text-green-300 border-green-700' },
-                            { key: 'Transient Threat', label: 'Transient Threat', color: 'bg-yellow-950 text-yellow-300 border-yellow-700' },
-                            { key: 'Serious Substantive', label: 'Serious Substantive', color: 'bg-pink-950 text-pink-300 border-pink-700' },
-                            { key: 'Very Serious Substantive', label: 'Very Serious Substantive', color: 'bg-red-950 text-red-300 border-red-700' }
-                          ].map(item => (
-                            <button
-                              key={item.key}
-                              onClick={() => handleCstagChange(item.key)}
-                              className={`p-3 rounded-lg border text-center transition-all ${
-                                currentCase.cstagClassification === item.key ? `${item.color} ring-2 ring-blue-500 scale-105` : 'bg-slate-950 border-slate-800 text-slate-400 opacity-60'
-                              }`}
-                            >
-                              {item.label}
-                            </button>
-                          ))}
-                        </div>
-
-                        <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 flex justify-between items-center text-xs">
-                          <div>
-                            <span className="text-slate-400 block text-[10px]">CSTAG Determination Report</span>
-                            <span className="font-semibold text-slate-200">{currentCase.cstagDoc ? currentCase.cstagDoc.name : 'No CSTAG Document Inputted'}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            {currentCase.cstagDoc && <button onClick={() => setViewingDoc(currentCase.cstagDoc)} className="bg-blue-900/60 text-blue-200 px-3 py-1 rounded">View</button>}
-                            <label className="cursor-pointer bg-purple-600 hover:bg-purple-500 text-white px-3 py-1 rounded font-semibold">
-                              Upload Report
-                              <input type="file" className="hidden" onChange={handleCstagDocUpload} />
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* BRANCHING WORKFLOW 1: IMMEDIATE SUBSTANTIVE RESPONSE */}
-                      {(currentCase.cstagClassification === 'Serious Substantive' || currentCase.cstagClassification === 'Very Serious Substantive') && (
-                        <div className="bg-slate-900 border border-red-900/60 rounded-xl p-5 space-y-3 shadow-xl">
-                          <h3 className="text-sm font-bold text-red-200 flex items-center space-x-2">
-                            <span className="text-red-400">🚨</span>
-                            <span>Immediate Substantive Response Checklist</span>
-                          </h3>
-
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
-                            {[
-                              { key: 'victimNotification', label: 'Victim Notification' },
-                              { key: 'vulnerabilityReduction', label: 'Victim Vulnerability Reduction' },
-                              { key: 'conflictResolution', label: 'Conflict Resolution' }
-                            ].map(chk => (
-                              <label key={chk.key} className="flex items-center space-x-2 bg-slate-950 p-3 rounded border border-slate-800 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={!!currentCase.immediateResponse?.[chk.key]}
-                                  onChange={() => toggleImmediateCheck(chk.key)}
-                                  className="rounded bg-slate-900 border-slate-700 text-red-600"
-                                />
-                                <span className="font-semibold text-slate-200">{chk.label}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* BRANCHING WORKFLOW 2: STUDENT SUPPORT / SAFETY PLAN */}
-                      {(currentCase.cstagClassification !== 'Not-A-Threat' && currentCase.cstagClassification !== 'Pending Assessment') && (
-                        <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
-                          <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
-                            <span className="text-blue-400">📋</span>
-                            <span>{currentCase.cstagClassification === 'Transient Threat' ? 'Student Support Plan' : 'Student Safety Plan'}</span>
-                          </h3>
-
-                          <div className="space-y-3 text-xs">
-                            <div>
-                              <label className="text-slate-400 block mb-1">Plan Progress Status</label>
-                              <select
-                                value={currentCase.planStatus || 'Not Completed'}
-                                onChange={(e) => updatePlanDetail('planStatus', e.target.value)}
-                                className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 focus:border-blue-500"
-                              >
-                                <option value="Not Completed">Not Completed</option>
-                                <option value="Waiting on Re-Entry">Waiting on Re-Entry</option>
-                                <option value="Meeting Scheduled">Meeting Scheduled</option>
-                                <option value="Waiting on Team">Waiting on Team</option>
-                                <option value="Support Plan Created">Support Plan Created</option>
-                              </select>
-                            </div>
-
-                            {currentCase.planStatus === 'Support Plan Created' && (
-                              <div className="p-4 bg-slate-950 border border-slate-800 rounded-lg space-y-4">
-                                <div className="flex justify-between items-center pb-2 border-b border-slate-800">
-                                  <span className="font-bold text-slate-200">Plan Document Upload</span>
-                                  <div className="flex items-center space-x-2">
-                                    {currentCase.planDoc && <button onClick={() => setViewingDoc(currentCase.planDoc)} className="bg-blue-900/60 text-blue-200 px-3 py-1 rounded">View</button>}
-                                    <label className="cursor-pointer bg-blue-600 text-white px-3 py-1 rounded font-semibold">
-                                      Upload Plan PDF
-                                      <input type="file" className="hidden" onChange={handlePlanDocUpload} />
-                                    </label>
-                                  </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                  <div>
-                                    <label className="text-slate-400 block mb-1">Plan Start Date (Moves to Plan Tab)</label>
-                                    <input
-                                      type="date"
-                                      value={currentCase.planStartDate || ''}
-                                      onChange={(e) => updatePlanDetail('planStartDate', e.target.value)}
-                                      className="w-full bg-slate-900 border border-slate-800 p-2 rounded text-slate-100"
-                                    />
-                                  </div>
-
-                                  <div>
-                                    <label className="text-slate-400 block mb-1">Plan End Date</label>
-                                    <input
-                                      type="date"
-                                      value={currentCase.planEndDate || ''}
-                                      onChange={(e) => updatePlanDetail('planEndDate', e.target.value)}
-                                      className="w-full bg-slate-900 border border-slate-800 p-2 rounded text-slate-100"
-                                    />
-                                  </div>
-
-                                  <div>
-                                    <label className="text-slate-400 block mb-1">Next Progress Check-in Date</label>
-                                    <input
-                                      type="date"
-                                      value={currentCase.planCheckinDate || ''}
-                                      onChange={(e) => updatePlanDetail('planCheckinDate', e.target.value)}
-                                      className="w-full bg-slate-900 border border-slate-800 p-2 rounded text-slate-100"
-                                    />
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* CASE CLOSURE SUMMARY (VISIBLE WHEN CASE IS CLOSED) */}
-                      {currentCase.caseStatus === 'Closed' && (
-                        <div className="bg-red-950/40 border border-red-900/80 rounded-xl p-5 space-y-3 shadow-xl">
-                          <div className="flex items-center space-x-2 border-b border-red-900/60 pb-2">
-                            <span className="text-red-400 text-base">📁</span>
-                            <h3 className="text-sm font-bold text-red-200 uppercase tracking-wide">Case Closure & Resolution Record</h3>
-                          </div>
-                          
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
-                            <div>
-                              <span className="text-slate-400 block text-[10px] uppercase font-semibold">Case Status</span>
-                              <span className="font-bold text-red-400">Closed & Archived</span>
-                            </div>
-                            <div>
-                              <span className="text-slate-400 block text-[10px] uppercase font-semibold">Closure Date</span>
-                              <span className="font-mono text-slate-200 font-bold">{currentCase.closeDate || 'N/A'}</span>
-                            </div>
-                            <div className="sm:col-span-3 bg-slate-950 p-3 rounded border border-slate-800/80">
-                              <span className="text-slate-400 block text-[10px] uppercase font-semibold mb-1">Resolution & Final Closure Notes</span>
-                              <p className="text-slate-200 text-xs whitespace-pre-wrap">{currentCase.closeNotes || 'No closure notes recorded.'}</p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
                     </>
                   ) : null}
                 </div>
               </div>
             )}
 
+            {/* NEW "KEEPING AN EYE ON" TAB CONTENT (MATCHES EXCEL SCREENSHOT EXACTLY) */}
+            {mainTab === 'watchTab' && (
+              <div className="space-y-6">
+                <div className="bg-teal-950/40 border border-teal-800/80 rounded-xl p-4 flex justify-between items-center text-xs">
+                  <div>
+                    <h2 className="text-sm font-bold text-teal-200 flex items-center space-x-2">
+                      <span>👁️</span>
+                      <span>Keeping an Eye On Log (Multi-Incident Watch List)</span>
+                    </h2>
+                    <p className="text-slate-400 mt-0.5">Students listed here do not have active open cases and are excluded from the District Oversight Dashboard.</p>
+                  </div>
+                </div>
+
+                {watchStudents.map((st, idx) => (
+                  <div key={st.studentId || idx} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs border-collapse">
+                        {/* HEADER ROW 1: STUDENT NAME, ID, CAMPUS, LAST UPDATED */}
+                        <thead>
+                          <tr className="bg-teal-600 text-slate-950 font-bold uppercase text-[11px]">
+                            <th className="p-3 border-r border-teal-500/50 w-1/5">Student Name</th>
+                            <th className="p-3 border-r border-teal-500/50 w-1/12">Student ID #</th>
+                            <th className="p-3 border-r border-teal-500/50 w-1/4">School/Incident Details</th>
+                            <th className="p-3 border-r border-teal-500/50 w-1/12">Date</th>
+                            <th className="p-3 border-r border-teal-500/50 w-1/12">Triage</th>
+                            <th className="p-3 border-r border-teal-500/50 w-1/5">Resolution</th>
+                            <th className="p-3 w-1/4">Notes</th>
+                          </tr>
+                          <tr className="bg-blue-900/90 text-blue-100 font-bold text-xs border-b border-slate-800">
+                            <td className="p-3 border-r border-slate-800">{st.studentName}</td>
+                            <td className="p-3 border-r border-slate-800 font-mono">{st.studentId}</td>
+                            <td className="p-3 border-r border-slate-800">{st.schoolLocation}</td>
+                            <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
+                            <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
+                            <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
+                            <td className="p-3 text-amber-300 font-mono">Last Updated ({st.lastUpdatedDate})</td>
+                          </tr>
+                        </thead>
+
+                        {/* INCIDENTS ROWS (MATCHING SCREENSHOT STRUCTURE WITH DOCUMENT UPLOADERS) */}
+                        <tbody className="divide-y divide-slate-800">
+                          {st.incidents.map((inc) => (
+                            <tr key={inc.id} className="hover:bg-slate-800/40 align-top">
+                              {/* TIPS INVOLVED IN COLUMN */}
+                              <td className="p-3 font-semibold text-slate-300 bg-slate-950/60 border-r border-slate-800">
+                                <span className="text-slate-400 block text-[10px] uppercase">Record Label</span>
+                                TIPS involved in
+                              </td>
+
+                              {/* TIPS REPORT NUMBER + DOCUMENT UPLOADER */}
+                              <td className="p-3 font-mono font-bold text-blue-400 bg-slate-950/40 border-r border-slate-800 space-y-1">
+                                <div>TIPS #{inc.tipsNum}</div>
+                                {inc.tipsDoc ? (
+                                  <button onClick={() => openDocViewer(inc.tipsDoc)} className="bg-blue-900/80 text-blue-200 text-[10px] px-2 py-0.5 rounded block font-medium">
+                                    View TIPS
+                                  </button>
+                                ) : (
+                                  <label className="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] px-2 py-0.5 rounded block font-medium text-center">
+                                    + Upload TIPS
+                                    <input type="file" className="hidden" onChange={(e) => handleWatchTipsUpload(st.studentId, inc.id, e)} />
+                                  </label>
+                                )}
+                              </td>
+
+                              {/* INCIDENT DETAILS */}
+                              <td className="p-3 text-slate-200 border-r border-slate-800 leading-relaxed">{inc.details}</td>
+
+                              {/* INCIDENT DATE */}
+                              <td className="p-3 font-mono text-slate-300 border-r border-slate-800 whitespace-nowrap">{inc.date}</td>
+
+                              {/* TRIAGE RATING */}
+                              <td className="p-3 border-r border-slate-800 whitespace-nowrap">
+                                <span className={`px-2 py-0.5 text-[10px] font-bold rounded border ${
+                                  inc.triage.includes('Low') ? 'bg-green-950 text-green-300 border-green-800' : 'bg-slate-800 text-slate-300 border-slate-700'
+                                }`}>
+                                  {inc.triage}
+                                </span>
+                              </td>
+
+                              {/* RESOLUTION */}
+                              <td className="p-3 text-slate-300 border-r border-slate-800 leading-relaxed">{inc.resolution}</td>
+
+                              {/* NOTES + MULTIPLE RECORDS REVIEW DOCUMENTS UPLOADER */}
+                              <td className="p-3 text-slate-300 space-y-2">
+                                <div className="leading-relaxed">{inc.notes}</div>
+
+                                {/* RECORDS REVIEW DOCUMENTS VAULT FOR THIS INCIDENT */}
+                                <div className="bg-slate-950 p-2 rounded border border-slate-800/80 space-y-1.5 pt-2">
+                                  <div className="flex justify-between items-center border-b border-slate-800 pb-1">
+                                    <span className="text-[10px] font-bold text-amber-400 uppercase">Records Review Files</span>
+                                    <label className="cursor-pointer bg-amber-950 hover:bg-amber-900 text-amber-200 text-[10px] px-2 py-0.5 rounded border border-amber-800/80 font-semibold">
+                                      + Add Record File
+                                      <input type="file" className="hidden" onChange={(e) => handleWatchRecordsUpload(st.studentId, inc.id, e)} />
+                                    </label>
+                                  </div>
+
+                                  <div className="space-y-1">
+                                    {(inc.recordsDocs || []).map((rd) => (
+                                      <div key={rd.id} className="flex justify-between items-center bg-slate-900 p-1.5 rounded border border-slate-800 text-[11px]">
+                                        <span className="text-slate-200 truncate pr-2">📄 {rd.name}</span>
+                                        <button onClick={() => openDocViewer(rd)} className="bg-blue-900/60 text-blue-200 text-[10px] px-2 py-0.5 rounded shrink-0">View</button>
+                                      </div>
+                                    ))}
+                                    {(!inc.recordsDocs || inc.recordsDocs.length === 0) && (
+                                      <div className="text-[10px] text-slate-500 italic">No record files attached.</div>
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* DISTRICT OVERSIGHT DASHBOARD MATRIX */}
             {mainTab === 'dashboard' && (
               <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
-                <h2 className="text-base font-bold text-slate-100">District-Wide Case Matrix (All System Cases)</h2>
+                <h2 className="text-base font-bold text-slate-100">District-Wide Case Matrix (All System Open & Closed Cases)</h2>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs text-slate-300">
                     <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase text-[10px]">
@@ -1203,19 +1273,59 @@
             )}
           </main>
 
-          {/* INLINE DOCUMENT VIEWER MODAL */}
+          {/* ADVANCED DOCUMENT VIEWER MODAL WITH FULLSCREEN & ZOOM CONTROLS */}
           {viewingDoc && (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-4xl w-full h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-                <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-950">
-                  <h3 className="text-sm font-bold text-slate-100">{viewingDoc.name}</h3>
-                  <div className="flex items-center space-x-3">
-                    <a href={viewingDoc.url} download={viewingDoc.name} className="bg-blue-600 text-white text-xs px-3 py-1.5 rounded font-semibold">Download</a>
+            <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4">
+              <div className={`bg-slate-900 border border-slate-800 rounded-xl flex flex-col shadow-2xl overflow-hidden transition-all ${
+                isFullscreen ? 'w-full h-full rounded-none' : 'max-w-5xl w-full h-[88vh]'
+              }`}>
+                {/* TOOLBAR */}
+                <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-950 shrink-0">
+                  <div className="flex items-center space-x-2 truncate pr-2">
+                    <span className="font-bold text-xs text-slate-100 truncate">{viewingDoc.name}</span>
+                    <span className="text-[10px] text-slate-400 font-mono">({(zoomLevel * 100).toFixed(0)}% Zoom)</span>
+                  </div>
+
+                  <div className="flex items-center space-x-2 shrink-0">
+                    <div className="flex items-center space-x-1 bg-slate-900 p-1 rounded border border-slate-800">
+                      <button onClick={() => setZoomLevel(prev => Math.max(0.4, prev - 0.2))} className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 rounded" title="Zoom Out">-</button>
+                      <button onClick={() => setZoomLevel(1)} className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-[10px] font-semibold text-slate-300 rounded" title="Reset Zoom">Reset</button>
+                      <button onClick={() => setZoomLevel(prev => Math.min(3, prev + 0.2))} className="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 rounded" title="Zoom In">+</button>
+                    </div>
+
+                    <button 
+                      onClick={() => setIsFullscreen(!isFullscreen)} 
+                      className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-2.5 py-1 rounded font-medium border border-slate-700"
+                    >
+                      {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen ⛶'}
+                    </button>
+
+                    <a href={viewingDoc.url} download={viewingDoc.name} className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1 rounded font-semibold">Download</a>
                     <button onClick={() => setViewingDoc(null)} className="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
                   </div>
                 </div>
-                <div className="flex-1 bg-slate-950 p-2">
-                  <iframe src={viewingDoc.url} className="w-full h-full rounded border border-slate-800" title={viewingDoc.name} />
+
+                {/* VIEWPORT AREA */}
+                <div className="flex-1 bg-slate-950 p-4 overflow-auto flex items-center justify-center relative">
+                  {viewingDoc.isImage || viewingDoc.name.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                    <div className="overflow-auto max-w-full max-h-full flex items-center justify-center">
+                      <img 
+                        src={viewingDoc.url} 
+                        alt={viewingDoc.name} 
+                        style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center center', transition: 'transform 0.15s ease-out' }} 
+                        className="max-w-full max-h-full object-contain rounded shadow-lg"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center overflow-auto">
+                      <iframe 
+                        src={viewingDoc.url} 
+                        style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'top center', width: `${100 / zoomLevel}%`, height: `${100 / zoomLevel}%` }} 
+                        className="rounded border border-slate-800 transition-all" 
+                        title={viewingDoc.name} 
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1299,7 +1409,7 @@
             </div>
           )}
 
-          {/* NEW INTAKE MODAL WITH INVOLVED STUDENTS & INCIDENT DATE FIELDS */}
+          {/* NEW INTAKE MODAL */}
           {showNewIntakeModal && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
@@ -1354,7 +1464,6 @@
                     </div>
                   </div>
 
-                  {/* INVOLVED / ASSOCIATED STUDENTS BOX */}
                   <div>
                     <label className="text-slate-400 block mb-1">Involved / Associated Students & ID #s</label>
                     <input 
@@ -1392,7 +1501,7 @@
 
                   <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
                     <button type="button" onClick={() => setShowNewIntakeModal(false)} className="bg-slate-800 px-4 py-2 rounded text-slate-300 font-semibold">Cancel</button>
-                    <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded font-semibold">Initialize Case & Route</button>
+                    <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded font-semibold">Initialize or Merge Case</button>
                   </div>
                 </form>
               </div>
@@ -1428,4 +1537,4 @@
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
-</html>
+</html>     
