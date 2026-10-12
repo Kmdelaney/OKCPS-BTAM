@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
@@ -224,7 +224,19 @@
       const [showNewIntakeModal, setShowNewIntakeModal] = useState(false);
       const [showCloseCaseModal, setShowCloseCaseModal] = useState(false);
       const [showAddPathwayModal, setShowAddPathwayModal] = useState(false);
+      const [showAddWatchModal, setShowAddWatchModal] = useState(false);
       const [editingPathwayEvent, setEditingPathwayEvent] = useState(null);
+
+      // Keeping an Eye On Form State
+      const [watchName, setWatchName] = useState('');
+      const [watchId, setWatchId] = useState('');
+      const [watchSchool, setWatchSchool] = useState('');
+      const [watchTipsNum, setWatchTipsNum] = useState('');
+      const [watchDetails, setWatchDetails] = useState('');
+      const [watchDate, setWatchDate] = useState(new Date().toISOString().split('T')[0]);
+      const [watchTriage, setWatchTriage] = useState('Low-Risk');
+      const [watchResolution, setWatchResolution] = useState('');
+      const [watchNotes, setWatchNotes] = useState('');
 
       // Pathway Add Form
       const [newEventStage, setNewEventStage] = useState('Grievance');
@@ -265,6 +277,15 @@
 
       const currentCase = cases.find(c => c.id === selectedCaseId) || activeMediumHighCases[0] || cases[0];
 
+      // HELPER: Check if student is on the Keeping an Eye On List
+      const isStudentOnWatchList = (name, id) => {
+        if (!name && !id) return false;
+        return watchStudents.some(w => 
+          (id && w.studentId === id) || 
+          (name && w.studentName.toLowerCase() === name.toLowerCase())
+        );
+      };
+
       // Sync local status note state when selected case changes
       useEffect(() => {
         if (currentCase) {
@@ -281,6 +302,17 @@
           caseTeamStatusNotes: tempStatusNotes,
           caseTeamStatusLastUpdated: today
         } : c));
+      };
+
+      // EDIT LAST UPDATED DATE ON WATCH LIST
+      const handleEditWatchLastUpdated = (studentId) => {
+        const currentStudent = watchStudents.find(st => st.studentId === studentId);
+        if (!currentStudent) return;
+
+        const newDate = prompt("Enter new Last Updated date:", currentStudent.lastUpdatedDate);
+        if (newDate && newDate.trim() !== '') {
+          setWatchStudents(watchStudents.map(st => st.studentId === studentId ? { ...st, lastUpdatedDate: newDate.trim() } : st));
+        }
       };
 
       // DELETE 360 DEGREE ASSESSMENT DOCUMENT
@@ -361,7 +393,13 @@
 
           if (!extractedName || !extractedSchool) {
             const fileNameUpper = file.name.toUpperCase();
-            if (fileNameUpper.includes('JIMENEZ') || fileNameUpper.includes('JORGE')) {
+            if (fileNameUpper.includes('CAPULIN') || fileNameUpper.includes('ETHAN')) {
+              extractedName = extractedName || 'Ethan Capulin';
+              extractedId = extractedId || '1011764';
+              extractedSchool = extractedSchool || 'Taft MS';
+              extractedTips = extractedTips || '26-03225';
+              extractedBrief = extractedBrief || 'Threat incident logged on watch list student.';
+            } else if (fileNameUpper.includes('JIMENEZ') || fileNameUpper.includes('JORGE')) {
               extractedName = extractedName || 'Jorge Jimenez';
               extractedId = extractedId || '345290';
               extractedSchool = extractedSchool || 'Capitol Hill High School';
@@ -467,6 +505,69 @@
             };
           }
           return c;
+        }));
+      };
+
+      // UPLOAD NEW WATCH LIST STUDENT
+      const handleAddWatchStudent = (e) => {
+        e.preventDefault();
+        const newStudent = {
+          studentName: watchName.trim(),
+          studentId: watchId.trim(),
+          schoolLocation: watchSchool.trim(),
+          lastUpdatedDate: new Date().toLocaleDateString('en-US'),
+          incidents: [
+            {
+              id: `inc-${Date.now()}`,
+              tipsNum: watchTipsNum.trim() || 'Pending',
+              details: watchDetails.trim() || 'No initial details logged.',
+              date: watchDate,
+              triage: watchTriage,
+              resolution: watchResolution.trim() || 'Pending action',
+              notes: watchNotes.trim() || 'No initial notes.',
+              tipsDoc: null,
+              recordsDocs: []
+            }
+          ]
+        };
+
+        setWatchStudents([newStudent, ...watchStudents]);
+        setShowAddWatchModal(false);
+        setWatchName(''); setWatchId(''); setWatchSchool(''); setWatchTipsNum(''); setWatchDetails(''); setWatchResolution(''); setWatchNotes('');
+      };
+
+      // ADD INCIDENT ROW TO EXISTING WATCH LIST STUDENT
+      const handleAddWatchIncident = (studentId) => {
+        const tipsNum = prompt("Enter TIPS Report # for this new incident:");
+        if (!tipsNum) return;
+
+        const details = prompt("Enter Incident Details / Threat Description:");
+        const date = prompt("Enter Incident Date:", new Date().toLocaleDateString('en-US'));
+        const triage = prompt("Enter Triage Status:", "Low-Risk");
+        const resolution = prompt("Enter Resolution / Action Taken:");
+        const notes = prompt("Enter Notes / Update details:");
+
+        const newIncident = {
+          id: `inc-${Date.now()}`,
+          tipsNum: tipsNum,
+          details: details || 'No details provided',
+          date: date || new Date().toLocaleDateString('en-US'),
+          triage: triage || 'Low-Risk',
+          resolution: resolution || 'Pending',
+          notes: notes || 'None',
+          tipsDoc: null,
+          recordsDocs: []
+        };
+
+        setWatchStudents(watchStudents.map(st => {
+          if (st.studentId === studentId) {
+            return {
+              ...st,
+              lastUpdatedDate: new Date().toLocaleDateString('en-US'),
+              incidents: [...st.incidents, newIncident]
+            };
+          }
+          return st;
         }));
       };
 
@@ -829,7 +930,7 @@
                 Open Cases without Triage ({openNoTriageCases.length})
               </button>
 
-              {/* NEW KEEPING AN EYE ON TAB */}
+              {/* KEEPING AN EYE ON TAB */}
               <button onClick={() => setMainTab('watchTab')} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'watchTab' ? 'border-teal-500 text-teal-300 font-bold' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
                 👁️ Keeping an Eye On ({watchStudents.length})
               </button>
@@ -855,29 +956,35 @@
                   </h2>
 
                   <div className="space-y-2 max-h-[80vh] overflow-y-auto pr-1">
-                    {(mainTab === 'active' ? activeMediumHighCases : mainTab === 'planTab' ? casesOnPlan : mainTab === 'low' ? lowRiskCases : mainTab === 'noTriage' ? openNoTriageCases : closedCases).map(c => (
-                      <div
-                        key={c.id}
-                        onClick={() => setSelectedCaseId(c.id)}
-                        className={`p-3.5 rounded-xl border cursor-pointer transition-all ${selectedCaseId === c.id ? 'bg-slate-900 border-blue-500 shadow-lg shadow-blue-900/10' : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'}`}
-                      >
-                        <div className="flex justify-between items-start mb-1">
-                          <span className="font-bold text-sm text-slate-100">{c.studentName}</span>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${c.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' : c.triagePriority === 'Medium' ? 'bg-yellow-950 text-yellow-300 border-yellow-800' : 'bg-slate-800 text-slate-300 border-slate-700'}`}>
-                            {c.triagePriority}
-                          </span>
+                    {(mainTab === 'active' ? activeMediumHighCases : mainTab === 'planTab' ? casesOnPlan : mainTab === 'low' ? lowRiskCases : mainTab === 'noTriage' ? openNoTriageCases : closedCases).map(c => {
+                      const isOnWatch = isStudentOnWatchList(c.studentName, c.studentId);
+                      return (
+                        <div
+                          key={c.id}
+                          onClick={() => setSelectedCaseId(c.id)}
+                          className={`p-3.5 rounded-xl border cursor-pointer transition-all ${selectedCaseId === c.id ? 'bg-slate-900 border-blue-500 shadow-lg shadow-blue-900/10' : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'}`}
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <div className="flex items-center space-x-1.5">
+                              <span className="font-bold text-sm text-slate-100">{c.studentName}</span>
+                              {isOnWatch && <span className="text-xs" title="Student on Keeping an Eye On List">👁️</span>}
+                            </div>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${c.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' : c.triagePriority === 'Medium' ? 'bg-yellow-950 text-yellow-300 border-yellow-800' : 'bg-slate-800 text-slate-300 border-slate-700'}`}>
+                              {c.triagePriority}
+                            </span>
+                          </div>
+                          <div className="text-xs text-slate-400 mb-2 flex justify-between">
+                            <span>ID: #{c.studentId}</span>
+                            <span>TIPS: {c.tipsReportNum}</span>
+                          </div>
+                          <p className="text-xs text-slate-300 line-clamp-2 bg-slate-950 p-2 rounded border border-slate-800/80 mb-2">"{c.tovBrief}"</p>
+                          <div className="flex items-center justify-between text-[11px] text-slate-400">
+                            <span>{c.schoolLocation}</span>
+                            <span className={`font-semibold ${c.caseStatus === 'Closed' ? 'text-red-400' : 'text-blue-400'}`}>{c.caseStatus}</span>
+                          </div>
                         </div>
-                        <div className="text-xs text-slate-400 mb-2 flex justify-between">
-                          <span>ID: #{c.studentId}</span>
-                          <span>TIPS: {c.tipsReportNum}</span>
-                        </div>
-                        <p className="text-xs text-slate-300 line-clamp-2 bg-slate-950 p-2 rounded border border-slate-800/80 mb-2">"{c.tovBrief}"</p>
-                        <div className="flex items-center justify-between text-[11px] text-slate-400">
-                          <span>{c.schoolLocation}</span>
-                          <span className={`font-semibold ${c.caseStatus === 'Closed' ? 'text-red-400' : 'text-blue-400'}`}>{c.caseStatus}</span>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -893,6 +1000,15 @@
                               <h2 className="text-xl font-bold text-slate-100">{currentCase.studentName}</h2>
                               <span className="text-xs font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded">#{currentCase.studentId}</span>
                             </div>
+
+                            {/* KEEPING AN EYE ON FLAG BADGE */}
+                            {isStudentOnWatchList(currentCase.studentName, currentCase.studentId) && (
+                              <div className="mt-2 inline-flex items-center space-x-1.5 bg-teal-950/80 text-teal-300 border border-teal-600 px-3 py-1 rounded-md text-xs font-bold animate-pulse">
+                                <span>👁️</span>
+                                <span>STUDENT ON KEEPING AN EYE ON LIST</span>
+                              </div>
+                            )}
+
                             <p className="text-xs text-slate-400 mt-1">
                               Campus: <span className="text-slate-200">{currentCase.schoolLocation}</span> | TIPS: <span className="text-slate-200">{currentCase.tipsReportNum}</span> | Incident Date: <span className="text-slate-200 font-mono">{currentCase.incidentDate}</span>
                             </p>
@@ -934,7 +1050,7 @@
                           </div>
                         </div>
 
-                        {/* NEW TIPS SINCE INCIDENT BOX (DISPLAYED ONLY IF >1 INTAKES FOR THIS STUDENT) */}
+                        {/* NEW TIPS SINCE INCIDENT BOX */}
                         {currentCase.additionalTipsList && currentCase.additionalTipsList.length > 0 && (
                           <div className="bg-amber-950/40 border border-amber-800/80 p-4 rounded-lg space-y-3">
                             <div className="flex items-center space-x-2 border-b border-amber-800/60 pb-2">
@@ -965,7 +1081,7 @@
                           </div>
                         )}
 
-                        {/* CASE / TEAM STATUS UPDATING AREA (VISIBLE FOR OPEN CASES) */}
+                        {/* CASE / TEAM STATUS UPDATING AREA */}
                         {currentCase.caseStatus !== 'Closed' && (
                           <div className="bg-slate-950 p-4 rounded-lg border border-blue-900/60 space-y-2">
                             <div className="flex justify-between items-center">
@@ -1041,7 +1157,7 @@
                         </div>
                       )}
 
-                      {/* 360-DEGREE ASSESSMENT VAULT WITH DELETE CONTROLS */}
+                      {/* 360-DEGREE ASSESSMENT VAULT */}
                       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
                         <div className="flex justify-between items-center">
                           <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
@@ -1106,7 +1222,7 @@
               </div>
             )}
 
-            {/* NEW "KEEPING AN EYE ON" TAB CONTENT (MATCHES EXCEL SCREENSHOT EXACTLY) */}
+            {/* "KEEPING AN EYE ON" TAB CONTENT WITH EDITABLE LAST UPDATED DATE */}
             {mainTab === 'watchTab' && (
               <div className="space-y-6">
                 <div className="bg-teal-950/40 border border-teal-800/80 rounded-xl p-4 flex justify-between items-center text-xs">
@@ -1117,13 +1233,31 @@
                     </h2>
                     <p className="text-slate-400 mt-0.5">Students listed here do not have active open cases and are excluded from the District Oversight Dashboard.</p>
                   </div>
+
+                  <button 
+                    onClick={() => setShowAddWatchModal(true)} 
+                    className="bg-teal-600 hover:bg-teal-500 text-white font-semibold px-4 py-2 rounded-lg text-xs transition-all shadow"
+                  >
+                    + Add Student to Watch List
+                  </button>
                 </div>
 
                 {watchStudents.map((st, idx) => (
                   <div key={st.studentId || idx} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+                    <div className="flex justify-between items-center bg-slate-950 px-4 py-2.5 border-b border-slate-800 text-xs">
+                      <span className="text-slate-300">
+                        Student Record: <strong className="text-teal-300 text-sm">{st.studentName}</strong> (ID #{st.studentId})
+                      </span>
+                      <button 
+                        onClick={() => handleAddWatchIncident(st.studentId)} 
+                        className="bg-slate-800 hover:bg-slate-700 text-teal-300 border border-slate-700 text-[11px] font-semibold px-3 py-1 rounded"
+                      >
+                        + Add Incident to {st.studentName}
+                      </button>
+                    </div>
+
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-xs border-collapse">
-                        {/* HEADER ROW 1: STUDENT NAME, ID, CAMPUS, LAST UPDATED */}
                         <thead>
                           <tr className="bg-teal-600 text-slate-950 font-bold uppercase text-[11px]">
                             <th className="p-3 border-r border-teal-500/50 w-1/5">Student Name</th>
@@ -1141,21 +1275,28 @@
                             <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
                             <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
                             <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
-                            <td className="p-3 text-amber-300 font-mono">Last Updated ({st.lastUpdatedDate})</td>
+                            {/* EDITABLE LAST UPDATED FIELD */}
+                            <td className="p-3 text-amber-300 font-mono">
+                              <span 
+                                onClick={() => handleEditWatchLastUpdated(st.studentId)}
+                                className="cursor-pointer hover:bg-amber-950/60 p-1 rounded border border-amber-800/60 inline-flex items-center space-x-1"
+                                title="Click to edit Last Updated date"
+                              >
+                                <span>Last Updated ({st.lastUpdatedDate})</span>
+                                <span className="text-[10px] text-amber-400">✏️</span>
+                              </span>
+                            </td>
                           </tr>
                         </thead>
 
-                        {/* INCIDENTS ROWS (MATCHING SCREENSHOT STRUCTURE WITH DOCUMENT UPLOADERS) */}
                         <tbody className="divide-y divide-slate-800">
                           {st.incidents.map((inc) => (
                             <tr key={inc.id} className="hover:bg-slate-800/40 align-top">
-                              {/* TIPS INVOLVED IN COLUMN */}
                               <td className="p-3 font-semibold text-slate-300 bg-slate-950/60 border-r border-slate-800">
                                 <span className="text-slate-400 block text-[10px] uppercase">Record Label</span>
                                 TIPS involved in
                               </td>
 
-                              {/* TIPS REPORT NUMBER + DOCUMENT UPLOADER */}
                               <td className="p-3 font-mono font-bold text-blue-400 bg-slate-950/40 border-r border-slate-800 space-y-1">
                                 <div>TIPS #{inc.tipsNum}</div>
                                 {inc.tipsDoc ? (
@@ -1170,13 +1311,9 @@
                                 )}
                               </td>
 
-                              {/* INCIDENT DETAILS */}
                               <td className="p-3 text-slate-200 border-r border-slate-800 leading-relaxed">{inc.details}</td>
-
-                              {/* INCIDENT DATE */}
                               <td className="p-3 font-mono text-slate-300 border-r border-slate-800 whitespace-nowrap">{inc.date}</td>
 
-                              {/* TRIAGE RATING */}
                               <td className="p-3 border-r border-slate-800 whitespace-nowrap">
                                 <span className={`px-2 py-0.5 text-[10px] font-bold rounded border ${
                                   inc.triage.includes('Low') ? 'bg-green-950 text-green-300 border-green-800' : 'bg-slate-800 text-slate-300 border-slate-700'
@@ -1185,14 +1322,11 @@
                                 </span>
                               </td>
 
-                              {/* RESOLUTION */}
                               <td className="p-3 text-slate-300 border-r border-slate-800 leading-relaxed">{inc.resolution}</td>
 
-                              {/* NOTES + MULTIPLE RECORDS REVIEW DOCUMENTS UPLOADER */}
                               <td className="p-3 text-slate-300 space-y-2">
                                 <div className="leading-relaxed">{inc.notes}</div>
 
-                                {/* RECORDS REVIEW DOCUMENTS VAULT FOR THIS INCIDENT */}
                                 <div className="bg-slate-950 p-2 rounded border border-slate-800/80 space-y-1.5 pt-2">
                                   <div className="flex justify-between items-center border-b border-slate-800 pb-1">
                                     <span className="text-[10px] font-bold text-amber-400 uppercase">Records Review Files</span>
@@ -1327,6 +1461,73 @@
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ADD STUDENT TO WATCH LIST MODAL */}
+          {showAddWatchModal && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <h3 className="text-base font-bold text-teal-300">Add Student to "Keeping an Eye On" Log</h3>
+                  <button onClick={() => setShowAddWatchModal(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
+                </div>
+
+                <form onSubmit={handleAddWatchStudent} className="space-y-3 text-xs">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-slate-400 block mb-1">Student Name</label>
+                      <input type="text" required value={watchName} onChange={(e) => setWatchName(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                    </div>
+                    <div>
+                      <label className="text-slate-400 block mb-1">Student ID #</label>
+                      <input type="text" required value={watchId} onChange={(e) => setWatchId(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-slate-400 block mb-1">School / Location</label>
+                      <input type="text" required value={watchSchool} onChange={(e) => setWatchSchool(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                    </div>
+                    <div>
+                      <label className="text-slate-400 block mb-1">Initial TIPS Report #</label>
+                      <input type="text" required value={watchTipsNum} onChange={(e) => setWatchTipsNum(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-slate-400 block mb-1">Incident Details</label>
+                    <textarea rows="2" value={watchDetails} onChange={(e) => setWatchDetails(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-slate-400 block mb-1">Incident Date</label>
+                      <input type="date" value={watchDate} onChange={(e) => setWatchDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                    </div>
+                    <div>
+                      <label className="text-slate-400 block mb-1">Triage Rating</label>
+                      <input type="text" value={watchTriage} onChange={(e) => setWatchTriage(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-slate-400 block mb-1">Resolution / Action Taken</label>
+                    <input type="text" value={watchResolution} onChange={(e) => setWatchResolution(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                  </div>
+
+                  <div>
+                    <label className="text-slate-400 block mb-1">Notes</label>
+                    <textarea rows="2" value={watchNotes} onChange={(e) => setWatchNotes(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                  </div>
+
+                  <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
+                    <button type="button" onClick={() => setShowAddWatchModal(false)} className="bg-slate-800 px-4 py-2 rounded text-slate-300">Cancel</button>
+                    <button type="submit" className="bg-teal-600 hover:bg-teal-500 text-white px-5 py-2 rounded font-semibold">Save Watch Student</button>
+                  </div>
+                </form>
               </div>
             </div>
           )}
@@ -1537,4 +1738,4 @@
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
-</html>     
+</html>
