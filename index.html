@@ -42,9 +42,9 @@
     const { useState, useEffect } = React;
 
     // =========================================================
-    // 🔑 SYSTEM GENERAL ACCESS PASSCODE (EDIT IF DESIRED)
+    // 🔑 SYSTEM GENERAL ACCESS PASSCODE
     // =========================================================
-    const SYSTEM_PASSCODE = "OKCPS2026!";
+    const SYSTEM_PASSCODE = "BTAMOKCPS!!";
 
     const PATHWAY_STAGES = [
       { key: 'Grievance', label: 'Grievance', color: 'bg-blue-900 text-blue-200 border-blue-600' },
@@ -102,9 +102,6 @@
         caseStatus: 'Active',
         closeDate: '',
         closeNotes: '',
-        lastTeamContactDate: '2026-09-08',
-        teamReachoutCount: 3,
-        pastTovCount: 1,
         additionalTipsList: [
           { tipsNum: '26-03120', incidentDate: '2026-10-02', brief: 'Follow-up report: Student posted encrypted photo message on social media referencing prior dispute.', doc: { name: 'TIPS_26-03120_Followup.pdf', url: createMockPdfBlobUrl('TIPS #26-03120', 'Follow up threat statement') } }
         ],
@@ -470,7 +467,7 @@
           if (schoolMatch) extractedSchool = schoolMatch[1].trim();
           if (tipsMatch) extractedTips = tipsMatch[1].trim();
           if (briefMatch) extractedBrief = briefMatch[1].trim();
-          if (involvedMatch) extractedInvolved = extractedInvolved || involvedMatch[1].trim();
+          if (involvedMatch) extractedInvolved = involvedMatch[1].trim();
           if (dateMatch) extractedDate = dateMatch[1].trim();
           if (victimMatch) extractedVictim = victimMatch[1].trim();
 
@@ -676,6 +673,7 @@
         setMoveReasonNote('');
       };
 
+      // FIXED CASE CREATION & INTaKE STATE BINDING
       const handleCreateCase = (e) => {
         e.preventDefault();
 
@@ -727,16 +725,17 @@
         const isTriageProvided = !!uploadedTriageFile;
         const finalPriority = isTriageProvided ? detectedTriageScore : 'Pending Triage';
 
+        // PROPER BINDING OF VICTIM, INVOLVED PEERS, AND INCIDENT DATE
         const newCase = {
           id: intakeTipsNum || `26-${Math.floor(1000 + Math.random() * 9000)}`,
           studentName: intakeStudentName || 'New Student',
           studentId: intakeStudentId || '000000',
           studentGrade: intakeStudentGrade || '9th Grade',
           schoolLocation: intakeSchool || 'OKCPS Campus',
-          victimName: intakeVictimName || 'None Listed',
+          victimName: intakeVictimName.trim() !== '' ? intakeVictimName.trim() : 'None Listed',
           victimRole: intakeVictimRole || 'Student',
           victimOtherRoleDetails: intakeVictimRole === 'Other' ? intakeVictimOtherRoleDetails : '',
-          involvedStudents: intakeInvolvedStudents || 'None Listed',
+          involvedStudents: intakeInvolvedStudents.trim() !== '' ? intakeInvolvedStudents.trim() : 'None Listed',
           tovBrief: intakeBrief || 'No description provided.',
           caseTeamStatusNotes: '',
           caseTeamStatusLastUpdated: new Date().toISOString().split('T')[0],
@@ -765,7 +764,7 @@
             triagePdf: uploadedTriageFile ? { name: uploadedTriageFile.name, uploadDate: new Date().toISOString().split('T')[0], size: '540 KB', scoreDetected: finalPriority, url: uploadedTriageFile.url } : null
           },
           documents: { studentInterview: [], parentInterview: [], witnessStatements: [], recordsReview: [] },
-          pathwayEvents: (isTriageProvided && finalPriority !== 'Low') ? [{ id: Date.now(), stage: 'Grievance', description: `Initial threat logged via TIPS #${intakeTipsNum}`, date: new Date().toISOString().split('T')[0], moveNote: '' }] : []
+          pathwayEvents: (isTriageProvided && finalPriority !== 'Low') ? [{ id: Date.now(), stage: 'Grievance', description: `Initial threat logged via TIPS #${intakeTipsNum}`, date: intakeIncidentDate || new Date().toISOString().split('T')[0], moveNote: '' }] : []
         };
 
         setCases([newCase, ...cases]);
@@ -777,6 +776,7 @@
         setDetectedTriageScore('Pending Triage');
         setIntakeStudentName(''); setIntakeStudentId(''); setIntakeStudentGrade('9th Grade'); setIntakeSchool(''); setIntakeBrief(''); setIntakeTipsNum(''); setIntakeInvolvedStudents('');
         setIntakeVictimName(''); setIntakeVictimRole('Student'); setIntakeVictimOtherRoleDetails('');
+        setIntakeIsIep(false); setIntakeSuspended(false); setIntakeReEntryDate('');
 
         if (!isTriageProvided) setMainTab('noTriage');
         else if (finalPriority === 'Low') setMainTab('low');
@@ -1032,7 +1032,7 @@
                             )}
 
                             <p className="text-xs text-slate-400 mt-1">
-                              Campus: <span className="text-slate-200">{currentCase.schoolLocation}</span> | TIPS: <span className="text-slate-200">{currentCase.tipsReportNum}</span> | Incident Date: <span className="text-slate-200 font-mono">{currentCase.incidentDate}</span>
+                              Campus: <span className="text-slate-200">{currentCase.schoolLocation}</span> | TIPS: <span className="text-slate-200">{currentCase.tipsReportNum}</span> | Incident Date: <span className="text-slate-200 font-mono font-bold">{currentCase.incidentDate || 'N/A'}</span>
                             </p>
                           </div>
 
@@ -1570,6 +1570,7 @@
                       <span className="text-2xl block mb-1">📄</span>
                       <p className="font-semibold text-slate-200 mb-1">Upload TIPS Report PDF</p>
                       <input type="file" accept="application/pdf" onChange={handleTipsFileUpload} className="text-xs text-slate-400 w-full" />
+                      {isParsingPdf && <p className="mt-2 text-yellow-400 text-[10px] animate-pulse">Reading TIPS PDF text streams...</p>}
                     </div>
 
                     <div className="border-2 border-dashed border-slate-700 p-4 rounded-lg text-center bg-slate-950/50">
@@ -1620,6 +1621,95 @@
                       <input type="text" required value={intakeTipsNum} onChange={(e) => setIntakeTipsNum(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                     </div>
                   </div>
+
+                  {/* RESTORED & PROPERLY BOUND VICTIM MODULE */}
+                  <div className="bg-slate-950 p-3.5 rounded-lg border border-rose-900/60 space-y-3">
+                    <span className="text-[11px] font-bold text-rose-300 uppercase tracking-wide flex items-center space-x-1.5">
+                      <span>🎯</span>
+                      <span>Targeted Victim Information</span>
+                    </span>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-slate-400 block mb-1">Victim Name</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g., Jane Doe" 
+                          value={intakeVictimName} 
+                          onChange={(e) => setIntakeVictimName(e.target.value)} 
+                          className="w-full bg-slate-900 border border-slate-800 p-2 rounded text-slate-100 focus:border-rose-500" 
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-slate-400 block mb-1">Victim Role / Type</label>
+                        <select 
+                          value={intakeVictimRole} 
+                          onChange={(e) => setIntakeVictimRole(e.target.value)} 
+                          className="w-full bg-slate-900 border border-slate-800 p-2 rounded text-slate-100 focus:border-rose-500"
+                        >
+                          <option value="Student">Student</option>
+                          <option value="Staff Member">Staff Member</option>
+                          <option value="Other">Other (Specify below)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {intakeVictimRole === 'Other' && (
+                      <div className="pt-1">
+                        <label className="text-rose-300 block mb-1 font-semibold">Specify Role / Relationship (Fill-In):</label>
+                        <input 
+                          type="text" 
+                          placeholder="e.g., Parent, Campus Visitor, Security Guard, Community Member..." 
+                          value={intakeVictimOtherRoleDetails} 
+                          onChange={(e) => setIntakeVictimOtherRoleDetails(e.target.value)} 
+                          className="w-full bg-slate-900 border border-rose-800 p-2 rounded text-slate-100 focus:border-rose-500 font-medium" 
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-slate-400 block mb-1">TIPS Incident Date</label>
+                      <input type="date" required value={intakeIncidentDate} onChange={(e) => setIntakeIncidentDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                    </div>
+
+                    <div>
+                      <label className="text-slate-400 block mb-1">Other Involved / Associated Students & ID #s</label>
+                      <input 
+                        type="text" 
+                        placeholder="e.g., Raymond Vance (ID: 332901), Sarah Lopez (ID: 441029)" 
+                        value={intakeInvolvedStudents} 
+                        onChange={(e) => setIntakeInvolvedStudents(e.target.value)} 
+                        className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" 
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-slate-400 block mb-1">Generated Threat Brief (Editable)</label>
+                    <textarea rows="2" required value={intakeBrief} onChange={(e) => setIntakeBrief(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 pt-2">
+                    <div className="flex items-center space-x-2">
+                      <input type="checkbox" id="iepCheck" checked={intakeIsIep} onChange={(e) => setIntakeIsIep(e.target.checked)} className="rounded bg-slate-950 border-slate-800 text-blue-600" />
+                      <label htmlFor="iepCheck" className="text-slate-300 font-semibold">Student on IEP (OESS Flag)</label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input type="checkbox" id="suspensionCheck" checked={intakeSuspended} onChange={(e) => setIntakeSuspended(e.target.checked)} className="rounded bg-slate-950 border-slate-800 text-blue-600" />
+                      <label htmlFor="suspensionCheck" className="text-slate-300">OSS Suspension Active?</label>
+                    </div>
+                  </div>
+
+                  {intakeSuspended && (
+                    <div>
+                      <label className="text-slate-400 block mb-1">OSS Re-entry Date</label>
+                      <input type="date" value={intakeReEntryDate} onChange={(e) => setIntakeReEntryDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                    </div>
+                  )}
 
                   <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
                     <button type="button" onClick={() => setShowNewIntakeModal(false)} className="bg-slate-800 px-4 py-2 rounded text-slate-300">Cancel</button>
