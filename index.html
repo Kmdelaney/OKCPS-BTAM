@@ -68,7 +68,7 @@
       return URL.createObjectURL(blob);
     };
 
-    // MOCK SEED DATA FOR FIRST LAUNCH
+    // INITIAL MOCK SEED DATA
     const INITIAL_CASES = [
       {
         id: '26-03093',
@@ -208,14 +208,14 @@
     ];
 
     function App() {
-      // 🔐 PASSWORD SECURITY STATE
+      // SECURITY STATE
       const [isAuthenticated, setIsAuthenticated] = useState(() => {
         return sessionStorage.getItem('okcps_auth_token') === 'true';
       });
       const [inputPasscode, setInputPasscode] = useState('');
       const [passcodeError, setPasscodeError] = useState(false);
 
-      // 💾 LOCALSTORAGE AUTO-SAVING CASES STATE
+      // DATA STATES WITH LOCALSTORAGE SAVING
       const [cases, setCases] = useState(() => {
         const savedCases = localStorage.getItem('okcps_threat_cases');
         if (savedCases) {
@@ -240,13 +240,27 @@
       const [tempStatusNotes, setTempStatusNotes] = useState('');
 
       const [viewingDoc, setViewingDoc] = useState(null);
-      const [zoomLevel, setZoomLevel] = useState(1);
       const [isFullscreen, setIsFullscreen] = useState(false);
 
+      // MODAL STATES
       const [showNewIntakeModal, setShowNewIntakeModal] = useState(false);
       const [showCloseCaseModal, setShowCloseCaseModal] = useState(false);
       const [showAddPathwayModal, setShowAddPathwayModal] = useState(false);
       const [showAddWatchModal, setShowAddWatchModal] = useState(false);
+
+      // WATCH INCIDENT MODAL & EDITING STATES
+      const [showAddWatchIncidentModal, setShowAddWatchIncidentModal] = useState(false);
+      const [targetWatchStudentId, setTargetWatchStudentId] = useState(null);
+      const [watchIncTipsNum, setWatchIncTipsNum] = useState('');
+      const [watchIncDetails, setWatchIncDetails] = useState('');
+      const [watchIncDate, setWatchIncDate] = useState(new Date().toISOString().split('T')[0]);
+      const [watchIncTriage, setWatchIncTriage] = useState('Low-Risk');
+      const [watchIncResolution, setWatchIncResolution] = useState('');
+      const [watchIncNotes, setWatchIncNotes] = useState('');
+
+      const [editingWatchIncKey, setEditingWatchIncKey] = useState(null); // 'studentId_incId'
+      const [editWatchIncData, setEditWatchIncData] = useState({});
+
       const [editingPathwayEvent, setEditingPathwayEvent] = useState(null);
 
       const [watchName, setWatchName] = useState('');
@@ -289,7 +303,7 @@
       const [intakeSuspended, setIntakeSuspended] = useState(false);
       const [intakeReEntryDate, setIntakeReEntryDate] = useState('');
 
-      // AUTO-SAVE TO LOCALSTORAGE WHEN CASES CHANGE
+      // AUTO-SAVE TO LOCALSTORAGE
       useEffect(() => {
         localStorage.setItem('okcps_threat_cases', JSON.stringify(cases));
       }, [cases]);
@@ -298,7 +312,7 @@
         localStorage.setItem('okcps_watch_list', JSON.stringify(watchStudents));
       }, [watchStudents]);
 
-      // AUTHENTICATION HANDLER
+      // AUTHENTICATION HANDLERS
       const handleAuthenticate = (e) => {
         e.preventDefault();
         if (inputPasscode === SYSTEM_PASSCODE) {
@@ -351,6 +365,42 @@
           }
         };
         reader.readAsText(file);
+      };
+
+      // GLOBAL DELETE CASE FUNCTION (ANY TAB)
+      const handleDeleteCaseOverall = (caseIdToDelete) => {
+        const targetCase = cases.find(c => c.id === caseIdToDelete);
+        const targetName = targetCase ? targetCase.studentName : caseIdToDelete;
+        
+        if (window.confirm(`⚠️ Are you sure you want to PERMANENTLY delete the entire case for ${targetName}? This cannot be undone.`)) {
+          const updatedCases = cases.filter(c => c.id !== caseIdToDelete);
+          setCases(updatedCases);
+          if (selectedCaseId === caseIdToDelete) {
+            setSelectedCaseId(updatedCases[0]?.id || null);
+          }
+        }
+      };
+
+      // DELETE WATCH RECORD & INCIDENT
+      const handleDeleteWatchStudent = (studentId) => {
+        const target = watchStudents.find(st => st.studentId === studentId);
+        if (window.confirm(`Are you sure you want to remove ${target?.studentName || 'this student'} from the Watch List?`)) {
+          setWatchStudents(watchStudents.filter(st => st.studentId !== studentId));
+        }
+      };
+
+      const handleDeleteWatchIncident = (studentId, incId) => {
+        if (window.confirm("Are you sure you want to delete this incident from the log?")) {
+          setWatchStudents(watchStudents.map(st => {
+            if (st.studentId === studentId) {
+              return {
+                ...st,
+                incidents: st.incidents.filter(inc => inc.id !== incId)
+              };
+            }
+            return st;
+          }));
+        }
       };
 
       // Filtered Categories
@@ -567,30 +617,35 @@
         setWatchName(''); setWatchId(''); setWatchSchool(''); setWatchTipsNum(''); setWatchDetails(''); setWatchResolution(''); setWatchNotes('');
       };
 
-      const handleAddWatchIncident = (studentId) => {
-        const tipsNum = prompt("Enter TIPS Report # for this new incident:");
-        if (!tipsNum) return;
+      // WATCH INCIDENT MODAL HANDLERS
+      const handleOpenAddWatchIncidentModal = (studentId) => {
+        setTargetWatchStudentId(studentId);
+        setWatchIncTipsNum('');
+        setWatchIncDetails('');
+        setWatchIncDate(new Date().toISOString().split('T')[0]);
+        setWatchIncTriage('Low-Risk');
+        setWatchIncResolution('');
+        setWatchIncNotes('');
+        setShowAddWatchIncidentModal(true);
+      };
 
-        const details = prompt("Enter Incident Details / Threat Description:");
-        const date = prompt("Enter Incident Date:", new Date().toLocaleDateString('en-US'));
-        const triage = prompt("Enter Triage Status:", "Low-Risk");
-        const resolution = prompt("Enter Resolution / Action Taken:");
-        const notes = prompt("Enter Notes / Update details:");
+      const handleSaveWatchIncident = (shouldAddAnother = false) => {
+        if (!targetWatchStudentId) return;
 
         const newIncident = {
           id: `inc-${Date.now()}`,
-          tipsNum: tipsNum,
-          details: details || 'No details provided',
-          date: date || new Date().toLocaleDateString('en-US'),
-          triage: triage || 'Low-Risk',
-          resolution: resolution || 'Pending',
-          notes: notes || 'None',
+          tipsNum: watchIncTipsNum.trim() || 'Pending',
+          details: watchIncDetails.trim() || 'No details provided',
+          date: watchIncDate || new Date().toLocaleDateString('en-US'),
+          triage: watchIncTriage,
+          resolution: watchIncResolution.trim() || 'Pending',
+          notes: watchIncNotes.trim() || 'None',
           tipsDoc: null,
           recordsDocs: []
         };
 
         setWatchStudents(watchStudents.map(st => {
-          if (st.studentId === studentId) {
+          if (st.studentId === targetWatchStudentId) {
             return {
               ...st,
               lastUpdatedDate: new Date().toLocaleDateString('en-US'),
@@ -599,6 +654,39 @@
           }
           return st;
         }));
+
+        if (shouldAddAnother) {
+          // Clear inputs for next entry, stay on modal
+          setWatchIncTipsNum('');
+          setWatchIncDetails('');
+          setWatchIncDate(new Date().toISOString().split('T')[0]);
+          setWatchIncResolution('');
+          setWatchIncNotes('');
+        } else {
+          setShowAddWatchIncidentModal(false);
+          setTargetWatchStudentId(null);
+        }
+      };
+
+      // WATCH INCIDENT TAB INLINE EDIT HANDLERS
+      const handleStartEditWatchInc = (studentId, inc) => {
+        setEditingWatchIncKey(`${studentId}_${inc.id}`);
+        setEditWatchIncData({ ...inc });
+      };
+
+      const handleSaveInlineWatchInc = (studentId, incId) => {
+        setWatchStudents(watchStudents.map(st => {
+          if (st.studentId === studentId) {
+            return {
+              ...st,
+              lastUpdatedDate: new Date().toLocaleDateString('en-US'),
+              incidents: st.incidents.map(inc => inc.id === incId ? { ...inc, ...editWatchIncData } : inc)
+            };
+          }
+          return st;
+        }));
+        setEditingWatchIncKey(null);
+        setEditWatchIncData({});
       };
 
       const handleCstagDocUpload = (e) => {
@@ -673,7 +761,6 @@
         setMoveReasonNote('');
       };
 
-      // FIXED CASE CREATION & INTaKE STATE BINDING
       const handleCreateCase = (e) => {
         e.preventDefault();
 
@@ -725,7 +812,6 @@
         const isTriageProvided = !!uploadedTriageFile;
         const finalPriority = isTriageProvided ? detectedTriageScore : 'Pending Triage';
 
-        // PROPER BINDING OF VICTIM, INVOLVED PEERS, AND INCIDENT DATE
         const newCase = {
           id: intakeTipsNum || `26-${Math.floor(1000 + Math.random() * 9000)}`,
           studentName: intakeStudentName || 'New Student',
@@ -806,7 +892,6 @@
 
       const openDocViewer = (doc) => {
         setViewingDoc(doc);
-        setZoomLevel(1);
         setIsFullscreen(false);
       };
 
@@ -815,7 +900,7 @@
         return found ? found.color : 'bg-slate-800 text-slate-200 border-slate-700';
       };
 
-      // 🔑 PASSCODE LOGIN SCREEN OVERLAY
+      // PASSCODE LOGIN SCREEN
       if (!isAuthenticated) {
         return (
           <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4">
@@ -1014,7 +1099,7 @@
                 <div className="col-span-12 lg:col-span-8 space-y-6">
                   {currentCase ? (
                     <>
-                      {/* HEADER CARD */}
+                      {/* HEADER CARD WITH GLOBAL DELETE CASE BUTTON */}
                       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
                         <div className="flex justify-between items-start border-b border-slate-800 pb-3">
                           <div>
@@ -1041,10 +1126,14 @@
                               {currentCase.triagePriority}
                             </span>
                             {currentCase.caseStatus !== 'Closed' && (
-                              <button onClick={() => setShowCloseCaseModal(true)} className="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-1 rounded font-semibold transition-colors">
-                                Close Case
+                              <button onClick={() => setShowCloseCaseModal(true)} className="bg-amber-600 hover:bg-amber-500 text-white text-xs px-3 py-1 rounded font-semibold transition-colors">
+                                Archive Case
                               </button>
                             )}
+                            {/* GLOBAL DELETE CASE BUTTON */}
+                            <button onClick={() => handleDeleteCaseOverall(currentCase.id)} className="bg-red-950 hover:bg-red-900 border border-red-700 text-red-300 text-xs px-3 py-1 rounded font-bold transition-colors">
+                              🗑️ Delete Case
+                            </button>
                           </div>
                         </div>
 
@@ -1384,51 +1473,101 @@
                       <span className="text-slate-300">
                         Student Record: <strong className="text-teal-300 text-sm">{st.studentName}</strong> (ID #{st.studentId})
                       </span>
-                      <button onClick={() => handleAddWatchIncident(st.studentId)} className="bg-slate-800 text-teal-300 border border-slate-700 text-[11px] font-semibold px-3 py-1 rounded">
-                        + Add Incident to {st.studentName}
-                      </button>
+                      <div className="flex items-center space-x-2">
+                        <button onClick={() => handleOpenAddWatchIncidentModal(st.studentId)} className="bg-teal-900/80 hover:bg-teal-800 text-teal-200 border border-teal-600 text-[11px] font-semibold px-3 py-1 rounded">
+                          + Add Incident
+                        </button>
+                        <button onClick={() => handleDeleteWatchStudent(st.studentId)} className="bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 text-[11px] font-bold px-2.5 py-1 rounded">
+                          🗑️ Remove Student
+                        </button>
+                      </div>
                     </div>
 
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-xs border-collapse">
                         <thead>
                           <tr className="bg-teal-600 text-slate-950 font-bold uppercase text-[11px]">
-                            <th className="p-3 border-r border-teal-500/50 w-1/5">Student Name</th>
-                            <th className="p-3 border-r border-teal-500/50 w-1/12">Student ID #</th>
-                            <th className="p-3 border-r border-teal-500/50 w-1/4">School/Incident Details</th>
+                            <th className="p-3 border-r border-teal-500/50 w-1/6">TIPS / Action</th>
+                            <th className="p-3 border-r border-teal-500/50 w-1/4">Incident Details</th>
                             <th className="p-3 border-r border-teal-500/50 w-1/12">Date</th>
                             <th className="p-3 border-r border-teal-500/50 w-1/12">Triage</th>
                             <th className="p-3 border-r border-teal-500/50 w-1/5">Resolution</th>
-                            <th className="p-3 w-1/4">Notes</th>
+                            <th className="p-3 border-r border-teal-500/50 w-1/5">Notes</th>
+                            <th className="p-3 w-1/12 text-center">Controls</th>
                           </tr>
                           <tr className="bg-blue-900/90 text-blue-100 font-bold text-xs border-b border-slate-800">
-                            <td className="p-3 border-r border-slate-800">{st.studentName}</td>
-                            <td className="p-3 border-r border-slate-800 font-mono">{st.studentId}</td>
-                            <td className="p-3 border-r border-slate-800">{st.schoolLocation}</td>
+                            <td className="p-3 border-r border-slate-800" colSpan="2">{st.studentName} — {st.schoolLocation}</td>
                             <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
                             <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
                             <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
-                            <td className="p-3 text-amber-300 font-mono">
+                            <td className="p-3 border-r border-slate-800 text-amber-300 font-mono">
                               <span onClick={() => handleEditWatchLastUpdated(st.studentId)} className="cursor-pointer hover:bg-amber-950/60 p-1 rounded border border-amber-800/60 inline-flex items-center space-x-1">
                                 <span>Last Updated ({st.lastUpdatedDate})</span>
                                 <span className="text-[10px] text-amber-400">✏️</span>
                               </span>
                             </td>
+                            <td className="p-3"></td>
                           </tr>
                         </thead>
 
                         <tbody className="divide-y divide-slate-800">
-                          {st.incidents.map((inc) => (
-                            <tr key={inc.id} className="hover:bg-slate-800/40 align-top">
-                              <td className="p-3 font-semibold text-slate-300 bg-slate-950/60 border-r border-slate-800">TIPS involved in</td>
-                              <td className="p-3 font-mono font-bold text-blue-400 bg-slate-950/40 border-r border-slate-800">TIPS #{inc.tipsNum}</td>
-                              <td className="p-3 text-slate-200 border-r border-slate-800">{inc.details}</td>
-                              <td className="p-3 font-mono text-slate-300 border-r border-slate-800 whitespace-nowrap">{inc.date}</td>
-                              <td className="p-3 border-r border-slate-800">{inc.triage}</td>
-                              <td className="p-3 text-slate-300 border-r border-slate-800">{inc.resolution}</td>
-                              <td className="p-3 text-slate-300">{inc.notes}</td>
-                            </tr>
-                          ))}
+                          {st.incidents.map((inc) => {
+                            const isEditingThis = editingWatchIncKey === `${st.studentId}_${inc.id}`;
+                            return (
+                              <tr key={inc.id} className="hover:bg-slate-800/40 align-top">
+                                {isEditingThis ? (
+                                  /* INLINE EDIT MODE */
+                                  <>
+                                    <td className="p-2 border-r border-slate-800 bg-slate-950">
+                                      <input type="text" value={editWatchIncData.tipsNum || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, tipsNum: e.target.value})} className="w-full bg-slate-900 border border-slate-700 p-1 rounded font-mono text-blue-300 text-xs" />
+                                    </td>
+                                    <td className="p-2 border-r border-slate-800 bg-slate-950">
+                                      <textarea rows="2" value={editWatchIncData.details || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, details: e.target.value})} className="w-full bg-slate-900 border border-slate-700 p-1 rounded text-xs text-slate-100" />
+                                    </td>
+                                    <td className="p-2 border-r border-slate-800 bg-slate-950">
+                                      <input type="text" value={editWatchIncData.date || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, date: e.target.value})} className="w-full bg-slate-900 border border-slate-700 p-1 rounded text-xs" />
+                                    </td>
+                                    <td className="p-2 border-r border-slate-800 bg-slate-950">
+                                      <select value={editWatchIncData.triage || 'Low-Risk'} onChange={(e) => setEditWatchIncData({...editWatchIncData, triage: e.target.value})} className="w-full bg-slate-900 border border-slate-700 p-1 rounded text-xs">
+                                        <option value="Low-Risk">Low-Risk</option>
+                                        <option value="Medium-Risk">Medium-Risk</option>
+                                        <option value="High-Risk">High-Risk</option>
+                                        <option value="Not completed">Not completed</option>
+                                      </select>
+                                    </td>
+                                    <td className="p-2 border-r border-slate-800 bg-slate-950">
+                                      <textarea rows="2" value={editWatchIncData.resolution || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, resolution: e.target.value})} className="w-full bg-slate-900 border border-slate-700 p-1 rounded text-xs text-slate-100" />
+                                    </td>
+                                    <td className="p-2 border-r border-slate-800 bg-slate-950">
+                                      <textarea rows="2" value={editWatchIncData.notes || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, notes: e.target.value})} className="w-full bg-slate-900 border border-slate-700 p-1 rounded text-xs text-slate-100" />
+                                    </td>
+                                    <td className="p-2 bg-slate-950 text-center space-y-1">
+                                      <button onClick={() => handleSaveInlineWatchInc(st.studentId, inc.id)} className="w-full bg-emerald-600 text-white text-[10px] py-1 rounded font-bold">Save</button>
+                                      <button onClick={() => setEditingWatchIncKey(null)} className="w-full bg-slate-800 text-slate-300 text-[10px] py-1 rounded">Cancel</button>
+                                    </td>
+                                  </>
+                                ) : (
+                                  /* READ ONLY MODE */
+                                  <>
+                                    <td className="p-3 font-mono font-bold text-blue-400 bg-slate-950/40 border-r border-slate-800">TIPS #{inc.tipsNum}</td>
+                                    <td className="p-3 text-slate-200 border-r border-slate-800">{inc.details}</td>
+                                    <td className="p-3 font-mono text-slate-300 border-r border-slate-800 whitespace-nowrap">{inc.date}</td>
+                                    <td className="p-3 border-r border-slate-800">{inc.triage}</td>
+                                    <td className="p-3 text-slate-300 border-r border-slate-800">{inc.resolution}</td>
+                                    <td className="p-3 text-slate-300 border-r border-slate-800">{inc.notes}</td>
+                                    <td className="p-3 text-center space-y-1">
+                                      <button onClick={() => handleStartEditWatchInc(st.studentId, inc)} className="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-700 text-[10px] px-2 py-0.5 rounded font-semibold w-full block">
+                                        ✏️ Edit
+                                      </button>
+                                      <button onClick={() => handleDeleteWatchIncident(st.studentId, inc.id)} className="bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 text-[10px] px-2 py-0.5 rounded font-semibold w-full block">
+                                        🗑️ Delete
+                                      </button>
+                                    </td>
+                                  </>
+                                )}
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
@@ -1465,6 +1604,7 @@
                         <th className="p-3">CSTAG Classification</th>
                         <th className="p-3">Plan Status</th>
                         <th className="p-3">Case Status</th>
+                        <th className="p-3 text-center">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800/60">
@@ -1481,6 +1621,11 @@
                           <td className="p-3 font-bold">{c.cstagClassification || 'Pending'}</td>
                           <td className="p-3"><span className={`px-2 py-0.5 text-[10px] font-bold rounded border ${getPlanStatusStyle(c.planStatus)}`}>{c.planStatus || 'Not Completed'}</span></td>
                           <td className="p-3"><span className="font-semibold text-blue-400">{c.caseStatus}</span></td>
+                          <td className="p-3 text-center">
+                            <button onClick={() => handleDeleteCaseOverall(c.id)} className="bg-red-950 hover:bg-red-900 border border-red-800 text-red-300 text-[10px] font-bold px-2 py-1 rounded">
+                              🗑️ Delete
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -1555,6 +1700,71 @@
             </div>
           )}
 
+          {/* ADD INCIDENT TO WATCH LIST MODAL (WITH NEXT BUTTON) */}
+          {showAddWatchIncidentModal && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-teal-800 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <h3 className="text-base font-bold text-teal-300">Add Incident Entry to Log</h3>
+                  <button onClick={() => setShowAddWatchIncidentModal(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-slate-400 block mb-1">TIPS Report #</label>
+                      <input type="text" value={watchIncTipsNum} onChange={(e) => setWatchIncTipsNum(e.target.value)} placeholder="e.g. 26-03099" className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 font-mono" />
+                    </div>
+                    <div>
+                      <label className="text-slate-400 block mb-1">Incident Date</label>
+                      <input type="date" value={watchIncDate} onChange={(e) => setWatchIncDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-slate-400 block mb-1">Incident Details / Description</label>
+                    <textarea rows="2" value={watchIncDetails} onChange={(e) => setWatchIncDetails(e.target.value)} placeholder="Describe threat statement, social media post, or behavior..." className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-slate-400 block mb-1">Triage Level</label>
+                      <select value={watchIncTriage} onChange={(e) => setWatchIncTriage(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
+                        <option value="Low-Risk">Low-Risk</option>
+                        <option value="Medium-Risk">Medium-Risk</option>
+                        <option value="High-Risk">High-Risk</option>
+                        <option value="Not completed">Not completed</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-slate-400 block mb-1">Resolution / Action Taken</label>
+                      <input type="text" value={watchIncResolution} onChange={(e) => setWatchIncResolution(e.target.value)} placeholder="e.g., Parent conference, schedule change..." className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-slate-400 block mb-1">Notes / Additional Info</label>
+                    <textarea rows="2" value={watchIncNotes} onChange={(e) => setWatchIncNotes(e.target.value)} placeholder="Notes regarding student interactions or follow-up..." className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                  </div>
+
+                  <div className="flex justify-between items-center pt-3 border-t border-slate-800">
+                    <button type="button" onClick={() => setShowAddWatchIncidentModal(false)} className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded">
+                      Cancel
+                    </button>
+                    <div className="flex space-x-2">
+                      <button type="button" onClick={() => handleSaveWatchIncident(true)} className="bg-teal-900 hover:bg-teal-800 border border-teal-600 text-teal-200 px-4 py-2 rounded font-semibold">
+                        Save & Add Another (Next ➔)
+                      </button>
+                      <button type="button" onClick={() => handleSaveWatchIncident(false)} className="bg-teal-600 hover:bg-teal-500 text-white px-5 py-2 rounded font-semibold">
+                        Save & Finish
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* NEW INTAKE MODAL */}
           {showNewIntakeModal && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -1622,7 +1832,6 @@
                     </div>
                   </div>
 
-                  {/* RESTORED & PROPERLY BOUND VICTIM MODULE */}
                   <div className="bg-slate-950 p-3.5 rounded-lg border border-rose-900/60 space-y-3">
                     <span className="text-[11px] font-bold text-rose-300 uppercase tracking-wide flex items-center space-x-1.5">
                       <span>🎯</span>
@@ -1720,14 +1929,14 @@
             </div>
           )}
 
-          {/* CLOSE CASE MODAL */}
+          {/* ARCHIVE CASE MODAL */}
           {showCloseCaseModal && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-                <h3 className="text-base font-bold text-slate-100">Close Case & Archive</h3>
+                <h3 className="text-base font-bold text-slate-100">Archive Case Record</h3>
                 <div className="space-y-3 text-xs">
                   <div>
-                    <label className="text-slate-400 block mb-1">Close Date</label>
+                    <label className="text-slate-400 block mb-1">Close / Archive Date</label>
                     <input type="date" required value={closeCaseDate} onChange={(e) => setCloseCaseDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                   </div>
                   <div>
@@ -1737,7 +1946,7 @@
                 </div>
                 <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
                   <button onClick={() => setShowCloseCaseModal(false)} className="bg-slate-800 text-slate-300 px-4 py-2 rounded">Cancel</button>
-                  <button onClick={handleConfirmCloseCase} className="bg-red-600 text-white px-4 py-2 rounded font-semibold">Confirm & Archive</button>
+                  <button onClick={handleConfirmCloseCase} className="bg-amber-600 text-white px-4 py-2 rounded font-semibold">Confirm & Archive</button>
                 </div>
               </div>
             </div>
