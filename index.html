@@ -44,29 +44,74 @@
     // SYSTEM GENERAL ACCESS PASSCODE
     const SYSTEM_PASSCODE = "BTAMOKCPS!!";
 
+    // PATHWAY TO VIOLENCE STAGES CONFIGURATION
     const PATHWAY_STAGES = [
-      { key: 'Grievance', label: 'Grievance', color: 'bg-blue-900 text-blue-200 border-blue-600' },
-      { key: 'Violent Ideation', label: 'Violent Ideation', color: 'bg-teal-900 text-teal-200 border-teal-600' },
-      { key: 'Research & Planning', label: 'Research & Planning', color: 'bg-yellow-900 text-yellow-200 border-yellow-600' },
-      { key: 'Preparation', label: 'Preparation', color: 'bg-purple-900 text-purple-200 border-purple-600' },
-      { key: 'Probing/Breaching', label: 'Probing / Breaching', color: 'bg-pink-900 text-pink-200 border-pink-600' },
-      { key: 'Attack', label: 'Attack', color: 'bg-red-900 text-red-200 border-red-600' }
+      { 
+        key: 'Grievance', 
+        label: 'Grievance', 
+        color: 'bg-blue-900 text-blue-200 border-blue-600',
+        description: 'Perceived injustice, bullying, dispute, or personal loss driving motivation.' 
+      },
+      { 
+        key: 'Violent Ideation', 
+        label: 'Violent Ideation', 
+        color: 'bg-teal-900 text-teal-200 border-teal-600',
+        description: 'Statements or expressions indicating violence is acceptable or necessary.' 
+      },
+      { 
+        key: 'Research & Planning', 
+        label: 'Research & Planning', 
+        color: 'bg-yellow-900 text-yellow-200 border-yellow-600',
+        description: 'Gathering information about targets, locations, security, or methods.' 
+      },
+      { 
+        key: 'Preparation', 
+        label: 'Preparation', 
+        color: 'bg-purple-900 text-purple-200 border-purple-600',
+        description: 'Acquiring weapons, equipment, tactical gear, or farewell notes.' 
+      },
+      { 
+        key: 'Probing/Breaching', 
+        label: 'Probing / Breaching', 
+        color: 'bg-pink-900 text-pink-200 border-pink-600',
+        description: 'Testing security, stalking targets, or trespassing prior to action.' 
+      },
+      { 
+        key: 'Attack', 
+        label: 'Attack', 
+        color: 'bg-red-900 text-red-200 border-red-600',
+        description: 'Execution or immediate threat of active violence.' 
+      }
     ];
 
+    // PLAN STATUS CONFIGURATION
     const PLAN_STATUS_OPTIONS = [
-      { label: 'Waiting on team to schedule', color: 'bg-red-900/80 text-red-200 border-red-600' },
-      { label: 'Waiting on Re-Entry', color: 'bg-yellow-900/80 text-yellow-200 border-yellow-600' },
-      { label: 'Meeting Scheduled', color: 'bg-sky-900/80 text-sky-200 border-sky-600' },
-      { label: 'Meeting Completed', color: 'bg-emerald-900/80 text-emerald-200 border-emerald-600' }
+      { 
+        label: 'Waiting on team to schedule', 
+        color: 'bg-red-900/80 text-red-200 border-red-600' 
+      },
+      { 
+        label: 'Waiting on Re-Entry', 
+        color: 'bg-yellow-900/80 text-yellow-200 border-yellow-600' 
+      },
+      { 
+        label: 'Meeting Scheduled', 
+        color: 'bg-sky-900/80 text-sky-200 border-sky-600' 
+      },
+      { 
+        label: 'Meeting Completed', 
+        color: 'bg-emerald-900/80 text-emerald-200 border-emerald-600' 
+      }
     ];
 
+    // MOCK PDF BLOB GENERATOR FOR REALISTIC VIEWING
     const createMockPdfBlobUrl = (title, details) => {
       const pdfContent = `%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n4 0 obj\n<< /Length 120 >>\nstream\nBT\n/F1 16 Tf\n50 700 Td\n(${title}) Tj\n0 -30 Td\n/F1 10 Tf\n(${details}) Tj\nET\nendstream\nendobj\n5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000244 00000 n \n0000000415 00000 n \ntrailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n492\n%%EOF`;
       const blob = new Blob([pdfContent], { type: 'application/pdf' });
       return URL.createObjectURL(blob);
     };
 
-    // INITIAL SEED DATA
+    // COMPLETE INITIAL SEED CASES
     const INITIAL_CASES = [
       {
         id: '26-03093',
@@ -87,10 +132,24 @@
         triagePriority: 'High',
         triageCompleted: true,
         cstagClassification: 'Very Serious Substantive Threat',
-        cstagDoc: { name: 'CSTAG_Determination_Jimenez_VSS.pdf', uploadDate: '2026-09-08', size: '740 KB', url: createMockPdfBlobUrl('CSTAG Determination', 'Classification: Very Serious Substantive Threat') },
-        immediateResponse: { victimNotification: true, vulnerabilityReduction: true, conflictResolution: false },
+        cstagDoc: { 
+          name: 'CSTAG_Determination_Jimenez_VSS.pdf', 
+          uploadDate: '2026-09-08', 
+          size: '740 KB', 
+          url: createMockPdfBlobUrl('CSTAG Determination', 'Classification: Very Serious Substantive Threat') 
+        },
+        immediateResponse: { 
+          victimNotification: true, 
+          vulnerabilityReduction: true, 
+          conflictResolution: false 
+        },
         planStatus: 'Meeting Scheduled',
-        planDoc: { name: 'Safety_Plan_Jorge_Jimenez.pdf', uploadDate: '2026-09-08', size: '1.2 MB', url: createMockPdfBlobUrl('Safety Plan', 'Student Safety Plan') },
+        planDoc: { 
+          name: 'Safety_Plan_Jorge_Jimenez.pdf', 
+          uploadDate: '2026-09-08', 
+          size: '1.2 MB', 
+          url: createMockPdfBlobUrl('Safety Plan', 'Student Safety Plan') 
+        },
         planStartDate: '2026-09-08',
         planEndDate: '2026-12-18',
         planCheckinDate: '2026-10-12',
@@ -101,25 +160,90 @@
         closeDate: '',
         closeNotes: '',
         additionalTipsList: [
-          { tipsNum: '26-03120', incidentDate: '2026-10-02', brief: 'Follow-up report: Student posted encrypted photo message on social media referencing prior dispute.', doc: { name: 'TIPS_26-03120_Followup.pdf', url: createMockPdfBlobUrl('TIPS #26-03120', 'Follow up threat statement') } }
+          { 
+            tipsNum: '26-03120', 
+            incidentDate: '2026-10-02', 
+            brief: 'Follow-up report: Student posted encrypted photo message on social media referencing prior dispute.', 
+            doc: { 
+              name: 'TIPS_26-03120_Followup.pdf', 
+              url: createMockPdfBlobUrl('TIPS #26-03120', 'Follow up threat statement') 
+            } 
+          }
         ],
         intakeFiles: {
-          tipsPdf: { name: 'TIPS_Report_26-03093_Jimenez.pdf', uploadDate: '2026-09-07', size: '1.4 MB', url: createMockPdfBlobUrl('TIPS Report #26-03093', 'Subject: Jorge Jimenez (ID: 345290)') },
-          triagePdf: { name: 'JJ_Triage_HIGH.pdf', uploadDate: '2026-09-07', size: '620 KB', scoreDetected: 'High', url: createMockPdfBlobUrl('Triage Form: JJ Triage - HIGH', 'Assessment: Very Serious Substantive Threat.') }
+          tipsPdf: { 
+            name: 'TIPS_Report_26-03093_Jimenez.pdf', 
+            uploadDate: '2026-09-07', 
+            size: '1.4 MB', 
+            url: createMockPdfBlobUrl('TIPS Report #26-03093', 'Subject: Jorge Jimenez (ID: 345290)') 
+          },
+          triagePdf: { 
+            name: 'JJ_Triage_HIGH.pdf', 
+            uploadDate: '2026-09-07', 
+            size: '620 KB', 
+            scoreDetected: 'High', 
+            url: createMockPdfBlobUrl('Triage Form: JJ Triage - HIGH', 'Assessment: Very Serious Substantive Threat.') 
+          }
         },
         documents: {
-          studentInterview: [{ id: 'doc-1', name: 'Jorge_Jimenez_Statement.pdf', uploadDate: '2026-09-08', size: '1.1 MB', url: createMockPdfBlobUrl('Student Statement', 'Jorge Jimenez interview notes.') }],
+          studentInterview: [
+            { 
+              id: 'doc-1', 
+              name: 'Jorge_Jimenez_Statement.pdf', 
+              uploadDate: '2026-09-08', 
+              size: '1.1 MB', 
+              url: createMockPdfBlobUrl('Student Statement', 'Jorge Jimenez interview notes.') 
+            }
+          ],
           parentInterview: [],
-          witnessStatements: [{ id: 'doc-2', name: 'Witness_Statement_Erick_Ruben.pdf', uploadDate: '2026-09-07', size: '890 KB', url: createMockPdfBlobUrl('Witness Statement', 'Erick Ruben witness report.') }],
+          witnessStatements: [
+            { 
+              id: 'doc-2', 
+              name: 'Witness_Statement_Erick_Ruben.pdf', 
+              uploadDate: '2026-09-07', 
+              size: '890 KB', 
+              url: createMockPdfBlobUrl('Witness Statement', 'Erick Ruben witness report.') 
+            }
+          ],
           recordsReview: [
-            { id: 'doc-3', name: 'Instagram_Firearm_Screenshots.pdf', uploadDate: '2026-09-07', size: '4.2 MB', url: createMockPdfBlobUrl('Evidence', 'Instagram highlights screenshots.') },
-            { id: 'doc-3b', name: 'TIPS_26-03120_Followup.pdf', uploadDate: '2026-10-02', size: '1.1 MB', url: createMockPdfBlobUrl('TIPS #26-03120', 'Follow up threat statement') }
+            { 
+              id: 'doc-3', 
+              name: 'Instagram_Firearm_Screenshots.pdf', 
+              uploadDate: '2026-09-07', 
+              size: '4.2 MB', 
+              url: createMockPdfBlobUrl('Evidence', 'Instagram highlights screenshots.') 
+            },
+            { 
+              id: 'doc-3b', 
+              name: 'TIPS_26-03120_Followup.pdf', 
+              uploadDate: '2026-10-02', 
+              size: '1.1 MB', 
+              url: createMockPdfBlobUrl('TIPS #26-03120', 'Follow up threat statement') 
+            }
           ]
         },
         pathwayEvents: [
-          { id: 1, stage: 'Grievance', description: 'Peer dispute involving stolen ring during physical education class.', date: '2026-08-28', moveNote: '' },
-          { id: 2, stage: 'Violent Ideation', description: 'Instagram highlights updated showing subject posing with firearms.', date: '2026-09-05', moveNote: '' },
-          { id: 3, stage: 'Probing/Breaching', description: 'Targeted peers reported feeling watched and followed after school.', date: '2026-09-07', moveNote: '' }
+          { 
+            id: 1, 
+            stage: 'Grievance', 
+            description: 'Peer dispute involving stolen ring during physical education class.', 
+            date: '2026-08-28', 
+            moveNote: '' 
+          },
+          { 
+            id: 2, 
+            stage: 'Violent Ideation', 
+            description: 'Instagram highlights updated showing subject posing with firearms.', 
+            date: '2026-09-05', 
+            moveNote: '' 
+          },
+          { 
+            id: 3, 
+            stage: 'Probing/Breaching', 
+            description: 'Targeted peers reported feeling watched and followed after school.', 
+            date: '2026-09-07', 
+            moveNote: '' 
+          }
         ]
       },
       {
@@ -142,7 +266,11 @@
         triageCompleted: true,
         cstagClassification: 'Serious Substantive Threat',
         cstagDoc: null,
-        immediateResponse: { victimNotification: true, vulnerabilityReduction: false, conflictResolution: false },
+        immediateResponse: { 
+          victimNotification: true, 
+          vulnerabilityReduction: false, 
+          conflictResolution: false 
+        },
         planStatus: 'Waiting on Re-Entry',
         planDoc: null,
         planStartDate: '2026-08-27',
@@ -156,22 +284,78 @@
         closeNotes: '',
         additionalTipsList: [],
         intakeFiles: {
-          tipsPdf: { name: 'TIPS_26-02602_GarciaReyes.pdf', uploadDate: '2026-08-12', size: '1.2 MB', url: createMockPdfBlobUrl('TIPS Report #26-02602', 'Subject: Jesus Garcia-Reyes') },
-          triagePdf: { name: 'Triage_Worksheet_GarciaReyes_HIGH.pdf', uploadDate: '2026-08-12', size: '580 KB', scoreDetected: 'High', url: createMockPdfBlobUrl('Triage Form', 'Risk Score: High') }
+          tipsPdf: { 
+            name: 'TIPS_26-02602_GarciaReyes.pdf', 
+            uploadDate: '2026-08-12', 
+            size: '1.2 MB', 
+            url: createMockPdfBlobUrl('TIPS Report #26-02602', 'Subject: Jesus Garcia-Reyes') 
+          },
+          triagePdf: { 
+            name: 'Triage_Worksheet_GarciaReyes_HIGH.pdf', 
+            uploadDate: '2026-08-12', 
+            size: '580 KB', 
+            scoreDetected: 'High', 
+            url: createMockPdfBlobUrl('Triage Form', 'Risk Score: High') 
+          }
         },
         documents: {
-          studentInterview: [{ id: 'doc-4', name: 'Student_Interview_0812.pdf', uploadDate: '2026-08-13', size: '1.2 MB', url: createMockPdfBlobUrl('Interview', 'Student Interview notes.') }],
-          parentInterview: [{ id: 'doc-5', name: 'Parent_Contact_Notes.pdf', uploadDate: '2026-08-13', size: '850 KB', url: createMockPdfBlobUrl('Parent Contact', 'Parent interview notes.') }],
-          witnessStatements: [{ id: 'doc-6', name: 'Witness_Statement_Raymond.pdf', uploadDate: '2026-08-14', size: '500 KB', url: createMockPdfBlobUrl('Witness', 'Raymond statement.') }],
-          recordsReview: [{ id: 'doc-7', name: 'CRC_Hospital_Release_Summary.pdf', uploadDate: '2026-08-25', size: '2.4 MB', url: createMockPdfBlobUrl('Records', 'Hospital summary.') }]
+          studentInterview: [
+            { 
+              id: 'doc-4', 
+              name: 'Student_Interview_0812.pdf', 
+              uploadDate: '2026-08-13', 
+              size: '1.2 MB', 
+              url: createMockPdfBlobUrl('Interview', 'Student Interview notes.') 
+            }
+          ],
+          parentInterview: [
+            { 
+              id: 'doc-5', 
+              name: 'Parent_Contact_Notes.pdf', 
+              uploadDate: '2026-08-13', 
+              size: '850 KB', 
+              url: createMockPdfBlobUrl('Parent Contact', 'Parent interview notes.') 
+            }
+          ],
+          witnessStatements: [
+            { 
+              id: 'doc-6', 
+              name: 'Witness_Statement_Raymond.pdf', 
+              uploadDate: '2026-08-14', 
+              size: '500 KB', 
+              url: createMockPdfBlobUrl('Witness', 'Raymond statement.') 
+            }
+          ],
+          recordsReview: [
+            { 
+              id: 'doc-7', 
+              name: 'CRC_Hospital_Release_Summary.pdf', 
+              uploadDate: '2026-08-25', 
+              size: '2.4 MB', 
+              url: createMockPdfBlobUrl('Records', 'Hospital summary.') 
+            }
+          ]
         },
         pathwayEvents: [
-          { id: 1, stage: 'Grievance', description: 'Verbal confrontation with student Raymond in cafeteria line.', date: '2026-08-10', moveNote: '' },
-          { id: 2, stage: 'Violent Ideation', description: 'Stated directly to peer: "Raymond does not deserve to live".', date: '2026-08-12', moveNote: '' }
+          { 
+            id: 1, 
+            stage: 'Grievance', 
+            description: 'Verbal confrontation with student Raymond in cafeteria line.', 
+            date: '2026-08-10', 
+            moveNote: '' 
+          },
+          { 
+            id: 2, 
+            stage: 'Violent Ideation', 
+            description: 'Stated directly to peer: "Raymond does not deserve to live".', 
+            date: '2026-08-12', 
+            moveNote: '' 
+          }
         ]
       }
     ];
 
+    // COMPLETE INITIAL WATCH LIST
     const INITIAL_WATCH_STUDENTS = [
       {
         studentName: 'Ethan Capulin',
@@ -187,7 +371,10 @@
             triage: 'Low-Risk',
             resolution: 'Student was suspended for three days for the comment. Conference with the parents and schedule change for RP protection was done.',
             notes: 'During suspension, he had told his friends that he wanted to fight Josiah for snitching on him.',
-            tipsDoc: { name: 'TIPS_26-03007.pdf', url: createMockPdfBlobUrl('TIPS 26-03007', 'Ethan Capulin threat') },
+            tipsDoc: { 
+              name: 'TIPS_26-03007.pdf', 
+              url: createMockPdfBlobUrl('TIPS 26-03007', 'Ethan Capulin threat') 
+            },
             recordsDocs: []
           }
         ]
@@ -195,24 +382,39 @@
     ];
 
     function App() {
-      // SECURITY STATE
-      const [isAuthenticated, setIsAuthenticated] = useState(() => sessionStorage.getItem('okcps_auth_token') === 'true');
+      // SECURITY & AUTHENTICATION STATE
+      const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        return sessionStorage.getItem('okcps_auth_token') === 'true';
+      });
       const [inputPasscode, setInputPasscode] = useState('');
       const [passcodeError, setPasscodeError] = useState(false);
 
-      // DATA STATES
+      // DATA STATES WITH FULL BROWSER LOCALSTORAGE PERSISTENCE
       const [cases, setCases] = useState(() => {
         const saved = localStorage.getItem('okcps_threat_cases');
-        if (saved) { try { return JSON.parse(saved); } catch(e){} }
+        if (saved) {
+          try { 
+            return JSON.parse(saved); 
+          } catch(e) { 
+            console.error("Error reading localStorage:", e); 
+          }
+        }
         return INITIAL_CASES;
       });
 
       const [watchStudents, setWatchStudents] = useState(() => {
         const saved = localStorage.getItem('okcps_watch_list');
-        if (saved) { try { return JSON.parse(saved); } catch(e){} }
+        if (saved) {
+          try { 
+            return JSON.parse(saved); 
+          } catch(e) { 
+            console.error("Error reading watch list localStorage:", e); 
+          }
+        }
         return INITIAL_WATCH_STUDENTS;
       });
 
+      // UI NAVIGATION STATES
       const [mainTab, setMainTab] = useState('active');
       const [selectedCaseId, setSelectedCaseId] = useState(cases[0]?.id || null);
       const [activeDocTab, setActiveDocTab] = useState('studentInterview');
@@ -223,16 +425,24 @@
       const [viewingDoc, setViewingDoc] = useState(null);
       const [isFullscreen, setIsFullscreen] = useState(false);
 
-      // MODALS
+      // MODALS CONTROL STATES
       const [showNewIntakeModal, setShowNewIntakeModal] = useState(false);
       const [showCloseCaseModal, setShowCloseCaseModal] = useState(false);
-      const [showAddPathwayModal, setShowAddPathwayModal] = useState(false);
       const [showAddWatchModal, setShowAddWatchModal] = useState(false);
-      const [showTriageModal, setShowTriageModal] = useState(false);
 
-      // POST INTAKE TRIAGE STATE
+      // POST-INTAKE TRIAGE MODAL STATE
+      const [showTriageModal, setShowTriageModal] = useState(false);
       const [triageCaseTarget, setTriageCaseTarget] = useState(null);
       const [selectedTriageScore, setSelectedTriageScore] = useState('High');
+
+      // PATHWAY TO VIOLENCE EVENT MODAL STATES
+      const [showAddPathwayModal, setShowAddPathwayModal] = useState(false);
+      const [newEventStage, setNewEventStage] = useState('Grievance');
+      const [newEventDesc, setNewEventDesc] = useState('');
+      const [newEventDate, setNewEventDate] = useState(new Date().toISOString().split('T')[0]);
+      const [editingPathwayEvent, setEditingPathwayEvent] = useState(null);
+      const [moveTargetStage, setMoveTargetStage] = useState('Grievance');
+      const [moveReasonNote, setMoveReasonNote] = useState('');
 
       // WATCH INCIDENT MODAL & EDITING
       const [showAddWatchIncidentModal, setShowAddWatchIncidentModal] = useState(false);
@@ -246,14 +456,6 @@
 
       const [editingWatchIncKey, setEditingWatchIncKey] = useState(null);
       const [editWatchIncData, setEditWatchIncData] = useState({});
-
-      // PATHWAY STATE
-      const [newEventStage, setNewEventStage] = useState('Grievance');
-      const [newEventDesc, setNewEventDesc] = useState('');
-      const [newEventDate, setNewEventDate] = useState(new Date().toISOString().split('T')[0]);
-      const [editingPathwayEvent, setEditingPathwayEvent] = useState(null);
-      const [moveTargetStage, setMoveTargetStage] = useState('Grievance');
-      const [moveReasonNote, setMoveReasonNote] = useState('');
 
       // WATCH FORM STATE
       const [watchName, setWatchName] = useState('');
@@ -289,11 +491,16 @@
       const [intakeSuspended, setIntakeSuspended] = useState(false);
       const [intakeReEntryDate, setIntakeReEntryDate] = useState('');
 
-      // LOCALSTORAGE SAVING
-      useEffect(() => { localStorage.setItem('okcps_threat_cases', JSON.stringify(cases)); }, [cases]);
-      useEffect(() => { localStorage.setItem('okcps_watch_list', JSON.stringify(watchStudents)); }, [watchStudents]);
+      // LOCALSTORAGE SAVING ENGINE
+      useEffect(() => { 
+        localStorage.setItem('okcps_threat_cases', JSON.stringify(cases)); 
+      }, [cases]);
 
-      // AUTHENTICATION
+      useEffect(() => { 
+        localStorage.setItem('okcps_watch_list', JSON.stringify(watchStudents)); 
+      }, [watchStudents]);
+
+      // AUTHENTICATION LOGIC
       const handleAuthenticate = (e) => {
         e.preventDefault();
         if (inputPasscode === SYSTEM_PASSCODE) {
@@ -310,9 +517,13 @@
         sessionStorage.removeItem('okcps_auth_token');
       };
 
-      // EXPORT & IMPORT
+      // EXPORT & IMPORT DATA BACKUPS
       const handleExportData = () => {
-        const backupData = { cases, watchStudents, exportDate: new Date().toISOString() };
+        const backupData = { 
+          cases, 
+          watchStudents, 
+          exportDate: new Date().toISOString() 
+        };
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
         const downloadAnchor = document.createElement('a');
         downloadAnchor.setAttribute("href", dataStr);
@@ -334,12 +545,14 @@
               if (imported.watchStudents) setWatchStudents(imported.watchStudents);
               alert("System Data Restored Successfully!");
             }
-          } catch (err) { alert("Error reading file: " + err.message); }
+          } catch (err) { 
+            alert("Error reading backup file: " + err.message); 
+          }
         };
         reader.readAsText(file);
       };
 
-      // GLOBAL DELETES
+      // PERMANENT DELETES
       const handleDeleteCaseOverall = (caseIdToDelete) => {
         const targetCase = cases.find(c => c.id === caseIdToDelete);
         if (window.confirm(`⚠️ Are you sure you want to PERMANENTLY delete the entire case for ${targetCase?.studentName || caseIdToDelete}?`)) {
@@ -363,7 +576,7 @@
         }
       };
 
-      // POST-INTAKE TRIAGE HANDLER
+      // POST-INTAKE TRIAGE & AUTOMATIC CASE RELOCATION
       const handleOpenTriageModal = (c) => {
         setTriageCaseTarget(c);
         setSelectedTriageScore('High');
@@ -385,7 +598,15 @@
               triageCompleted: true,
               cstagClassification: newClassification,
               pathwayEvents: (!isLow && (!c.pathwayEvents || c.pathwayEvents.length === 0))
-                ? [{ id: Date.now(), stage: 'Grievance', description: `Post-intake triage completed: Assigned ${selectedTriageScore} priority`, date: new Date().toISOString().split('T')[0], moveNote: '' }]
+                ? [
+                    { 
+                      id: Date.now(), 
+                      stage: 'Grievance', 
+                      description: `Post-intake triage completed: Assigned ${selectedTriageScore} priority`, 
+                      date: new Date().toISOString().split('T')[0], 
+                      moveNote: '' 
+                    }
+                  ]
                 : (c.pathwayEvents || [])
             };
           }
@@ -394,11 +615,51 @@
 
         setShowTriageModal(false);
         setTriageCaseTarget(null);
+
+        // Auto-navigate to appropriate tab
         if (isLow) setMainTab('low');
         else setMainTab('active');
       };
 
-      // FILTERED CATEGORIES
+      // PATHWAY TO VIOLENCE EVENT MANAGERS
+      const handleAddPathwayEvent = (e) => {
+        e.preventDefault();
+        if (!newEventDesc.trim() || !currentCase) return;
+        const newEvent = { 
+          id: Date.now(), 
+          stage: newEventStage, 
+          description: newEventDesc.trim(), 
+          date: newEventDate, 
+          moveNote: '' 
+        };
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, pathwayEvents: [...(c.pathwayEvents || []), newEvent] } : c));
+        setShowAddPathwayModal(false);
+        setNewEventDesc('');
+      };
+
+      const handleDeletePathwayEvent = (evtId) => {
+        if (!currentCase || !window.confirm("Delete this pathway event?")) return;
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, pathwayEvents: (c.pathwayEvents || []).filter(e => e.id !== evtId) } : c));
+      };
+
+      const handleSaveMovedPathwayEvent = (e) => {
+        e.preventDefault();
+        if (!editingPathwayEvent || !currentCase) return;
+        const updatedEvents = (currentCase.pathwayEvents || []).map(evt => {
+          if (evt.id === editingPathwayEvent.id) {
+            return {
+              ...evt,
+              stage: moveTargetStage,
+              moveNote: moveReasonNote.trim() ? `Moved to ${moveTargetStage}: "${moveReasonNote.trim()}"` : evt.moveNote
+            };
+          }
+          return evt;
+        });
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, pathwayEvents: updatedEvents } : c));
+        setEditingPathwayEvent(null);
+      };
+
+      // FILTERED TAB CATEGORIES
       const activeMediumHighCases = cases.filter(c => c.triageCompleted && (c.triagePriority === 'Medium' || c.triagePriority === 'High') && c.caseStatus !== 'Closed');
       const casesOnPlan = cases.filter(c => c.caseStatus !== 'Closed' && ((c.cstagClassification && c.cstagClassification !== 'Not-a-Threat' && c.cstagClassification !== 'Pending Assessment') || (c.planStartDate && c.planStartDate.trim() !== '') || c.planDoc !== null));
       const lowRiskCases = cases.filter(c => c.triageCompleted && c.triagePriority === 'Low' && c.caseStatus !== 'Closed');
@@ -408,11 +669,6 @@
 
       const currentCase = cases.find(c => c.id === selectedCaseId) || activeMediumHighCases[0] || cases[0];
 
-      const isStudentOnWatchList = (name, id) => {
-        if (!name && !id) return false;
-        return watchStudents.some(w => (id && w.studentId === id) || (name && w.studentName.toLowerCase() === name.toLowerCase()));
-      };
-
       useEffect(() => {
         if (currentCase) setTempStatusNotes(currentCase.caseTeamStatusNotes || '');
       }, [selectedCaseId, currentCase?.id]);
@@ -421,15 +677,6 @@
         if (!currentCase) return;
         const today = new Date().toISOString().split('T')[0];
         setCases(cases.map(c => c.id === currentCase.id ? { ...c, caseTeamStatusNotes: tempStatusNotes, caseTeamStatusLastUpdated: today } : c));
-      };
-
-      const handleEditWatchLastUpdated = (studentId) => {
-        const currentStudent = watchStudents.find(st => st.studentId === studentId);
-        if (!currentStudent) return;
-        const newDate = prompt("Enter new Last Updated date:", currentStudent.lastUpdatedDate);
-        if (newDate && newDate.trim() !== '') {
-          setWatchStudents(watchStudents.map(st => st.studentId === studentId ? { ...st, lastUpdatedDate: newDate.trim() } : st));
-        }
       };
 
       const handleDeleteDocument = (category, docId) => {
@@ -517,21 +764,27 @@
           studentId: watchId.trim(),
           schoolLocation: watchSchool.trim(),
           lastUpdatedDate: new Date().toLocaleDateString('en-US'),
-          incidents: [{
-            id: `inc-${Date.now()}`,
-            tipsNum: watchTipsNum.trim() || 'Pending',
-            details: watchDetails.trim() || 'No initial details logged.',
-            date: watchDate,
-            triage: watchTriage,
-            resolution: watchResolution.trim() || 'Pending action',
-            notes: watchNotes.trim() || 'No notes.',
-            tipsDoc: null,
-            recordsDocs: []
-          }]
+          incidents: [
+            {
+              id: `inc-${Date.now()}`,
+              tipsNum: watchTipsNum.trim() || 'Pending',
+              details: watchDetails.trim() || 'No initial details logged.',
+              date: watchDate,
+              triage: watchTriage,
+              resolution: watchResolution.trim() || 'Pending action',
+              notes: watchNotes.trim() || 'No notes.',
+              tipsDoc: null,
+              recordsDocs: []
+            }
+          ]
         };
         setWatchStudents([newStudent, ...watchStudents]);
         setShowAddWatchModal(false);
-        setWatchName(''); setWatchId(''); setWatchSchool(''); setWatchTipsNum(''); setWatchDetails('');
+        setWatchName(''); 
+        setWatchId(''); 
+        setWatchSchool(''); 
+        setWatchTipsNum(''); 
+        setWatchDetails('');
       };
 
       const handleSaveWatchIncident = (shouldAddAnother = false) => {
@@ -551,7 +804,10 @@
         setWatchStudents(watchStudents.map(st => st.studentId === targetWatchStudentId ? { ...st, lastUpdatedDate: new Date().toLocaleDateString('en-US'), incidents: [...st.incidents, newIncident] } : st));
 
         if (shouldAddAnother) {
-          setWatchIncTipsNum(''); setWatchIncDetails(''); setWatchIncResolution(''); setWatchIncNotes('');
+          setWatchIncTipsNum(''); 
+          setWatchIncDetails(''); 
+          setWatchIncResolution(''); 
+          setWatchIncNotes('');
         } else {
           setShowAddWatchIncidentModal(false);
           setTargetWatchStudentId(null);
@@ -572,7 +828,12 @@
         const file = e.target.files[0];
         if (!file || !currentCase) return;
         const fileUrl = URL.createObjectURL(file);
-        const newDoc = { name: file.name, uploadDate: new Date().toISOString().split('T')[0], size: `${(file.size / 1024).toFixed(0)} KB`, url: fileUrl };
+        const newDoc = { 
+          name: file.name, 
+          uploadDate: new Date().toISOString().split('T')[0], 
+          size: `${(file.size / 1024).toFixed(0)} KB`, 
+          url: fileUrl 
+        };
         setCases(cases.map(c => c.id === currentCase.id ? { ...c, cstagDoc: newDoc } : c));
       };
 
@@ -580,7 +841,12 @@
         const file = e.target.files[0];
         if (!file || !currentCase) return;
         const fileUrl = URL.createObjectURL(file);
-        const newDoc = { name: file.name, uploadDate: new Date().toISOString().split('T')[0], size: `${(file.size / 1024).toFixed(0)} KB`, url: fileUrl };
+        const newDoc = { 
+          name: file.name, 
+          uploadDate: new Date().toISOString().split('T')[0], 
+          size: `${(file.size / 1024).toFixed(0)} KB`, 
+          url: fileUrl 
+        };
         setCases(cases.map(c => c.id === currentCase.id ? { ...c, planDoc: newDoc } : c));
       };
 
@@ -598,37 +864,6 @@
       const updatePlanDetail = (field, val) => {
         if (!currentCase) return;
         setCases(cases.map(c => c.id === currentCase.id ? { ...c, [field]: val } : c));
-      };
-
-      const handleAddPathwayEvent = (e) => {
-        e.preventDefault();
-        if (!newEventDesc.trim() || !currentCase) return;
-        const newEvent = { id: Date.now(), stage: newEventStage, description: newEventDesc.trim(), date: newEventDate, moveNote: '' };
-        setCases(cases.map(c => c.id === currentCase.id ? { ...c, pathwayEvents: [...(c.pathwayEvents || []), newEvent] } : c));
-        setShowAddPathwayModal(false);
-        setNewEventDesc('');
-      };
-
-      const handleDeletePathwayEvent = (evtId) => {
-        if (!currentCase || !window.confirm("Delete this pathway event?")) return;
-        setCases(cases.map(c => c.id === currentCase.id ? { ...c, pathwayEvents: (c.pathwayEvents || []).filter(e => e.id !== evtId) } : c));
-      };
-
-      const handleSaveMovedPathwayEvent = (e) => {
-        e.preventDefault();
-        if (!editingPathwayEvent || !currentCase) return;
-        const updatedEvents = (currentCase.pathwayEvents || []).map(evt => {
-          if (evt.id === editingPathwayEvent.id) {
-            return {
-              ...evt,
-              stage: moveTargetStage,
-              moveNote: moveReasonNote.trim() ? `Moved to ${moveTargetStage}: "${moveReasonNote.trim()}"` : evt.moveNote
-            };
-          }
-          return evt;
-        });
-        setCases(cases.map(c => c.id === currentCase.id ? { ...c, pathwayEvents: updatedEvents } : c));
-        setEditingPathwayEvent(null);
       };
 
       const handleCreateCase = (e) => {
@@ -709,19 +944,43 @@
           <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4">
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-8 max-w-md w-full shadow-2xl space-y-6">
               <div className="text-center space-y-2">
-                <div className="p-3 bg-blue-600/20 text-blue-400 rounded-xl inline-block font-bold text-2xl">🔒</div>
-                <h1 className="text-lg font-bold text-slate-100">OKCPS Threat Assessment</h1>
-                <p className="text-xs text-slate-400">System Security Lockout Active</p>
+                <div className="p-3 bg-blue-600/20 text-blue-400 rounded-xl inline-block font-bold text-2xl">
+                  🔒
+                </div>
+                <h1 className="text-lg font-bold text-slate-100">
+                  OKCPS Threat Assessment
+                </h1>
+                <p className="text-xs text-slate-400">
+                  System Security Lockout Active
+                </p>
               </div>
 
-              {passcodeError && <div className="bg-red-950/80 border border-red-800 text-red-200 p-3 rounded-lg text-xs font-semibold text-center">Incorrect Passcode.</div>}
+              {passcodeError && (
+                <div className="bg-red-950/80 border border-red-800 text-red-200 p-3 rounded-lg text-xs font-semibold text-center">
+                  Incorrect Passcode.
+                </div>
+              )}
 
               <form onSubmit={handleAuthenticate} className="space-y-4 text-xs">
                 <div>
-                  <label className="text-slate-400 block mb-1.5 font-semibold">Enter General System Passcode</label>
-                  <input type="password" required value={inputPasscode} onChange={(e) => setInputPasscode(e.target.value)} placeholder="••••••••••••" className="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-slate-100 focus:border-blue-500 focus:outline-none text-center font-mono text-base" />
+                  <label className="text-slate-400 block mb-1.5 font-semibold">
+                    Enter General System Passcode
+                  </label>
+                  <input 
+                    type="password" 
+                    required 
+                    value={inputPasscode} 
+                    onChange={(e) => setInputPasscode(e.target.value)} 
+                    placeholder="••••••••••••" 
+                    className="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-slate-100 focus:border-blue-500 focus:outline-none text-center font-mono text-base" 
+                  />
                 </div>
-                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-lg font-bold text-xs shadow-lg">Unlock Portal Workspace</button>
+                <button 
+                  type="submit" 
+                  className="w-full bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-lg font-bold text-xs shadow-lg"
+                >
+                  Unlock Portal Workspace
+                </button>
               </form>
             </div>
           </div>
@@ -734,20 +993,47 @@
           <header className="border-b border-slate-800 bg-slate-900/90 sticky top-0 z-40 backdrop-blur">
             <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-600/20 text-blue-400 rounded-lg font-bold text-lg">🛡️</div>
+                <div className="p-2 bg-blue-600/20 text-blue-400 rounded-lg font-bold text-lg">
+                  🛡️
+                </div>
                 <div>
-                  <h1 className="text-base font-bold text-slate-100">OKCPS Behavioral Threat Assessment System</h1>
-                  <p className="text-[11px] text-slate-400">Browser Auto-Save Active • FERPA & HIPAA Compliant</p>
+                  <h1 className="text-base font-bold text-slate-100">
+                    OKCPS Behavioral Threat Assessment System
+                  </h1>
+                  <p className="text-[11px] text-slate-400">
+                    Browser Auto-Save Active • FERPA & HIPAA Compliant
+                  </p>
                 </div>
               </div>
 
               <div className="flex items-center space-x-2">
-                <button onClick={handleExportData} className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700">💾 Export Data</button>
+                <button 
+                  onClick={handleExportData} 
+                  className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700"
+                >
+                  💾 Export Data
+                </button>
                 <label className="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700">
-                  📥 Import Data <input type="file" accept=".json" className="hidden" onChange={handleImportData} />
+                  📥 Import Data 
+                  <input 
+                    type="file" 
+                    accept=".json" 
+                    className="hidden" 
+                    onChange={handleImportData} 
+                  />
                 </label>
-                <button onClick={() => setShowNewIntakeModal(true)} className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow">+ New Threat Intake</button>
-                <button onClick={handleLogout} className="bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 px-3 py-1.5 rounded-lg text-xs font-bold">Lock Portal</button>
+                <button 
+                  onClick={() => setShowNewIntakeModal(true)} 
+                  className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow"
+                >
+                  + New Threat Intake
+                </button>
+                <button 
+                  onClick={handleLogout} 
+                  className="bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 px-3 py-1.5 rounded-lg text-xs font-bold"
+                >
+                  Lock Portal
+                </button>
               </div>
             </div>
           </header>
@@ -755,22 +1041,46 @@
           {/* SEARCH TOOLBAR */}
           <div className="bg-slate-900/80 border-b border-slate-800 px-4 py-2.5">
             <div className="max-w-7xl mx-auto flex items-center space-x-3">
-              <span className="text-slate-400 text-xs font-semibold uppercase shrink-0">🔍 Student Lookup:</span>
+              <span className="text-slate-400 text-xs font-semibold uppercase shrink-0">
+                🔍 Student Lookup:
+              </span>
               <div className="relative flex-1">
-                <input type="text" placeholder="Type student name or ID# to search across all records..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-xs text-slate-100 focus:border-blue-500 focus:outline-none" />
-                {searchQuery && <button onClick={() => setSearchQuery('')} className="absolute right-2.5 top-1.5 text-slate-400 hover:text-white text-xs font-bold">✕</button>}
+                <input 
+                  type="text" 
+                  placeholder="Type student name or ID# to search across all records..." 
+                  value={searchQuery} 
+                  onChange={(e) => setSearchQuery(e.target.value)} 
+                  className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-xs text-slate-100 focus:border-blue-500 focus:outline-none" 
+                />
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery('')} 
+                    className="absolute right-2.5 top-1.5 text-slate-400 hover:text-white text-xs font-bold"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
             </div>
 
             {searchQuery.trim() !== '' && (
               <div className="max-w-7xl mx-auto mt-2 bg-slate-900 border border-blue-500/60 rounded-xl p-4 space-y-2 shadow-2xl">
                 {lookupResults.map(rc => (
-                  <div key={rc.id} onClick={() => { selectCaseFromSearch(rc); setSearchQuery(''); }} className="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg cursor-pointer flex justify-between items-center text-xs">
+                  <div 
+                    key={rc.id} 
+                    onClick={() => { selectCaseFromSearch(rc); setSearchQuery(''); }} 
+                    className="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg cursor-pointer flex justify-between items-center text-xs"
+                  >
                     <div>
-                      <span className="font-bold text-slate-100">{rc.studentName}</span> <span className="text-slate-400 font-mono">(ID #{rc.studentId})</span>
-                      <p className="text-slate-400 text-[11px]">{rc.schoolLocation} • TIPS #{rc.tipsReportNum}</p>
+                      <span className="font-bold text-slate-100">{rc.studentName}</span> 
+                      <span className="text-slate-400 font-mono">(ID #{rc.studentId})</span>
+                      <p className="text-slate-400 text-[11px]">
+                        {rc.schoolLocation} • TIPS #{rc.tipsReportNum}
+                      </p>
                     </div>
-                    <span className="text-blue-400 font-bold">{rc.caseStatus}</span>
+                    <span className="text-blue-400 font-bold">
+                      {rc.caseStatus}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -780,25 +1090,46 @@
           {/* NAVIGATION TABS */}
           <div className="max-w-7xl mx-auto px-4 pt-4">
             <div className="flex border-b border-slate-800 space-x-6 text-xs font-semibold overflow-x-auto">
-              <button onClick={() => { setMainTab('active'); if (activeMediumHighCases.length > 0) setSelectedCaseId(activeMediumHighCases[0].id); }} className={`pb-3 border-b-2 ${mainTab === 'active' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}>
+              <button 
+                onClick={() => { setMainTab('active'); if (activeMediumHighCases.length > 0) setSelectedCaseId(activeMediumHighCases[0].id); }} 
+                className={`pb-3 border-b-2 ${mainTab === 'active' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}
+              >
                 Active Medium/High Cases ({activeMediumHighCases.length})
               </button>
-              <button onClick={() => { setMainTab('planTab'); if (casesOnPlan.length > 0) setSelectedCaseId(casesOnPlan[0].id); }} className={`pb-3 border-b-2 ${mainTab === 'planTab' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}>
+              <button 
+                onClick={() => { setMainTab('planTab'); if (casesOnPlan.length > 0) setSelectedCaseId(casesOnPlan[0].id); }} 
+                className={`pb-3 border-b-2 ${mainTab === 'planTab' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}
+              >
                 Cases on Support/Safety Plan ({casesOnPlan.length})
               </button>
-              <button onClick={() => { setMainTab('low'); if (lowRiskCases.length > 0) setSelectedCaseId(lowRiskCases[0].id); }} className={`pb-3 border-b-2 ${mainTab === 'low' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}>
+              <button 
+                onClick={() => { setMainTab('low'); if (lowRiskCases.length > 0) setSelectedCaseId(lowRiskCases[0].id); }} 
+                className={`pb-3 border-b-2 ${mainTab === 'low' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}
+              >
                 Low-Risk Cases ({lowRiskCases.length})
               </button>
-              <button onClick={() => { setMainTab('noTriage'); if (openNoTriageCases.length > 0) setSelectedCaseId(openNoTriageCases[0].id); }} className={`pb-3 border-b-2 ${mainTab === 'noTriage' ? 'border-purple-500 text-purple-400 font-bold' : 'border-transparent text-slate-400'}`}>
+              <button 
+                onClick={() => { setMainTab('noTriage'); if (openNoTriageCases.length > 0) setSelectedCaseId(openNoTriageCases[0].id); }} 
+                className={`pb-3 border-b-2 ${mainTab === 'noTriage' ? 'border-purple-500 text-purple-400 font-bold' : 'border-transparent text-slate-400'}`}
+              >
                 Open Cases without Triage ({openNoTriageCases.length})
               </button>
-              <button onClick={() => setMainTab('watchTab')} className={`pb-3 border-b-2 ${mainTab === 'watchTab' ? 'border-teal-500 text-teal-300 font-bold' : 'border-transparent text-slate-400'}`}>
+              <button 
+                onClick={() => setMainTab('watchTab')} 
+                className={`pb-3 border-b-2 ${mainTab === 'watchTab' ? 'border-teal-500 text-teal-300 font-bold' : 'border-transparent text-slate-400'}`}
+              >
                 👁️ Keeping an Eye On ({watchStudents.length})
               </button>
-              <button onClick={() => { setMainTab('closed'); if (closedCases.length > 0) setSelectedCaseId(closedCases[0].id); }} className={`pb-3 border-b-2 ${mainTab === 'closed' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}>
+              <button 
+                onClick={() => { setMainTab('closed'); if (closedCases.length > 0) setSelectedCaseId(closedCases[0].id); }} 
+                className={`pb-3 border-b-2 ${mainTab === 'closed' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}
+              >
                 Closed Cases Archive ({closedCases.length})
               </button>
-              <button onClick={() => setMainTab('dashboard')} className={`pb-3 border-b-2 ${mainTab === 'dashboard' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}>
+              <button 
+                onClick={() => setMainTab('dashboard')} 
+                className={`pb-3 border-b-2 ${mainTab === 'dashboard' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}
+              >
                 District Oversight Dashboard ({openCasesOnly.length} Open)
               </button>
             </div>
@@ -812,7 +1143,11 @@
                 <div className="col-span-12 lg:col-span-4 space-y-3">
                   <div className="space-y-2 max-h-[80vh] overflow-y-auto pr-1">
                     {(mainTab === 'active' ? activeMediumHighCases : mainTab === 'planTab' ? casesOnPlan : mainTab === 'low' ? lowRiskCases : mainTab === 'noTriage' ? openNoTriageCases : closedCases).map(c => (
-                      <div key={c.id} onClick={() => setSelectedCaseId(c.id)} className={`p-3.5 rounded-xl border cursor-pointer transition-all ${selectedCaseId === c.id ? 'bg-slate-900 border-blue-500 shadow-lg' : 'bg-slate-900/40 border-slate-800'}`}>
+                      <div 
+                        key={c.id} 
+                        onClick={() => setSelectedCaseId(c.id)} 
+                        className={`p-3.5 rounded-xl border cursor-pointer transition-all ${selectedCaseId === c.id ? 'bg-slate-900 border-blue-500 shadow-lg' : 'bg-slate-900/40 border-slate-800'}`}
+                      >
                         <div className="flex justify-between items-start mb-1">
                           <span className="font-bold text-sm text-slate-100">{c.studentName}</span>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${c.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' : 'bg-slate-800 text-slate-300'}`}>
@@ -820,13 +1155,23 @@
                           </span>
                         </div>
                         <div className="text-xs text-slate-400 mb-2 flex justify-between">
-                          <span>ID: #{c.studentId} • <strong className="text-blue-300">{c.studentGrade || 'N/A'}</strong></span>
-                          <span>TIPS: {c.tipsReportNum}</span>
+                          <span>
+                            ID: #{c.studentId} • <strong className="text-blue-300">{c.studentGrade || 'N/A'}</strong>
+                          </span>
+                          <span>
+                            TIPS: {c.tipsReportNum}
+                          </span>
                         </div>
-                        <p className="text-xs text-slate-300 line-clamp-2 bg-slate-950 p-2 rounded border border-slate-800/80 mb-2">"{c.tovBrief}"</p>
+                        <p className="text-xs text-slate-300 line-clamp-2 bg-slate-950 p-2 rounded border border-slate-800/80 mb-2">
+                          "{c.tovBrief}"
+                        </p>
                         
+                        {/* UNTRIAGED BUTTON IN SIDEBAR */}
                         {!c.triageCompleted && (
-                          <button onClick={(e) => { e.stopPropagation(); handleOpenTriageModal(c); }} className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-1.5 px-3 rounded shadow transition-all">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleOpenTriageModal(c); }} 
+                            className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-1.5 px-3 rounded shadow transition-all"
+                          >
                             📋 Complete Threat Triage
                           </button>
                         )}
@@ -844,25 +1189,43 @@
                         <div className="flex justify-between items-start border-b border-slate-800 pb-3">
                           <div>
                             <div className="flex items-center space-x-3">
-                              <h2 className="text-xl font-bold text-slate-100">{currentCase.studentName}</h2>
-                              <span className="text-xs font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded">#{currentCase.studentId}</span>
-                              <span className="text-xs font-semibold bg-blue-950 text-blue-300 border border-blue-700 px-2.5 py-1 rounded">{currentCase.studentGrade || 'Grade N/A'}</span>
+                              <h2 className="text-xl font-bold text-slate-100">
+                                {currentCase.studentName}
+                              </h2>
+                              <span className="text-xs font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded">
+                                #{currentCase.studentId}
+                              </span>
+                              <span className="text-xs font-semibold bg-blue-950 text-blue-300 border border-blue-700 px-2.5 py-1 rounded">
+                                {currentCase.studentGrade || 'Grade N/A'}
+                              </span>
                             </div>
-                            <p className="text-xs text-slate-400 mt-1">Campus: {currentCase.schoolLocation} | TIPS: {currentCase.tipsReportNum} | Incident Date: <strong className="text-slate-200">{currentCase.incidentDate}</strong></p>
+                            <p className="text-xs text-slate-400 mt-1">
+                              Campus: {currentCase.schoolLocation} | TIPS: {currentCase.tipsReportNum} | Incident Date: <strong className="text-slate-200">{currentCase.incidentDate}</strong>
+                            </p>
                           </div>
 
                           <div className="flex items-center space-x-2">
+                            {/* UNTRIAGED BUTTON IN MAIN HEADER */}
                             {!currentCase.triageCompleted && (
-                              <button onClick={() => handleOpenTriageModal(currentCase)} className="bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded font-bold shadow">
+                              <button 
+                                onClick={() => handleOpenTriageModal(currentCase)} 
+                                className="bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded font-bold shadow"
+                              >
                                 📋 Triage Case
                               </button>
                             )}
                             {currentCase.caseStatus !== 'Closed' && (
-                              <button onClick={() => setShowCloseCaseModal(true)} className="bg-amber-600 hover:bg-amber-500 text-white text-xs px-3 py-1 rounded font-semibold">
+                              <button 
+                                onClick={() => setShowCloseCaseModal(true)} 
+                                className="bg-amber-600 hover:bg-amber-500 text-white text-xs px-3 py-1 rounded font-semibold"
+                              >
                                 Archive Case
                               </button>
                             )}
-                            <button onClick={() => handleDeleteCaseOverall(currentCase.id)} className="bg-red-950 hover:bg-red-900 border border-red-700 text-red-300 text-xs px-3 py-1 rounded font-bold">
+                            <button 
+                              onClick={() => handleDeleteCaseOverall(currentCase.id)} 
+                              className="bg-red-950 hover:bg-red-900 border border-red-700 text-red-300 text-xs px-3 py-1 rounded font-bold"
+                            >
                               🗑️ Delete Case
                             </button>
                           </div>
@@ -871,14 +1234,18 @@
                         {/* VICTIM & INVOLVED BADGES */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                           <div className="bg-slate-950 p-3 rounded-lg border border-slate-800/80 flex items-center justify-between">
-                            <span className="font-semibold text-slate-400 uppercase text-[10px]">🎯 Targeted Victim:</span>
+                            <span className="font-semibold text-slate-400 uppercase text-[10px]">
+                              🎯 Targeted Victim:
+                            </span>
                             <span className="font-medium text-rose-200 bg-rose-950/60 border border-rose-800/80 px-2.5 py-1 rounded">
                               {currentCase.victimName || 'None Listed'} ({currentCase.victimRole || 'Student'})
                             </span>
                           </div>
 
                           <div className="bg-slate-950 p-3 rounded-lg border border-slate-800/80 flex items-center justify-between">
-                            <span className="font-semibold text-slate-400 uppercase text-[10px]">👥 Involved Peers:</span>
+                            <span className="font-semibold text-slate-400 uppercase text-[10px]">
+                              👥 Involved Peers:
+                            </span>
                             <span className="font-medium text-amber-200 bg-amber-950/60 border border-amber-800/80 px-2.5 py-1 rounded">
                               {currentCase.involvedStudents || 'None Listed'}
                             </span>
@@ -887,15 +1254,33 @@
 
                         {/* INTAKE FILES */}
                         <div className="bg-slate-950 p-3.5 rounded-lg border border-slate-800 space-y-2">
-                          <span className="text-[10px] text-slate-400 uppercase font-semibold">Intake Records</span>
+                          <span className="text-[10px] text-slate-400 uppercase font-semibold">
+                            Intake Records
+                          </span>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                             <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded">
-                              <span className="font-semibold text-slate-200 truncate">{currentCase.intakeFiles?.tipsPdf?.name || 'TIPS_Report.pdf'}</span>
-                              <button onClick={() => openDocViewer(currentCase.intakeFiles?.tipsPdf)} className="bg-blue-900/60 text-blue-200 text-[11px] px-2.5 py-1 rounded">View</button>
+                              <span className="font-semibold text-slate-200 truncate">
+                                {currentCase.intakeFiles?.tipsPdf?.name || 'TIPS_Report.pdf'}
+                              </span>
+                              <button 
+                                onClick={() => openDocViewer(currentCase.intakeFiles?.tipsPdf)} 
+                                className="bg-blue-900/60 text-blue-200 text-[11px] px-2.5 py-1 rounded"
+                              >
+                                View
+                              </button>
                             </div>
                             <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded">
-                              <span className="font-semibold text-slate-200 truncate">{currentCase.intakeFiles?.triagePdf?.name || 'Triage_Form.pdf'}</span>
-                              {currentCase.intakeFiles?.triagePdf && <button onClick={() => openDocViewer(currentCase.intakeFiles?.triagePdf)} className="bg-purple-900/60 text-purple-200 text-[11px] px-2.5 py-1 rounded">View</button>}
+                              <span className="font-semibold text-slate-200 truncate">
+                                {currentCase.intakeFiles?.triagePdf?.name || 'Triage_Form.pdf'}
+                              </span>
+                              {currentCase.intakeFiles?.triagePdf && (
+                                <button 
+                                  onClick={() => openDocViewer(currentCase.intakeFiles?.triagePdf)} 
+                                  className="bg-purple-900/60 text-purple-200 text-[11px] px-2.5 py-1 rounded"
+                                >
+                                  View
+                                </button>
+                              )}
                             </div>
                           </div>
                         </div>
@@ -904,18 +1289,32 @@
                         {currentCase.caseStatus !== 'Closed' && (
                           <div className="bg-slate-950 p-4 rounded-lg border border-blue-900/60 space-y-2">
                             <div className="flex justify-between items-center">
-                              <span className="text-xs font-bold text-slate-100 uppercase">Case / Team Status Notes</span>
-                              <span className="text-[10px] text-slate-400 font-mono">Last Updated: {currentCase.caseTeamStatusLastUpdated || 'N/A'}</span>
+                              <span className="text-xs font-bold text-slate-100 uppercase">
+                                Case / Team Status Notes
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-mono">
+                                Last Updated: {currentCase.caseTeamStatusLastUpdated || 'N/A'}
+                              </span>
                             </div>
-                            <textarea rows="3" value={tempStatusNotes} onChange={(e) => setTempStatusNotes(e.target.value)} className="w-full bg-slate-900 border border-slate-800 p-2.5 rounded text-xs text-slate-100 focus:border-blue-500 focus:outline-none" />
+                            <textarea 
+                              rows="3" 
+                              value={tempStatusNotes} 
+                              onChange={(e) => setTempStatusNotes(e.target.value)} 
+                              className="w-full bg-slate-900 border border-slate-800 p-2.5 rounded text-xs text-slate-100 focus:border-blue-500 focus:outline-none" 
+                            />
                             <div className="flex justify-end">
-                              <button onClick={handleSaveStatusNotes} className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-semibold">Save Status Update</button>
+                              <button 
+                                onClick={handleSaveStatusNotes} 
+                                className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-semibold"
+                              >
+                                Save Status Update
+                              </button>
                             </div>
                           </div>
                         )}
                       </div>
 
-                      {/* PATHWAY TO VIOLENCE TIMELINE */}
+                      {/* PATHWAY TO VIOLENCE TIMELINE (WITH STAGE CONTROLS) */}
                       {(currentCase.triagePriority === 'Medium' || currentCase.triagePriority === 'High') && (
                         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
                           <div className="flex justify-between items-center">
@@ -923,7 +1322,12 @@
                               <span className="text-blue-400">📈</span>
                               <span>Pathway to Violence Timeline</span>
                             </h3>
-                            <button onClick={() => setShowAddPathwayModal(true)} className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-semibold">+ Add Event</button>
+                            <button 
+                              onClick={() => setShowAddPathwayModal(true)} 
+                              className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-semibold transition-all shadow"
+                            >
+                              + Add Event
+                            </button>
                           </div>
 
                           <div className="space-y-3 pt-1">
@@ -932,18 +1336,43 @@
                               return (
                                 <div key={stageObj.key} className="bg-slate-950 border border-slate-800/80 rounded-lg p-3 space-y-2">
                                   <div className="flex items-center space-x-2">
-                                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded border ${stageObj.color}`}>{stageObj.label}</span>
-                                    <span className="text-[11px] text-slate-400">({stageEvents.length})</span>
+                                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded border ${stageObj.color}`}>
+                                      {stageObj.label}
+                                    </span>
+                                    <span className="text-[11px] text-slate-400">
+                                      ({stageEvents.length})
+                                    </span>
                                   </div>
 
                                   <div className="space-y-1.5 pl-2 border-l-2 border-slate-800">
                                     {stageEvents.map(evt => (
                                       <div key={evt.id} className="bg-slate-900 p-2.5 rounded border border-slate-800 text-xs flex justify-between items-start">
-                                        <p className="text-slate-200 font-medium">{evt.description}</p>
+                                        <div>
+                                          <p className="text-slate-200 font-medium">
+                                            {evt.description}
+                                          </p>
+                                          {evt.moveNote && (
+                                            <p className="text-[10px] text-slate-400 mt-0.5 italic">
+                                              {evt.moveNote}
+                                            </p>
+                                          )}
+                                        </div>
                                         <div className="flex items-center space-x-2 shrink-0">
-                                          <span className="text-slate-500 font-mono text-[10px]">{evt.date}</span>
-                                          <button onClick={() => { setEditingPathwayEvent(evt); setMoveTargetStage(evt.stage); }} className="bg-slate-800 text-blue-300 text-[10px] px-2 py-0.5 rounded border border-slate-700">Move Stage</button>
-                                          <button onClick={() => handleDeletePathwayEvent(evt.id)} className="bg-red-950 text-red-300 text-[10px] px-1.5 py-0.5 rounded border border-red-800">🗑️</button>
+                                          <span className="text-slate-500 font-mono text-[10px]">
+                                            {evt.date}
+                                          </span>
+                                          <button 
+                                            onClick={() => { setEditingPathwayEvent(evt); setMoveTargetStage(evt.stage); }} 
+                                            className="bg-slate-800 text-blue-300 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-semibold"
+                                          >
+                                            Move Stage
+                                          </button>
+                                          <button 
+                                            onClick={() => handleDeletePathwayEvent(evt.id)} 
+                                            className="bg-red-950 text-red-300 text-[10px] px-1.5 py-0.5 rounded border border-red-800 font-bold"
+                                          >
+                                            🗑️
+                                          </button>
                                         </div>
                                       </div>
                                     ))}
@@ -969,28 +1398,54 @@
                             { key: 'witnessStatements', label: 'Witness Statements' },
                             { key: 'recordsReview', label: 'Records Review' }
                           ].map(tab => (
-                            <button key={tab.key} onClick={() => setActiveDocTab(tab.key)} className={`p-2.5 rounded-lg text-xs font-semibold border flex items-center justify-between ${activeDocTab === tab.key ? 'bg-blue-900/50 border-blue-500 text-blue-200' : 'bg-slate-950 border-slate-800 text-slate-400'}`}>
+                            <button 
+                              key={tab.key} 
+                              onClick={() => setActiveDocTab(tab.key)} 
+                              className={`p-2.5 rounded-lg text-xs font-semibold border flex items-center justify-between ${activeDocTab === tab.key ? 'bg-blue-900/50 border-blue-500 text-blue-200' : 'bg-slate-950 border-slate-800 text-slate-400'}`}
+                            >
                               <span>{tab.label}</span>
-                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800">{(currentCase.documents?.[tab.key] || []).length}</span>
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800">
+                                {(currentCase.documents?.[tab.key] || []).length}
+                              </span>
                             </button>
                           ))}
                         </div>
 
                         <div className="bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-3 text-xs">
                           <div className="flex justify-between items-center pb-2 border-b border-slate-800">
-                            <span className="font-semibold text-slate-200 uppercase text-[11px]">{activeDocTab} Files</span>
+                            <span className="font-semibold text-slate-200 uppercase text-[11px]">
+                              {activeDocTab} Files
+                            </span>
                             <label className="cursor-pointer bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-medium">
-                              + Upload File <input type="file" accept="application/pdf,image/*" className="hidden" onChange={(e) => handleFileUpload(activeDocTab, e)} />
+                              + Upload File 
+                              <input 
+                                type="file" 
+                                accept="application/pdf,image/*" 
+                                className="hidden" 
+                                onChange={(e) => handleFileUpload(activeDocTab, e)} 
+                              />
                             </label>
                           </div>
 
                           <div className="space-y-2">
                             {(currentCase.documents?.[activeDocTab] || []).map((doc, idx) => (
                               <div key={doc.id || idx} className="flex justify-between items-center p-2.5 bg-slate-900 rounded border border-slate-800">
-                                <span className="font-medium text-slate-200 truncate pr-2">📄 {doc.name}</span>
+                                <span className="font-medium text-slate-200 truncate pr-2">
+                                  📄 {doc.name}
+                                </span>
                                 <div className="flex space-x-2 shrink-0">
-                                  <button onClick={() => openDocViewer(doc)} className="bg-blue-900/60 text-blue-200 text-[11px] px-2.5 py-1 rounded">View</button>
-                                  <button onClick={() => handleDeleteDocument(activeDocTab, doc.id || doc.name)} className="bg-red-950 text-red-300 text-[11px] px-2 py-1 rounded border border-red-800">🗑️ Delete</button>
+                                  <button 
+                                    onClick={() => openDocViewer(doc)} 
+                                    className="bg-blue-900/60 text-blue-200 text-[11px] px-2.5 py-1 rounded"
+                                  >
+                                    View
+                                  </button>
+                                  <button 
+                                    onClick={() => handleDeleteDocument(activeDocTab, doc.id || doc.name)} 
+                                    className="bg-red-950 text-red-300 text-[11px] px-2 py-1 rounded border border-red-800"
+                                  >
+                                    🗑️ Delete
+                                  </button>
                                 </div>
                               </div>
                             ))}
@@ -1010,7 +1465,11 @@
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                           <div>
                             <label className="text-slate-400 block mb-1.5 font-semibold">Classification:</label>
-                            <select value={currentCase.cstagClassification || 'Pending Assessment'} onChange={(e) => handleCstagChange(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded text-slate-100 font-bold">
+                            <select 
+                              value={currentCase.cstagClassification || 'Pending Assessment'} 
+                              onChange={(e) => handleCstagChange(e.target.value)} 
+                              className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded text-slate-100 font-bold"
+                            >
                               <option value="Not-a-Threat">Not-a-Threat</option>
                               <option value="Transient Threat">Transient Threat</option>
                               <option value="Serious Substantive Threat">Serious Substantive Threat</option>
@@ -1023,12 +1482,22 @@
                             {currentCase.cstagDoc ? (
                               <div className="flex items-center justify-between p-2 bg-slate-950 border border-slate-800 rounded">
                                 <span className="text-slate-200 font-mono truncate">{currentCase.cstagDoc.name}</span>
-                                <button onClick={() => openDocViewer(currentCase.cstagDoc)} className="bg-purple-900/80 text-purple-200 text-[10px] px-2 py-1 rounded">View</button>
+                                <button 
+                                  onClick={() => openDocViewer(currentCase.cstagDoc)} 
+                                  className="bg-purple-900/80 text-purple-200 text-[10px] px-2 py-1 rounded"
+                                >
+                                  View
+                                </button>
                               </div>
                             ) : (
                               <label className="cursor-pointer bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-700 px-3 py-2 rounded block text-center font-medium">
                                 + Upload CSTAG Determination Document
-                                <input type="file" accept="application/pdf" className="hidden" onChange={handleCstagDocUpload} />
+                                <input 
+                                  type="file" 
+                                  accept="application/pdf" 
+                                  className="hidden" 
+                                  onChange={handleCstagDocUpload} 
+                                />
                               </label>
                             )}
                           </div>
@@ -1038,18 +1507,35 @@
                       {/* IMMEDIATE RESPONSE CHECKLIST */}
                       {(currentCase.cstagClassification === 'Serious Substantive Threat' || currentCase.cstagClassification === 'Very Serious Substantive Threat') && (
                         <div className="bg-slate-900 border border-red-900/60 rounded-xl p-5 space-y-3 shadow-xl">
-                          <h3 className="text-xs font-bold text-red-200 uppercase tracking-wide">Immediate Response Checklist</h3>
+                          <h3 className="text-xs font-bold text-red-200 uppercase tracking-wide">
+                            Immediate Response Checklist
+                          </h3>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                             <label className="flex items-center space-x-2 bg-slate-950 p-3 rounded border border-slate-800 cursor-pointer">
-                              <input type="checkbox" checked={currentCase.immediateResponse?.victimNotification || false} onChange={() => toggleImmediateCheck('victimNotification')} className="rounded bg-slate-900 text-red-600" />
+                              <input 
+                                type="checkbox" 
+                                checked={currentCase.immediateResponse?.victimNotification || false} 
+                                onChange={() => toggleImmediateCheck('victimNotification')} 
+                                className="rounded bg-slate-900 text-red-600" 
+                              />
                               <span>Victim Notification</span>
                             </label>
                             <label className="flex items-center space-x-2 bg-slate-950 p-3 rounded border border-slate-800 cursor-pointer">
-                              <input type="checkbox" checked={currentCase.immediateResponse?.vulnerabilityReduction || false} onChange={() => toggleImmediateCheck('vulnerabilityReduction')} className="rounded bg-slate-900 text-red-600" />
+                              <input 
+                                type="checkbox" 
+                                checked={currentCase.immediateResponse?.vulnerabilityReduction || false} 
+                                onChange={() => toggleImmediateCheck('vulnerabilityReduction')} 
+                                className="rounded bg-slate-900 text-red-600" 
+                              />
                               <span>Vulnerability Reduction</span>
                             </label>
                             <label className="flex items-center space-x-2 bg-slate-950 p-3 rounded border border-slate-800 cursor-pointer">
-                              <input type="checkbox" checked={currentCase.immediateResponse?.conflictResolution || false} onChange={() => toggleImmediateCheck('conflictResolution')} className="rounded bg-slate-900 text-red-600" />
+                              <input 
+                                type="checkbox" 
+                                checked={currentCase.immediateResponse?.conflictResolution || false} 
+                                onChange={() => toggleImmediateCheck('conflictResolution')} 
+                                className="rounded bg-slate-900 text-red-600" 
+                              />
                               <span>Conflict Resolution</span>
                             </label>
                           </div>
@@ -1060,24 +1546,49 @@
                       {currentCase.cstagClassification && currentCase.cstagClassification !== 'Not-a-Threat' && (
                         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
                           <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                            <h3 className="text-sm font-bold text-slate-100">{currentCase.cstagClassification === 'Transient Threat' ? 'Student Support Plan' : 'Student Safety Plan'}</h3>
-                            <select value={currentCase.planStatus || 'Waiting on team to schedule'} onChange={(e) => updatePlanDetail('planStatus', e.target.value)} className={`text-xs font-bold px-3 py-1 rounded border ${getPlanStatusStyle(currentCase.planStatus)}`}>
-                              {PLAN_STATUS_OPTIONS.map(opt => (<option key={opt.label} value={opt.label} className="bg-slate-950">{opt.label}</option>))}
+                            <h3 className="text-sm font-bold text-slate-100">
+                              {currentCase.cstagClassification === 'Transient Threat' ? 'Student Support Plan' : 'Student Safety Plan'}
+                            </h3>
+                            <select 
+                              value={currentCase.planStatus || 'Waiting on team to schedule'} 
+                              onChange={(e) => updatePlanDetail('planStatus', e.target.value)} 
+                              className={`text-xs font-bold px-3 py-1 rounded border ${getPlanStatusStyle(currentCase.planStatus)}`}
+                            >
+                              {PLAN_STATUS_OPTIONS.map(opt => (
+                                <option key={opt.label} value={opt.label} className="bg-slate-950">
+                                  {opt.label}
+                                </option>
+                              ))}
                             </select>
                           </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                             <div>
                               <label className="text-slate-400 block mb-1">Start Date</label>
-                              <input type="date" value={currentCase.planStartDate || ''} onChange={(e) => updatePlanDetail('planStartDate', e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                              <input 
+                                type="date" 
+                                value={currentCase.planStartDate || ''} 
+                                onChange={(e) => updatePlanDetail('planStartDate', e.target.value)} 
+                                className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" 
+                              />
                             </div>
                             <div>
                               <label className="text-slate-400 block mb-1">End Date</label>
-                              <input type="date" value={currentCase.planEndDate || ''} onChange={(e) => updatePlanDetail('planEndDate', e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                              <input 
+                                type="date" 
+                                value={currentCase.planEndDate || ''} 
+                                onChange={(e) => updatePlanDetail('planEndDate', e.target.value)} 
+                                className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" 
+                              />
                             </div>
                             <div>
                               <label className="text-slate-400 block mb-1">Progress Check-In</label>
-                              <input type="date" value={currentCase.planCheckinDate || ''} onChange={(e) => updatePlanDetail('planCheckinDate', e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                              <input 
+                                type="date" 
+                                value={currentCase.planCheckinDate || ''} 
+                                onChange={(e) => updatePlanDetail('planCheckinDate', e.target.value)} 
+                                className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" 
+                              />
                             </div>
                           </div>
 
@@ -1086,11 +1597,22 @@
                             {currentCase.planDoc ? (
                               <div className="flex items-center justify-between p-2.5 bg-slate-950 border border-slate-800 rounded">
                                 <span className="text-slate-200 font-mono truncate">{currentCase.planDoc.name}</span>
-                                <button onClick={() => openDocViewer(currentCase.planDoc)} className="bg-blue-900/80 text-blue-200 text-[10px] px-2.5 py-1 rounded">View</button>
+                                <button 
+                                  onClick={() => openDocViewer(currentCase.planDoc)} 
+                                  className="bg-blue-900/80 text-blue-200 text-[10px] px-2.5 py-1 rounded"
+                                >
+                                  View
+                                </button>
                               </div>
                             ) : (
                               <label className="cursor-pointer bg-blue-900/60 hover:bg-blue-800 text-blue-200 border border-blue-700 px-3 py-2 rounded block text-center font-medium">
-                                + Upload Plan PDF <input type="file" accept="application/pdf" className="hidden" onChange={handlePlanDocUpload} />
+                                + Upload Plan PDF 
+                                <input 
+                                  type="file" 
+                                  accept="application/pdf" 
+                                  className="hidden" 
+                                  onChange={handlePlanDocUpload} 
+                                />
                               </label>
                             )}
                           </div>
@@ -1107,16 +1629,33 @@
               <div className="space-y-6">
                 <div className="bg-teal-950/40 border border-teal-800/80 rounded-xl p-4 flex justify-between items-center text-xs">
                   <h2 className="text-sm font-bold text-teal-200">👁️ Keeping an Eye On Log</h2>
-                  <button onClick={() => setShowAddWatchModal(true)} className="bg-teal-600 hover:bg-teal-500 text-white font-semibold px-4 py-2 rounded-lg text-xs">+ Add Student to Watch List</button>
+                  <button 
+                    onClick={() => setShowAddWatchModal(true)} 
+                    className="bg-teal-600 hover:bg-teal-500 text-white font-semibold px-4 py-2 rounded-lg text-xs"
+                  >
+                    + Add Student to Watch List
+                  </button>
                 </div>
 
                 {watchStudents.map((st, idx) => (
                   <div key={st.studentId || idx} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
                     <div className="flex justify-between items-center bg-slate-950 px-4 py-2.5 border-b border-slate-800 text-xs">
-                      <span className="text-slate-300">Student: <strong className="text-teal-300 text-sm">{st.studentName}</strong> (ID #{st.studentId})</span>
+                      <span className="text-slate-300">
+                        Student: <strong className="text-teal-300 text-sm">{st.studentName}</strong> (ID #{st.studentId})
+                      </span>
                       <div className="flex space-x-2">
-                        <button onClick={() => { setTargetWatchStudentId(st.studentId); setShowAddWatchIncidentModal(true); }} className="bg-teal-900 hover:bg-teal-800 text-teal-200 border border-teal-600 text-[11px] font-semibold px-3 py-1 rounded">+ Add Incident</button>
-                        <button onClick={() => handleDeleteWatchStudent(st.studentId)} className="bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 text-[11px] font-bold px-2.5 py-1 rounded">🗑️ Remove Student</button>
+                        <button 
+                          onClick={() => { setTargetWatchStudentId(st.studentId); setShowAddWatchIncidentModal(true); }} 
+                          className="bg-teal-900 hover:bg-teal-800 text-teal-200 border border-teal-600 text-[11px] font-semibold px-3 py-1 rounded"
+                        >
+                          + Add Incident
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteWatchStudent(st.studentId)} 
+                          className="bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 text-[11px] font-bold px-2.5 py-1 rounded"
+                        >
+                          🗑️ Remove Student
+                        </button>
                       </div>
                     </div>
 
@@ -1139,23 +1678,85 @@
                               <tr key={inc.id} className="hover:bg-slate-800/40">
                                 {isEditing ? (
                                   <>
-                                    <td className="p-2 bg-slate-950"><input type="text" value={editWatchIncData.tipsNum || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, tipsNum: e.target.value})} className="w-full bg-slate-900 p-1 text-xs" /></td>
-                                    <td className="p-2 bg-slate-950"><textarea rows="1" value={editWatchIncData.details || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, details: e.target.value})} className="w-full bg-slate-900 p-1 text-xs" /></td>
-                                    <td className="p-2 bg-slate-950"><input type="text" value={editWatchIncData.date || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, date: e.target.value})} className="w-full bg-slate-900 p-1 text-xs" /></td>
-                                    <td className="p-2 bg-slate-950"><input type="text" value={editWatchIncData.triage || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, triage: e.target.value})} className="w-full bg-slate-900 p-1 text-xs" /></td>
-                                    <td className="p-2 bg-slate-950"><input type="text" value={editWatchIncData.resolution || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, resolution: e.target.value})} className="w-full bg-slate-900 p-1 text-xs" /></td>
-                                    <td className="p-2 bg-slate-950 text-center"><button onClick={() => handleSaveInlineWatchInc(st.studentId, inc.id)} className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded font-bold">Save</button></td>
+                                    <td className="p-2 bg-slate-950">
+                                      <input 
+                                        type="text" 
+                                        value={editWatchIncData.tipsNum || ''} 
+                                        onChange={(e) => setEditWatchIncData({...editWatchIncData, tipsNum: e.target.value})} 
+                                        className="w-full bg-slate-900 p-1 text-xs" 
+                                      />
+                                    </td>
+                                    <td className="p-2 bg-slate-950">
+                                      <textarea 
+                                        rows="1" 
+                                        value={editWatchIncData.details || ''} 
+                                        onChange={(e) => setEditWatchIncData({...editWatchIncData, details: e.target.value})} 
+                                        className="w-full bg-slate-900 p-1 text-xs" 
+                                      />
+                                    </td>
+                                    <td className="p-2 bg-slate-950">
+                                      <input 
+                                        type="text" 
+                                        value={editWatchIncData.date || ''} 
+                                        onChange={(e) => setEditWatchIncData({...editWatchIncData, date: e.target.value})} 
+                                        className="w-full bg-slate-900 p-1 text-xs" 
+                                      />
+                                    </td>
+                                    <td className="p-2 bg-slate-950">
+                                      <input 
+                                        type="text" 
+                                        value={editWatchIncData.triage || ''} 
+                                        onChange={(e) => setEditWatchIncData({...editWatchIncData, triage: e.target.value})} 
+                                        className="w-full bg-slate-900 p-1 text-xs" 
+                                      />
+                                    </td>
+                                    <td className="p-2 bg-slate-950">
+                                      <input 
+                                        type="text" 
+                                        value={editWatchIncData.resolution || ''} 
+                                        onChange={(e) => setEditWatchIncData({...editWatchIncData, resolution: e.target.value})} 
+                                        className="w-full bg-slate-900 p-1 text-xs" 
+                                      />
+                                    </td>
+                                    <td className="p-2 bg-slate-950 text-center">
+                                      <button 
+                                        onClick={() => handleSaveInlineWatchInc(st.studentId, inc.id)} 
+                                        className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded font-bold"
+                                      >
+                                        Save
+                                      </button>
+                                    </td>
                                   </>
                                 ) : (
                                   <>
-                                    <td className="p-3 font-mono font-bold text-blue-400">TIPS #{inc.tipsNum}</td>
-                                    <td className="p-3 text-slate-200">{inc.details}</td>
-                                    <td className="p-3 font-mono text-slate-300">{inc.date}</td>
-                                    <td className="p-3">{inc.triage}</td>
-                                    <td className="p-3 text-slate-300">{inc.resolution}</td>
+                                    <td className="p-3 font-mono font-bold text-blue-400">
+                                      TIPS #{inc.tipsNum}
+                                    </td>
+                                    <td className="p-3 text-slate-200">
+                                      {inc.details}
+                                    </td>
+                                    <td className="p-3 font-mono text-slate-300">
+                                      {inc.date}
+                                    </td>
+                                    <td className="p-3">
+                                      {inc.triage}
+                                    </td>
+                                    <td className="p-3 text-slate-300">
+                                      {inc.resolution}
+                                    </td>
                                     <td className="p-3 text-center space-x-1">
-                                      <button onClick={() => handleStartEditWatchInc(st.studentId, inc)} className="bg-slate-800 text-blue-300 text-[10px] px-2 py-0.5 rounded">✏️ Edit</button>
-                                      <button onClick={() => handleDeleteWatchIncident(st.studentId, inc.id)} className="bg-red-950 text-red-300 border border-red-800 text-[10px] px-2 py-0.5 rounded">🗑️ Delete</button>
+                                      <button 
+                                        onClick={() => handleStartEditWatchInc(st.studentId, inc)} 
+                                        className="bg-slate-800 text-blue-300 text-[10px] px-2 py-0.5 rounded"
+                                      >
+                                        ✏️ Edit
+                                      </button>
+                                      <button 
+                                        onClick={() => handleDeleteWatchIncident(st.studentId, inc.id)} 
+                                        className="bg-red-950 text-red-300 border border-red-800 text-[10px] px-2 py-0.5 rounded"
+                                      >
+                                        🗑️ Delete
+                                      </button>
                                     </td>
                                   </>
                                 )}
@@ -1173,7 +1774,9 @@
             {/* DISTRICT OVERSIGHT DASHBOARD */}
             {mainTab === 'dashboard' && (
               <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
-                <h2 className="text-base font-bold text-slate-100 border-b border-slate-800 pb-2">District-Wide Open Cases Matrix</h2>
+                <h2 className="text-base font-bold text-slate-100 border-b border-slate-800 pb-2">
+                  District-Wide Open Cases Matrix
+                </h2>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs text-slate-300">
                     <thead className="bg-slate-950 text-slate-400 uppercase text-[10px]">
@@ -1190,14 +1793,21 @@
                     <tbody className="divide-y divide-slate-800/60">
                       {openCasesOnly.map(c => (
                         <tr key={c.id} className="hover:bg-slate-800/40">
-                          <td className="p-3 font-semibold text-slate-100">{c.studentName} <span className="text-slate-500 font-mono text-[10px]">#{c.studentId}</span></td>
+                          <td className="p-3 font-semibold text-slate-100">
+                            {c.studentName} <span className="text-slate-500 font-mono text-[10px]">#{c.studentId}</span>
+                          </td>
                           <td className="p-3">{c.schoolLocation}</td>
                           <td className="p-3 text-rose-300">{c.victimName || 'None'}</td>
                           <td className="p-3 font-mono">{c.tipsReportNum}</td>
                           <td className="p-3">{c.triagePriority}</td>
                           <td className="p-3 font-bold">{c.cstagClassification || 'Pending'}</td>
                           <td className="p-3 text-center">
-                            <button onClick={() => handleDeleteCaseOverall(c.id)} className="bg-red-950 hover:bg-red-900 text-red-300 text-[10px] font-bold px-2 py-1 rounded">🗑️ Delete</button>
+                            <button 
+                              onClick={() => handleDeleteCaseOverall(c.id)} 
+                              className="bg-red-950 hover:bg-red-900 text-red-300 text-[10px] font-bold px-2 py-1 rounded"
+                            >
+                              🗑️ Delete
+                            </button>
                           </td>
                         </tr>
                       ))}
@@ -1215,12 +1825,26 @@
                 <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-950">
                   <span className="font-bold text-xs text-slate-100">{viewingDoc.name}</span>
                   <div className="flex items-center space-x-2">
-                    <button onClick={() => setIsFullscreen(!isFullscreen)} className="bg-slate-800 text-slate-200 text-xs px-2.5 py-1 rounded">Fullscreen ⛶</button>
-                    <button onClick={() => setViewingDoc(null)} className="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+                    <button 
+                      onClick={() => setIsFullscreen(!isFullscreen)} 
+                      className="bg-slate-800 text-slate-200 text-xs px-2.5 py-1 rounded"
+                    >
+                      Fullscreen ⛶
+                    </button>
+                    <button 
+                      onClick={() => setViewingDoc(null)} 
+                      className="text-slate-400 hover:text-white font-bold text-lg px-2"
+                    >
+                      ✕
+                    </button>
                   </div>
                 </div>
                 <div className="flex-1 bg-slate-950 p-4">
-                  <iframe src={viewingDoc.url} className="w-full h-full rounded border border-slate-800" title={viewingDoc.name} />
+                  <iframe 
+                    src={viewingDoc.url} 
+                    className="w-full h-full rounded border border-slate-800" 
+                    title={viewingDoc.name} 
+                  />
                 </div>
               </div>
             </div>
@@ -1237,13 +1861,21 @@
 
                 <form onSubmit={handleSavePostIntakeTriage} className="space-y-4 text-xs">
                   <div className="bg-slate-950 p-3 rounded border border-slate-800">
-                    <p className="text-slate-300 font-bold">{triageCaseTarget.studentName} <span className="font-mono text-slate-400">(ID #{triageCaseTarget.studentId})</span></p>
-                    <p className="text-slate-400 text-[11px] mt-1">TIPS Report #{triageCaseTarget.tipsReportNum}</p>
+                    <p className="text-slate-300 font-bold">
+                      {triageCaseTarget.studentName} <span className="font-mono text-slate-400">(ID #{triageCaseTarget.studentId})</span>
+                    </p>
+                    <p className="text-slate-400 text-[11px] mt-1">
+                      TIPS Report #{triageCaseTarget.tipsReportNum}
+                    </p>
                   </div>
 
                   <div>
                     <label className="text-slate-400 block mb-1.5 font-semibold">Select Triage Priority Level</label>
-                    <select value={selectedTriageScore} onChange={(e) => setSelectedTriageScore(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded text-slate-100 font-bold text-sm focus:border-purple-500">
+                    <select 
+                      value={selectedTriageScore} 
+                      onChange={(e) => setSelectedTriageScore(e.target.value)} 
+                      className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded text-slate-100 font-bold text-sm focus:border-purple-500"
+                    >
                       <option value="High">High Risk (Active Medium/High Tab)</option>
                       <option value="Medium">Medium Risk (Active Medium/High Tab)</option>
                       <option value="Low">Low Risk (Low-Risk Cases Tab)</option>
@@ -1310,6 +1942,11 @@
                     <select value={moveTargetStage} onChange={(e) => setMoveTargetStage(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 font-bold">
                       {PATHWAY_STAGES.map(s => (<option key={s.key} value={s.key}>{s.label}</option>))}
                     </select>
+                  </div>
+
+                  <div>
+                    <label className="text-slate-400 block mb-1">Reason / Note for Stage Move (Optional)</label>
+                    <textarea rows="2" placeholder="e.g., Escalated due to explicit weapon acquisition..." value={moveReasonNote} onChange={(e) => setMoveReasonNote(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                   </div>
 
                   <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
