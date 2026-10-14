@@ -1785,6 +1785,7 @@
                         <th className="p-3">Campus</th>
                         <th className="p-3">Victim Info</th>
                         <th className="p-3">TIPS #</th>
+                        <th className="p-3">Case Status</th>
                         <th className="p-3">Triage Priority</th>
                         <th className="p-3">Classification</th>
                         <th className="p-3 text-center">Action</th>
@@ -1799,6 +1800,11 @@
                           <td className="p-3">{c.schoolLocation}</td>
                           <td className="p-3 text-rose-300">{c.victimName || 'None'}</td>
                           <td className="p-3 font-mono">{c.tipsReportNum}</td>
+                          <td className="p-3">
+                            <span className="font-bold text-blue-400 bg-blue-950/80 border border-blue-800/80 px-2 py-0.5 rounded text-[10px]">
+                              {c.caseStatus || 'Active'}
+                            </span>
+                          </td>
                           <td className="p-3">{c.triagePriority}</td>
                           <td className="p-3 font-bold">{c.cstagClassification || 'Pending'}</td>
                           <td className="p-3 text-center">
