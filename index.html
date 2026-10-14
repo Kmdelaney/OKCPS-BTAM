@@ -41,9 +41,7 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
-    // =========================================================
-    // 🔑 SYSTEM GENERAL ACCESS PASSCODE
-    // =========================================================
+    // SYSTEM GENERAL ACCESS PASSCODE
     const SYSTEM_PASSCODE = "BTAMOKCPS!!";
 
     const PATHWAY_STAGES = [
@@ -68,7 +66,7 @@
       return URL.createObjectURL(blob);
     };
 
-    // INITIAL MOCK SEED DATA
+    // INITIAL SEED DATA
     const INITIAL_CASES = [
       {
         id: '26-03093',
@@ -188,19 +186,8 @@
             date: '9/2/2026',
             triage: 'Low-Risk',
             resolution: 'Student was suspended for three days for the comment. Conference with the parents and schedule change for RP protection was done.',
-            notes: 'During suspension, he had told his friends (Oscar Rodriguez #1007910 & Fabian Cervantes #1000078) that he wanted to fight Josiah (Son of RP) for snitching on him. The student was spoken to about retaliation against the RP.',
+            notes: 'During suspension, he had told his friends that he wanted to fight Josiah for snitching on him.',
             tipsDoc: { name: 'TIPS_26-03007.pdf', url: createMockPdfBlobUrl('TIPS 26-03007', 'Ethan Capulin threat') },
-            recordsDocs: [{ id: 'rd-1', name: 'Suspension_Notice_0902.pdf', url: createMockPdfBlobUrl('Suspension Notice', '3-day OSS discipline') }]
-          },
-          {
-            id: 'inc-2',
-            tipsNum: '26-03047',
-            details: 'VICTIM OF THREAT - CAT-IN-THE-HAT: He was mentioned in the instagram story from the cat-in-the-hat situation at TAFT. He was not at school the day of that incident.',
-            date: '9/3/2026',
-            triage: 'Not completed',
-            resolution: 'Efforts to protect the school were taken place with multiple teams involved.',
-            notes: 'Questioned Josiah to determine if he had made the account to scare Ethan.',
-            tipsDoc: { name: 'TIPS_26-03047.pdf', url: createMockPdfBlobUrl('TIPS 26-03047', 'Instagram cat-in-the-hat mention') },
             recordsDocs: []
           }
         ]
@@ -209,26 +196,20 @@
 
     function App() {
       // SECURITY STATE
-      const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        return sessionStorage.getItem('okcps_auth_token') === 'true';
-      });
+      const [isAuthenticated, setIsAuthenticated] = useState(() => sessionStorage.getItem('okcps_auth_token') === 'true');
       const [inputPasscode, setInputPasscode] = useState('');
       const [passcodeError, setPasscodeError] = useState(false);
 
-      // DATA STATES WITH LOCALSTORAGE SAVING
+      // DATA STATES
       const [cases, setCases] = useState(() => {
-        const savedCases = localStorage.getItem('okcps_threat_cases');
-        if (savedCases) {
-          try { return JSON.parse(savedCases); } catch(e) { console.error("Error loading saved cases:", e); }
-        }
+        const saved = localStorage.getItem('okcps_threat_cases');
+        if (saved) { try { return JSON.parse(saved); } catch(e){} }
         return INITIAL_CASES;
       });
 
       const [watchStudents, setWatchStudents] = useState(() => {
-        const savedWatch = localStorage.getItem('okcps_watch_list');
-        if (savedWatch) {
-          try { return JSON.parse(savedWatch); } catch(e) { console.error("Error loading watch list:", e); }
-        }
+        const saved = localStorage.getItem('okcps_watch_list');
+        if (saved) { try { return JSON.parse(saved); } catch(e){} }
         return INITIAL_WATCH_STUDENTS;
       });
 
@@ -242,13 +223,18 @@
       const [viewingDoc, setViewingDoc] = useState(null);
       const [isFullscreen, setIsFullscreen] = useState(false);
 
-      // MODAL STATES
+      // MODALS
       const [showNewIntakeModal, setShowNewIntakeModal] = useState(false);
       const [showCloseCaseModal, setShowCloseCaseModal] = useState(false);
       const [showAddPathwayModal, setShowAddPathwayModal] = useState(false);
       const [showAddWatchModal, setShowAddWatchModal] = useState(false);
+      const [showTriageModal, setShowTriageModal] = useState(false);
 
-      // WATCH INCIDENT MODAL & EDITING STATES
+      // POST INTAKE TRIAGE STATE
+      const [triageCaseTarget, setTriageCaseTarget] = useState(null);
+      const [selectedTriageScore, setSelectedTriageScore] = useState('High');
+
+      // WATCH INCIDENT MODAL & EDITING
       const [showAddWatchIncidentModal, setShowAddWatchIncidentModal] = useState(false);
       const [targetWatchStudentId, setTargetWatchStudentId] = useState(null);
       const [watchIncTipsNum, setWatchIncTipsNum] = useState('');
@@ -258,11 +244,18 @@
       const [watchIncResolution, setWatchIncResolution] = useState('');
       const [watchIncNotes, setWatchIncNotes] = useState('');
 
-      const [editingWatchIncKey, setEditingWatchIncKey] = useState(null); // 'studentId_incId'
+      const [editingWatchIncKey, setEditingWatchIncKey] = useState(null);
       const [editWatchIncData, setEditWatchIncData] = useState({});
 
+      // PATHWAY STATE
+      const [newEventStage, setNewEventStage] = useState('Grievance');
+      const [newEventDesc, setNewEventDesc] = useState('');
+      const [newEventDate, setNewEventDate] = useState(new Date().toISOString().split('T')[0]);
       const [editingPathwayEvent, setEditingPathwayEvent] = useState(null);
+      const [moveTargetStage, setMoveTargetStage] = useState('Grievance');
+      const [moveReasonNote, setMoveReasonNote] = useState('');
 
+      // WATCH FORM STATE
       const [watchName, setWatchName] = useState('');
       const [watchId, setWatchId] = useState('');
       const [watchSchool, setWatchSchool] = useState('');
@@ -272,13 +265,6 @@
       const [watchTriage, setWatchTriage] = useState('Low-Risk');
       const [watchResolution, setWatchResolution] = useState('');
       const [watchNotes, setWatchNotes] = useState('');
-
-      const [newEventStage, setNewEventStage] = useState('Grievance');
-      const [newEventDesc, setNewEventDesc] = useState('');
-      const [newEventDate, setNewEventDate] = useState(new Date().toISOString().split('T')[0]);
-
-      const [moveTargetStage, setMoveTargetStage] = useState('Grievance');
-      const [moveReasonNote, setMoveReasonNote] = useState('');
 
       const [closeCaseDate, setCloseCaseDate] = useState(new Date().toISOString().split('T')[0]);
       const [closeCaseNotes, setCloseCaseNotes] = useState('');
@@ -303,16 +289,11 @@
       const [intakeSuspended, setIntakeSuspended] = useState(false);
       const [intakeReEntryDate, setIntakeReEntryDate] = useState('');
 
-      // AUTO-SAVE TO LOCALSTORAGE
-      useEffect(() => {
-        localStorage.setItem('okcps_threat_cases', JSON.stringify(cases));
-      }, [cases]);
+      // LOCALSTORAGE SAVING
+      useEffect(() => { localStorage.setItem('okcps_threat_cases', JSON.stringify(cases)); }, [cases]);
+      useEffect(() => { localStorage.setItem('okcps_watch_list', JSON.stringify(watchStudents)); }, [watchStudents]);
 
-      useEffect(() => {
-        localStorage.setItem('okcps_watch_list', JSON.stringify(watchStudents));
-      }, [watchStudents]);
-
-      // AUTHENTICATION HANDLERS
+      // AUTHENTICATION
       const handleAuthenticate = (e) => {
         e.preventDefault();
         if (inputPasscode === SYSTEM_PASSCODE) {
@@ -329,13 +310,9 @@
         sessionStorage.removeItem('okcps_auth_token');
       };
 
-      // EXPORT & IMPORT DATA SYSTEM
+      // EXPORT & IMPORT
       const handleExportData = () => {
-        const backupData = {
-          cases,
-          watchStudents,
-          exportDate: new Date().toISOString()
-        };
+        const backupData = { cases, watchStudents, exportDate: new Date().toISOString() };
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
         const downloadAnchor = document.createElement('a');
         downloadAnchor.setAttribute("href", dataStr);
@@ -348,7 +325,6 @@
       const handleImportData = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         const reader = new FileReader();
         reader.onload = (event) => {
           try {
@@ -357,22 +333,16 @@
               setCases(imported.cases);
               if (imported.watchStudents) setWatchStudents(imported.watchStudents);
               alert("System Data Restored Successfully!");
-            } else {
-              alert("Invalid backup file format.");
             }
-          } catch (err) {
-            alert("Error reading file: " + err.message);
-          }
+          } catch (err) { alert("Error reading file: " + err.message); }
         };
         reader.readAsText(file);
       };
 
-      // GLOBAL DELETE CASE FUNCTION (ANY TAB)
+      // GLOBAL DELETES
       const handleDeleteCaseOverall = (caseIdToDelete) => {
         const targetCase = cases.find(c => c.id === caseIdToDelete);
-        const targetName = targetCase ? targetCase.studentName : caseIdToDelete;
-        
-        if (window.confirm(`⚠️ Are you sure you want to PERMANENTLY delete the entire case for ${targetName}? This cannot be undone.`)) {
+        if (window.confirm(`⚠️ Are you sure you want to PERMANENTLY delete the entire case for ${targetCase?.studentName || caseIdToDelete}?`)) {
           const updatedCases = cases.filter(c => c.id !== caseIdToDelete);
           setCases(updatedCases);
           if (selectedCaseId === caseIdToDelete) {
@@ -381,29 +351,54 @@
         }
       };
 
-      // DELETE WATCH RECORD & INCIDENT
       const handleDeleteWatchStudent = (studentId) => {
-        const target = watchStudents.find(st => st.studentId === studentId);
-        if (window.confirm(`Are you sure you want to remove ${target?.studentName || 'this student'} from the Watch List?`)) {
+        if (window.confirm(`Remove student from Watch List?`)) {
           setWatchStudents(watchStudents.filter(st => st.studentId !== studentId));
         }
       };
 
       const handleDeleteWatchIncident = (studentId, incId) => {
-        if (window.confirm("Are you sure you want to delete this incident from the log?")) {
-          setWatchStudents(watchStudents.map(st => {
-            if (st.studentId === studentId) {
-              return {
-                ...st,
-                incidents: st.incidents.filter(inc => inc.id !== incId)
-              };
-            }
-            return st;
-          }));
+        if (window.confirm("Delete incident log entry?")) {
+          setWatchStudents(watchStudents.map(st => st.studentId === studentId ? { ...st, incidents: st.incidents.filter(inc => inc.id !== incId) } : st));
         }
       };
 
-      // Filtered Categories
+      // POST-INTAKE TRIAGE HANDLER
+      const handleOpenTriageModal = (c) => {
+        setTriageCaseTarget(c);
+        setSelectedTriageScore('High');
+        setShowTriageModal(true);
+      };
+
+      const handleSavePostIntakeTriage = (e) => {
+        e.preventDefault();
+        if (!triageCaseTarget) return;
+
+        const isLow = selectedTriageScore === 'Low';
+        const newClassification = isLow ? 'Not-a-Threat' : 'Serious Substantive Threat';
+
+        setCases(cases.map(c => {
+          if (c.id === triageCaseTarget.id) {
+            return {
+              ...c,
+              triagePriority: selectedTriageScore,
+              triageCompleted: true,
+              cstagClassification: newClassification,
+              pathwayEvents: (!isLow && (!c.pathwayEvents || c.pathwayEvents.length === 0))
+                ? [{ id: Date.now(), stage: 'Grievance', description: `Post-intake triage completed: Assigned ${selectedTriageScore} priority`, date: new Date().toISOString().split('T')[0], moveNote: '' }]
+                : (c.pathwayEvents || [])
+            };
+          }
+          return c;
+        }));
+
+        setShowTriageModal(false);
+        setTriageCaseTarget(null);
+        if (isLow) setMainTab('low');
+        else setMainTab('active');
+      };
+
+      // FILTERED CATEGORIES
       const activeMediumHighCases = cases.filter(c => c.triageCompleted && (c.triagePriority === 'Medium' || c.triagePriority === 'High') && c.caseStatus !== 'Closed');
       const casesOnPlan = cases.filter(c => c.caseStatus !== 'Closed' && ((c.cstagClassification && c.cstagClassification !== 'Not-a-Threat' && c.cstagClassification !== 'Pending Assessment') || (c.planStartDate && c.planStartDate.trim() !== '') || c.planDoc !== null));
       const lowRiskCases = cases.filter(c => c.triageCompleted && c.triagePriority === 'Low' && c.caseStatus !== 'Closed');
@@ -415,10 +410,7 @@
 
       const isStudentOnWatchList = (name, id) => {
         if (!name && !id) return false;
-        return watchStudents.some(w => 
-          (id && w.studentId === id) || 
-          (name && w.studentName.toLowerCase() === name.toLowerCase())
-        );
+        return watchStudents.some(w => (id && w.studentId === id) || (name && w.studentName.toLowerCase() === name.toLowerCase()));
       };
 
       useEffect(() => {
@@ -428,17 +420,12 @@
       const handleSaveStatusNotes = () => {
         if (!currentCase) return;
         const today = new Date().toISOString().split('T')[0];
-        setCases(cases.map(c => c.id === currentCase.id ? {
-          ...c,
-          caseTeamStatusNotes: tempStatusNotes,
-          caseTeamStatusLastUpdated: today
-        } : c));
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, caseTeamStatusNotes: tempStatusNotes, caseTeamStatusLastUpdated: today } : c));
       };
 
       const handleEditWatchLastUpdated = (studentId) => {
         const currentStudent = watchStudents.find(st => st.studentId === studentId);
         if (!currentStudent) return;
-
         const newDate = prompt("Enter new Last Updated date:", currentStudent.lastUpdatedDate);
         if (newDate && newDate.trim() !== '') {
           setWatchStudents(watchStudents.map(st => st.studentId === studentId ? { ...st, lastUpdatedDate: newDate.trim() } : st));
@@ -447,16 +434,11 @@
 
       const handleDeleteDocument = (category, docId) => {
         if (!currentCase) return;
-        if (!window.confirm("Are you sure you want to delete this document from the 360-degree vault?")) return;
-
+        if (!window.confirm("Delete document from vault?")) return;
         setCases(cases.map(c => {
           if (c.id === currentCase.id) {
             const currentCatDocs = c.documents?.[category] || [];
-            const updatedDocs = currentCatDocs.filter(d => d.id !== docId && d.name !== docId);
-            return {
-              ...c,
-              documents: { ...c.documents, [category]: updatedDocs }
-            };
+            return { ...c, documents: { ...c.documents, [category]: currentCatDocs.filter(d => d.id !== docId && d.name !== docId) } };
           }
           return c;
         }));
@@ -464,17 +446,12 @@
 
       const lookupResults = searchQuery.trim() === '' ? [] : cases.filter(c => {
         const q = searchQuery.toLowerCase();
-        return (
-          c.studentName.toLowerCase().includes(q) ||
-          c.studentId.toLowerCase().includes(q) ||
-          (c.involvedStudents && c.involvedStudents.toLowerCase().includes(q))
-        );
+        return c.studentName.toLowerCase().includes(q) || c.studentId.toLowerCase().includes(q) || (c.involvedStudents && c.involvedStudents.toLowerCase().includes(q));
       });
 
       const handleTipsFileUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-
         const fileUrl = URL.createObjectURL(file);
         setUploadedTipsFile({ file, url: fileUrl, name: file.name });
         setIsParsingPdf(true);
@@ -483,67 +460,23 @@
           const arrayBuffer = await file.arrayBuffer();
           const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
           let fullText = '';
-
           for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
             const page = await pdfDoc.getPage(pageNum);
             const textContent = await page.getTextContent();
-            const pageText = textContent.items.map(item => item.str).join(' ');
-            fullText += pageText + ' ';
+            fullText += textContent.items.map(item => item.str).join(' ') + ' ';
           }
 
-          let extractedName = '';
-          let extractedId = '';
-          let extractedGrade = '';
-          let extractedSchool = '';
-          let extractedTips = '';
-          let extractedBrief = '';
-          let extractedInvolved = '';
-          let extractedDate = '';
-          let extractedVictim = '';
+          const nameMatch = fullText.match(/(?:Student Name|Subject|Student|Name):\s*([A-Za-z\s-]+?)(?=\s+(?:ID|Grade|School|TIPS|Date|$))/i);
+          const idMatch = fullText.match(/(?:Student ID|ID #|ID):\s*(\d{5,8})/i);
+          const schoolMatch = fullText.match(/(?:School|Campus|Location):\s*([A-Za-z0-9\s.-]+?)(?=\s+(?:TIPS|Report|ID|$))/i);
+          const tipsMatch = fullText.match(/(?:TIPS Report #|TIPS #):\s*(26-\d{4,5}|\d{5,7})/i);
 
-          const nameMatch = fullText.match(/(?:Student Name|Subject|Student|Name):\s*([A-Za-z\s-]+?)(?=\s+(?:ID|Grade|School|TIPS|Date|DOB|$))/i);
-          const idMatch = fullText.match(/(?:Student ID|ID #|ID|STU ID):\s*(\d{5,8})/i);
-          const gradeMatch = fullText.match(/(?:Grade|Grade Level):\s*([0-9]{1,2}(?:th|rd|st|nd)?\s*Grade|[0-9]{1,2})/i);
-          const schoolMatch = fullText.match(/(?:School|Campus|Location):\s*([A-Za-z0-9\s.-]+?)(?=\s+(?:TIPS|Report|ID|Date|$))/i);
-          const tipsMatch = fullText.match(/(?:TIPS Report #|TIPS #|Incident #|Report #):\s*(26-\d{4,5}|\d{5,7})/i);
-          const briefMatch = fullText.match(/(?:Brief|Threat Description|Incident Details|Details):\s*([\s\S]{10,250}?)(?=\s+(?:Action|Reported|Witness|$))/i);
-          const involvedMatch = fullText.match(/(?:Involved Students|Other Students|Associated Students|Witnesses):\s*([A-Za-z0-9\s.,()-]+?)(?=\s+(?:Brief|Details|Action|$))/i);
-          const dateMatch = fullText.match(/(?:Incident Date|Date of Incident|Date):\s*(\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{2,4})/i);
-          const victimMatch = fullText.match(/(?:Victim|Target|Victim Name):\s*([A-Za-z\s-]+?)(?=\s+(?:Role|Student|ID|Date|$))/i);
-
-          if (nameMatch) extractedName = nameMatch[1].trim();
-          if (idMatch) extractedId = idMatch[1].trim();
-          if (gradeMatch) extractedGrade = gradeMatch[1].trim();
-          if (schoolMatch) extractedSchool = schoolMatch[1].trim();
-          if (tipsMatch) extractedTips = tipsMatch[1].trim();
-          if (briefMatch) extractedBrief = briefMatch[1].trim();
-          if (involvedMatch) extractedInvolved = involvedMatch[1].trim();
-          if (dateMatch) extractedDate = dateMatch[1].trim();
-          if (victimMatch) extractedVictim = victimMatch[1].trim();
-
-          if (!extractedName || !extractedSchool) {
-            const cleanName = file.name.replace('.pdf', '').replace(/_/g, ' ').replace(/-/g, ' ');
-            extractedName = extractedName || cleanName;
-            extractedId = extractedId || Math.floor(100000 + Math.random() * 900000).toString();
-            extractedGrade = extractedGrade || '9th Grade';
-            extractedSchool = extractedSchool || 'OKCPS Campus';
-            extractedTips = extractedTips || `26-${Math.floor(1000 + Math.random() * 9000)}`;
-            extractedBrief = extractedBrief || 'TIPS Incident report uploaded. Ready for review.';
-            extractedInvolved = extractedInvolved || 'None listed';
-            extractedDate = extractedDate || new Date().toISOString().split('T')[0];
-          }
-
-          setIntakeStudentName(extractedName);
-          setIntakeStudentId(extractedId);
-          if (extractedGrade) setIntakeStudentGrade(extractedGrade.includes('Grade') ? extractedGrade : `${extractedGrade}th Grade`);
-          setIntakeSchool(extractedSchool);
-          setIntakeTipsNum(extractedTips);
-          setIntakeBrief(extractedBrief);
-          setIntakeInvolvedStudents(extractedInvolved);
-          if (extractedVictim) setIntakeVictimName(extractedVictim);
-          if (extractedDate) setIntakeIncidentDate(extractedDate);
+          if (nameMatch) setIntakeStudentName(nameMatch[1].trim());
+          if (idMatch) setIntakeStudentId(idMatch[1].trim());
+          if (schoolMatch) setIntakeSchool(schoolMatch[1].trim());
+          if (tipsMatch) setIntakeTipsNum(tipsMatch[1].trim());
         } catch (err) {
-          console.warn('PDF Parsing fallback engaged:', err);
+          console.warn('PDF parser fallback active');
         } finally {
           setIsParsingPdf(false);
         }
@@ -554,7 +487,6 @@
         if (!file) return;
         const fileUrl = URL.createObjectURL(file);
         setUploadedTriageFile({ file, url: fileUrl, name: file.name });
-
         const fname = file.name.toUpperCase();
         if (fname.includes('HIGH')) setDetectedTriageScore('High');
         else if (fname.includes('MED')) setDetectedTriageScore('Medium');
@@ -566,28 +498,16 @@
         const file = e.target.files[0];
         if (!file || !currentCase) return;
         const fileUrl = URL.createObjectURL(file);
-        const isImage = file.type.startsWith('image/');
         const newDoc = {
           id: `doc-${Date.now()}`,
           name: file.name,
           uploadDate: new Date().toISOString().split('T')[0],
           size: `${(file.size / 1024).toFixed(0)} KB`,
           url: fileUrl,
-          isImage: isImage
+          isImage: file.type.startsWith('image/')
         };
 
-        setCases(cases.map(c => {
-          if (c.id === currentCase.id) {
-            return {
-              ...c,
-              documents: {
-                ...c.documents,
-                [category]: [...(c.documents[category] || []), newDoc]
-              }
-            };
-          }
-          return c;
-        }));
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, documents: { ...c.documents, [category]: [...(c.documents[category] || []), newDoc] } } : c));
       };
 
       const handleAddWatchStudent = (e) => {
@@ -597,41 +517,25 @@
           studentId: watchId.trim(),
           schoolLocation: watchSchool.trim(),
           lastUpdatedDate: new Date().toLocaleDateString('en-US'),
-          incidents: [
-            {
-              id: `inc-${Date.now()}`,
-              tipsNum: watchTipsNum.trim() || 'Pending',
-              details: watchDetails.trim() || 'No initial details logged.',
-              date: watchDate,
-              triage: watchTriage,
-              resolution: watchResolution.trim() || 'Pending action',
-              notes: watchNotes.trim() || 'No initial notes.',
-              tipsDoc: null,
-              recordsDocs: []
-            }
-          ]
+          incidents: [{
+            id: `inc-${Date.now()}`,
+            tipsNum: watchTipsNum.trim() || 'Pending',
+            details: watchDetails.trim() || 'No initial details logged.',
+            date: watchDate,
+            triage: watchTriage,
+            resolution: watchResolution.trim() || 'Pending action',
+            notes: watchNotes.trim() || 'No notes.',
+            tipsDoc: null,
+            recordsDocs: []
+          }]
         };
-
         setWatchStudents([newStudent, ...watchStudents]);
         setShowAddWatchModal(false);
-        setWatchName(''); setWatchId(''); setWatchSchool(''); setWatchTipsNum(''); setWatchDetails(''); setWatchResolution(''); setWatchNotes('');
-      };
-
-      // WATCH INCIDENT MODAL HANDLERS
-      const handleOpenAddWatchIncidentModal = (studentId) => {
-        setTargetWatchStudentId(studentId);
-        setWatchIncTipsNum('');
-        setWatchIncDetails('');
-        setWatchIncDate(new Date().toISOString().split('T')[0]);
-        setWatchIncTriage('Low-Risk');
-        setWatchIncResolution('');
-        setWatchIncNotes('');
-        setShowAddWatchIncidentModal(true);
+        setWatchName(''); setWatchId(''); setWatchSchool(''); setWatchTipsNum(''); setWatchDetails('');
       };
 
       const handleSaveWatchIncident = (shouldAddAnother = false) => {
         if (!targetWatchStudentId) return;
-
         const newIncident = {
           id: `inc-${Date.now()}`,
           tipsNum: watchIncTipsNum.trim() || 'Pending',
@@ -644,49 +548,24 @@
           recordsDocs: []
         };
 
-        setWatchStudents(watchStudents.map(st => {
-          if (st.studentId === targetWatchStudentId) {
-            return {
-              ...st,
-              lastUpdatedDate: new Date().toLocaleDateString('en-US'),
-              incidents: [...st.incidents, newIncident]
-            };
-          }
-          return st;
-        }));
+        setWatchStudents(watchStudents.map(st => st.studentId === targetWatchStudentId ? { ...st, lastUpdatedDate: new Date().toLocaleDateString('en-US'), incidents: [...st.incidents, newIncident] } : st));
 
         if (shouldAddAnother) {
-          // Clear inputs for next entry, stay on modal
-          setWatchIncTipsNum('');
-          setWatchIncDetails('');
-          setWatchIncDate(new Date().toISOString().split('T')[0]);
-          setWatchIncResolution('');
-          setWatchIncNotes('');
+          setWatchIncTipsNum(''); setWatchIncDetails(''); setWatchIncResolution(''); setWatchIncNotes('');
         } else {
           setShowAddWatchIncidentModal(false);
           setTargetWatchStudentId(null);
         }
       };
 
-      // WATCH INCIDENT TAB INLINE EDIT HANDLERS
       const handleStartEditWatchInc = (studentId, inc) => {
         setEditingWatchIncKey(`${studentId}_${inc.id}`);
         setEditWatchIncData({ ...inc });
       };
 
       const handleSaveInlineWatchInc = (studentId, incId) => {
-        setWatchStudents(watchStudents.map(st => {
-          if (st.studentId === studentId) {
-            return {
-              ...st,
-              lastUpdatedDate: new Date().toLocaleDateString('en-US'),
-              incidents: st.incidents.map(inc => inc.id === incId ? { ...inc, ...editWatchIncData } : inc)
-            };
-          }
-          return st;
-        }));
+        setWatchStudents(watchStudents.map(st => st.studentId === studentId ? { ...st, lastUpdatedDate: new Date().toLocaleDateString('en-US'), incidents: st.incidents.map(inc => inc.id === incId ? { ...inc, ...editWatchIncData } : inc) } : st));
         setEditingWatchIncKey(null);
-        setEditWatchIncData({});
       };
 
       const handleCstagDocUpload = (e) => {
@@ -707,18 +586,13 @@
 
       const handleCstagChange = (classification) => {
         if (!currentCase) return;
-        setCases(cases.map(c => c.id === currentCase.id ? {
-          ...c,
-          cstagClassification: classification,
-          planStatus: (classification === 'Not-a-Threat') ? 'Not Completed' : (c.planStatus === 'Not Completed' ? 'Waiting on team to schedule' : c.planStatus)
-        } : c));
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, cstagClassification: classification } : c));
       };
 
       const toggleImmediateCheck = (field) => {
         if (!currentCase) return;
         const currentChecks = currentCase.immediateResponse || { victimNotification: false, vulnerabilityReduction: false, conflictResolution: false };
-        const updatedChecks = { ...currentChecks, [field]: !currentChecks[field] };
-        setCases(cases.map(c => c.id === currentCase.id ? { ...c, immediateResponse: updatedChecks } : c));
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, immediateResponse: { ...currentChecks, [field]: !currentChecks[field] } } : c));
       };
 
       const updatePlanDetail = (field, val) => {
@@ -729,86 +603,36 @@
       const handleAddPathwayEvent = (e) => {
         e.preventDefault();
         if (!newEventDesc.trim() || !currentCase) return;
-        const newEvent = { id: Date.now(), stage: newEventStage, description: newEventDesc, date: newEventDate, moveNote: '' };
+        const newEvent = { id: Date.now(), stage: newEventStage, description: newEventDesc.trim(), date: newEventDate, moveNote: '' };
         setCases(cases.map(c => c.id === currentCase.id ? { ...c, pathwayEvents: [...(c.pathwayEvents || []), newEvent] } : c));
         setShowAddPathwayModal(false);
         setNewEventDesc('');
       };
 
-      const handleOpenMoveEventModal = (evt) => {
-        setEditingPathwayEvent(evt);
-        setMoveTargetStage(evt.stage);
-        setMoveReasonNote(evt.moveNote || '');
+      const handleDeletePathwayEvent = (evtId) => {
+        if (!currentCase || !window.confirm("Delete this pathway event?")) return;
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, pathwayEvents: (c.pathwayEvents || []).filter(e => e.id !== evtId) } : c));
       };
 
       const handleSaveMovedPathwayEvent = (e) => {
         e.preventDefault();
         if (!editingPathwayEvent || !currentCase) return;
-
         const updatedEvents = (currentCase.pathwayEvents || []).map(evt => {
           if (evt.id === editingPathwayEvent.id) {
             return {
               ...evt,
               stage: moveTargetStage,
-              moveNote: moveReasonNote.trim() ? `Moved to ${moveTargetStage} on ${new Date().toISOString().split('T')[0]}: "${moveReasonNote.trim()}"` : evt.moveNote
+              moveNote: moveReasonNote.trim() ? `Moved to ${moveTargetStage}: "${moveReasonNote.trim()}"` : evt.moveNote
             };
           }
           return evt;
         });
-
         setCases(cases.map(c => c.id === currentCase.id ? { ...c, pathwayEvents: updatedEvents } : c));
         setEditingPathwayEvent(null);
-        setMoveReasonNote('');
       };
 
       const handleCreateCase = (e) => {
         e.preventDefault();
-
-        const existingOpenCase = cases.find(c => 
-          c.caseStatus !== 'Closed' && 
-          ((intakeStudentId.trim() !== '' && c.studentId === intakeStudentId.trim()) ||
-           (intakeStudentName.trim() !== '' && c.studentName.toLowerCase() === intakeStudentName.trim().toLowerCase()))
-        );
-
-        const newTipsDoc = uploadedTipsFile ? { name: uploadedTipsFile.name, url: uploadedTipsFile.url } : { name: `TIPS_${intakeTipsNum}.pdf`, url: createMockPdfBlobUrl(`TIPS ${intakeTipsNum}`, intakeBrief) };
-
-        if (existingOpenCase) {
-          const newTipsEntry = {
-            tipsNum: intakeTipsNum || `26-${Math.floor(1000 + Math.random() * 9000)}`,
-            incidentDate: intakeIncidentDate || new Date().toISOString().split('T')[0],
-            brief: intakeBrief || 'New TIPS Intake appended.',
-            doc: newTipsDoc
-          };
-
-          const newRecordsDoc = {
-            id: `doc-merged-${Date.now()}`,
-            name: newTipsDoc.name,
-            uploadDate: new Date().toISOString().split('T')[0],
-            size: '1.2 MB',
-            url: newTipsDoc.url,
-            isImage: false
-          };
-
-          setCases(cases.map(c => {
-            if (c.id === existingOpenCase.id) {
-              return {
-                ...c,
-                additionalTipsList: [...(c.additionalTipsList || []), newTipsEntry],
-                documents: {
-                  ...c.documents,
-                  recordsReview: [...(c.documents.recordsReview || []), newRecordsDoc]
-                }
-              };
-            }
-            return c;
-          }));
-
-          setSelectedCaseId(existingOpenCase.id);
-          setShowNewIntakeModal(false);
-          alert(`Automated Merge Complete: TIPS #${newTipsEntry.tipsNum} has been added directly to ${existingOpenCase.studentName}'s open case file.`);
-          return;
-        }
-
         const isTriageProvided = !!uploadedTriageFile;
         const finalPriority = isTriageProvided ? detectedTriageScore : 'Pending Triage';
 
@@ -835,16 +659,9 @@
           immediateResponse: { victimNotification: false, vulnerabilityReduction: false, conflictResolution: false },
           planStatus: 'Waiting on team to schedule',
           planDoc: null,
-          planStartDate: '',
-          planEndDate: '',
-          planCheckinDate: '',
-          isIep: intakeIsIep,
-          suspended: intakeSuspended,
-          reEntryDate: intakeSuspended ? (intakeReEntryDate || 'Pending') : 'N/A',
-          caseStatus: 'Active',
-          closeDate: '',
-          closeNotes: '',
-          additionalTipsList: [],
+          planStartDate: '', planEndDate: '', planCheckinDate: '',
+          isIep: intakeIsIep, suspended: intakeSuspended, reEntryDate: intakeSuspended ? (intakeReEntryDate || 'Pending') : 'N/A',
+          caseStatus: 'Active', closeDate: '', closeNotes: '', additionalTipsList: [],
           intakeFiles: {
             tipsPdf: uploadedTipsFile ? { name: uploadedTipsFile.name, uploadDate: new Date().toISOString().split('T')[0], size: '1.2 MB', url: uploadedTipsFile.url } : null,
             triagePdf: uploadedTriageFile ? { name: uploadedTriageFile.name, uploadDate: new Date().toISOString().split('T')[0], size: '540 KB', scoreDetected: finalPriority, url: uploadedTriageFile.url } : null
@@ -857,13 +674,6 @@
         setSelectedCaseId(newCase.id);
         setShowNewIntakeModal(false);
 
-        setUploadedTipsFile(null);
-        setUploadedTriageFile(null);
-        setDetectedTriageScore('Pending Triage');
-        setIntakeStudentName(''); setIntakeStudentId(''); setIntakeStudentGrade('9th Grade'); setIntakeSchool(''); setIntakeBrief(''); setIntakeTipsNum(''); setIntakeInvolvedStudents('');
-        setIntakeVictimName(''); setIntakeVictimRole('Student'); setIntakeVictimOtherRoleDetails('');
-        setIntakeIsIep(false); setIntakeSuspended(false); setIntakeReEntryDate('');
-
         if (!isTriageProvided) setMainTab('noTriage');
         else if (finalPriority === 'Low') setMainTab('low');
         else setMainTab('active');
@@ -871,14 +681,8 @@
 
       const handleConfirmCloseCase = () => {
         if (!currentCase) return;
-        setCases(cases.map(c => c.id === currentCase.id ? { 
-          ...c, 
-          caseStatus: 'Closed', 
-          closeDate: closeCaseDate, 
-          closeNotes: closeCaseNotes 
-        } : c));
-        setShowCloseCaseModal(false); 
-        setCloseCaseNotes(''); 
+        setCases(cases.map(c => c.id === currentCase.id ? { ...c, caseStatus: 'Closed', closeDate: closeCaseDate, closeNotes: closeCaseNotes } : c));
+        setShowCloseCaseModal(false);
         setMainTab('closed');
       };
 
@@ -900,7 +704,6 @@
         return found ? found.color : 'bg-slate-800 text-slate-200 border-slate-700';
       };
 
-      // PASSCODE LOGIN SCREEN
       if (!isAuthenticated) {
         return (
           <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4">
@@ -911,31 +714,14 @@
                 <p className="text-xs text-slate-400">System Security Lockout Active</p>
               </div>
 
-              {passcodeError && (
-                <div className="bg-red-950/80 border border-red-800 text-red-200 p-3 rounded-lg text-xs font-semibold text-center animate-bounce">
-                  Incorrect System Passcode. Try Again.
-                </div>
-              )}
+              {passcodeError && <div className="bg-red-950/80 border border-red-800 text-red-200 p-3 rounded-lg text-xs font-semibold text-center">Incorrect Passcode.</div>}
 
               <form onSubmit={handleAuthenticate} className="space-y-4 text-xs">
                 <div>
                   <label className="text-slate-400 block mb-1.5 font-semibold">Enter General System Passcode</label>
-                  <input
-                    type="password"
-                    required
-                    value={inputPasscode}
-                    onChange={(e) => setInputPasscode(e.target.value)}
-                    placeholder="••••••••••••"
-                    className="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-slate-100 focus:border-blue-500 focus:outline-none text-center font-mono text-base"
-                  />
+                  <input type="password" required value={inputPasscode} onChange={(e) => setInputPasscode(e.target.value)} placeholder="••••••••••••" className="w-full bg-slate-950 border border-slate-800 p-3 rounded-lg text-slate-100 focus:border-blue-500 focus:outline-none text-center font-mono text-base" />
                 </div>
-
-                <button
-                  type="submit"
-                  className="w-full bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-lg font-bold text-xs transition-all shadow-lg shadow-blue-600/20"
-                >
-                  Unlock Portal Workspace
-                </button>
+                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white p-3 rounded-lg font-bold text-xs shadow-lg">Unlock Portal Workspace</button>
               </form>
             </div>
           </div>
@@ -956,97 +742,63 @@
               </div>
 
               <div className="flex items-center space-x-2">
-                <button onClick={handleExportData} className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700" title="Download backup file">
-                  💾 Export Data (.json)
-                </button>
-
+                <button onClick={handleExportData} className="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700">💾 Export Data</button>
                 <label className="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700">
-                  📥 Import Data
-                  <input type="file" accept=".json" className="hidden" onChange={handleImportData} />
+                  📥 Import Data <input type="file" accept=".json" className="hidden" onChange={handleImportData} />
                 </label>
-
-                <button onClick={() => setShowNewIntakeModal(true)} className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold transition-all shadow-md shadow-blue-600/20">
-                  + New Threat Intake
-                </button>
-
-                <button onClick={handleLogout} className="bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 px-3 py-1.5 rounded-lg text-xs font-bold">
-                  Lock Portal
-                </button>
+                <button onClick={() => setShowNewIntakeModal(true)} className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow">+ New Threat Intake</button>
+                <button onClick={handleLogout} className="bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 px-3 py-1.5 rounded-lg text-xs font-bold">Lock Portal</button>
               </div>
             </div>
           </header>
 
-          {/* GLOBAL STUDENT LOOKUP TOOLBAR */}
+          {/* SEARCH TOOLBAR */}
           <div className="bg-slate-900/80 border-b border-slate-800 px-4 py-2.5">
             <div className="max-w-7xl mx-auto flex items-center space-x-3">
-              <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider shrink-0">🔍 Student Lookup:</span>
+              <span className="text-slate-400 text-xs font-semibold uppercase shrink-0">🔍 Student Lookup:</span>
               <div className="relative flex-1">
-                <input
-                  type="text"
-                  placeholder="Type student name or ID# to view all historical cases..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-xs text-slate-100 focus:border-blue-500 focus:outline-none"
-                />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery('')} className="absolute right-2.5 top-1.5 text-slate-400 hover:text-white text-xs font-bold">✕</button>
-                )}
+                <input type="text" placeholder="Type student name or ID# to search across all records..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-lg text-xs text-slate-100 focus:border-blue-500 focus:outline-none" />
+                {searchQuery && <button onClick={() => setSearchQuery('')} className="absolute right-2.5 top-1.5 text-slate-400 hover:text-white text-xs font-bold">✕</button>}
               </div>
             </div>
 
             {searchQuery.trim() !== '' && (
-              <div className="max-w-7xl mx-auto mt-2 bg-slate-900 border border-blue-500/60 rounded-xl p-4 space-y-3 shadow-2xl">
-                <div className="flex justify-between items-center border-b border-slate-800 pb-2">
-                  <span className="text-xs font-bold text-blue-400 uppercase">Student Lookup Results for "{searchQuery}"</span>
-                  <button onClick={() => setSearchQuery('')} className="text-xs text-slate-400 hover:text-white">Close Lookup Panel</button>
-                </div>
-
-                <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                  {lookupResults.map(rc => (
-                    <div key={rc.id} onClick={() => { selectCaseFromSearch(rc); setSearchQuery(''); }} className="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg cursor-pointer flex justify-between items-start text-xs transition-all">
-                      <div className="space-y-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-bold text-slate-100 text-sm">{rc.studentName}</span>
-                          <span className="text-[10px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded">ID #{rc.studentId}</span>
-                          <span className="text-[10px] font-semibold bg-blue-950 text-blue-300 border border-blue-800 px-2 py-0.5 rounded">{rc.studentGrade || 'Grade N/A'}</span>
-                        </div>
-                        <p className="text-slate-400 text-[11px]">Campus: {rc.schoolLocation} | TIPS #{rc.tipsReportNum}</p>
-                      </div>
+              <div className="max-w-7xl mx-auto mt-2 bg-slate-900 border border-blue-500/60 rounded-xl p-4 space-y-2 shadow-2xl">
+                {lookupResults.map(rc => (
+                  <div key={rc.id} onClick={() => { selectCaseFromSearch(rc); setSearchQuery(''); }} className="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-lg cursor-pointer flex justify-between items-center text-xs">
+                    <div>
+                      <span className="font-bold text-slate-100">{rc.studentName}</span> <span className="text-slate-400 font-mono">(ID #{rc.studentId})</span>
+                      <p className="text-slate-400 text-[11px]">{rc.schoolLocation} • TIPS #{rc.tipsReportNum}</p>
                     </div>
-                  ))}
-                </div>
+                    <span className="text-blue-400 font-bold">{rc.caseStatus}</span>
+                  </div>
+                ))}
               </div>
             )}
           </div>
 
-          {/* NAVIGATION TABS WITH REAL-TIME CASE COUNTERS */}
+          {/* NAVIGATION TABS */}
           <div className="max-w-7xl mx-auto px-4 pt-4">
             <div className="flex border-b border-slate-800 space-x-6 text-xs font-semibold overflow-x-auto">
-              <button onClick={() => { setMainTab('active'); if (activeMediumHighCases.length > 0) setSelectedCaseId(activeMediumHighCases[0].id); }} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'active' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
+              <button onClick={() => { setMainTab('active'); if (activeMediumHighCases.length > 0) setSelectedCaseId(activeMediumHighCases[0].id); }} className={`pb-3 border-b-2 ${mainTab === 'active' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}>
                 Active Medium/High Cases ({activeMediumHighCases.length})
               </button>
-
-              <button onClick={() => { setMainTab('planTab'); if (casesOnPlan.length > 0) setSelectedCaseId(casesOnPlan[0].id); }} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'planTab' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
+              <button onClick={() => { setMainTab('planTab'); if (casesOnPlan.length > 0) setSelectedCaseId(casesOnPlan[0].id); }} className={`pb-3 border-b-2 ${mainTab === 'planTab' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}>
                 Cases on Support/Safety Plan ({casesOnPlan.length})
               </button>
-
-              <button onClick={() => { setMainTab('low'); if (lowRiskCases.length > 0) setSelectedCaseId(lowRiskCases[0].id); }} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'low' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
+              <button onClick={() => { setMainTab('low'); if (lowRiskCases.length > 0) setSelectedCaseId(lowRiskCases[0].id); }} className={`pb-3 border-b-2 ${mainTab === 'low' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}>
                 Low-Risk Cases ({lowRiskCases.length})
               </button>
-
-              <button onClick={() => { setMainTab('noTriage'); if (openNoTriageCases.length > 0) setSelectedCaseId(openNoTriageCases[0].id); }} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'noTriage' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
+              <button onClick={() => { setMainTab('noTriage'); if (openNoTriageCases.length > 0) setSelectedCaseId(openNoTriageCases[0].id); }} className={`pb-3 border-b-2 ${mainTab === 'noTriage' ? 'border-purple-500 text-purple-400 font-bold' : 'border-transparent text-slate-400'}`}>
                 Open Cases without Triage ({openNoTriageCases.length})
               </button>
-
-              <button onClick={() => setMainTab('watchTab')} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'watchTab' ? 'border-teal-500 text-teal-300 font-bold' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
+              <button onClick={() => setMainTab('watchTab')} className={`pb-3 border-b-2 ${mainTab === 'watchTab' ? 'border-teal-500 text-teal-300 font-bold' : 'border-transparent text-slate-400'}`}>
                 👁️ Keeping an Eye On ({watchStudents.length})
               </button>
-
-              <button onClick={() => { setMainTab('closed'); if (closedCases.length > 0) setSelectedCaseId(closedCases[0].id); }} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'closed' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
+              <button onClick={() => { setMainTab('closed'); if (closedCases.length > 0) setSelectedCaseId(closedCases[0].id); }} className={`pb-3 border-b-2 ${mainTab === 'closed' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}>
                 Closed Cases Archive ({closedCases.length})
               </button>
-
-              <button onClick={() => setMainTab('dashboard')} className={`pb-3 border-b-2 whitespace-nowrap transition-colors ${mainTab === 'dashboard' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400 hover:text-slate-200'}`}>
+              <button onClick={() => setMainTab('dashboard')} className={`pb-3 border-b-2 ${mainTab === 'dashboard' ? 'border-blue-500 text-blue-400' : 'border-transparent text-slate-400'}`}>
                 District Oversight Dashboard ({openCasesOnly.length} Open)
               </button>
             </div>
@@ -1058,40 +810,28 @@
               <div className="grid grid-cols-12 gap-6">
                 {/* SIDEBAR */}
                 <div className="col-span-12 lg:col-span-4 space-y-3">
-                  <h2 className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    {mainTab === 'active' ? 'Active Medium & High Cases' : mainTab === 'planTab' ? 'Cases Active on Plan' : mainTab === 'low' ? 'Low-Risk Cases' : mainTab === 'noTriage' ? 'Pending Triage' : 'Closed Cases'}
-                  </h2>
-
                   <div className="space-y-2 max-h-[80vh] overflow-y-auto pr-1">
-                    {(mainTab === 'active' ? activeMediumHighCases : mainTab === 'planTab' ? casesOnPlan : mainTab === 'low' ? lowRiskCases : mainTab === 'noTriage' ? openNoTriageCases : closedCases).map(c => {
-                      const isOnWatch = isStudentOnWatchList(c.studentName, c.studentId);
-                      return (
-                        <div
-                          key={c.id}
-                          onClick={() => setSelectedCaseId(c.id)}
-                          className={`p-3.5 rounded-xl border cursor-pointer transition-all ${selectedCaseId === c.id ? 'bg-slate-900 border-blue-500 shadow-lg shadow-blue-900/10' : 'bg-slate-900/40 border-slate-800 hover:border-slate-700'}`}
-                        >
-                          <div className="flex justify-between items-start mb-1">
-                            <div className="flex items-center space-x-1.5">
-                              <span className="font-bold text-sm text-slate-100">{c.studentName}</span>
-                              {isOnWatch && <span className="text-xs" title="Student on Keeping an Eye On List">👁️</span>}
-                            </div>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${c.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' : c.triagePriority === 'Medium' ? 'bg-yellow-950 text-yellow-300 border-yellow-800' : 'bg-slate-800 text-slate-300 border-slate-700'}`}>
-                              {c.triagePriority}
-                            </span>
-                          </div>
-                          <div className="text-xs text-slate-400 mb-2 flex justify-between items-center">
-                            <span>ID: #{c.studentId} • <strong className="text-blue-300">{c.studentGrade || 'N/A'}</strong></span>
-                            <span>TIPS: {c.tipsReportNum}</span>
-                          </div>
-                          <p className="text-xs text-slate-300 line-clamp-2 bg-slate-950 p-2 rounded border border-slate-800/80 mb-2">"{c.tovBrief}"</p>
-                          <div className="flex items-center justify-between text-[11px] text-slate-400">
-                            <span>{c.schoolLocation}</span>
-                            <span className={`font-semibold ${c.caseStatus === 'Closed' ? 'text-red-400' : 'text-blue-400'}`}>{c.caseStatus}</span>
-                          </div>
+                    {(mainTab === 'active' ? activeMediumHighCases : mainTab === 'planTab' ? casesOnPlan : mainTab === 'low' ? lowRiskCases : mainTab === 'noTriage' ? openNoTriageCases : closedCases).map(c => (
+                      <div key={c.id} onClick={() => setSelectedCaseId(c.id)} className={`p-3.5 rounded-xl border cursor-pointer transition-all ${selectedCaseId === c.id ? 'bg-slate-900 border-blue-500 shadow-lg' : 'bg-slate-900/40 border-slate-800'}`}>
+                        <div className="flex justify-between items-start mb-1">
+                          <span className="font-bold text-sm text-slate-100">{c.studentName}</span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${c.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' : 'bg-slate-800 text-slate-300'}`}>
+                            {c.triagePriority}
+                          </span>
                         </div>
-                      );
-                    })}
+                        <div className="text-xs text-slate-400 mb-2 flex justify-between">
+                          <span>ID: #{c.studentId} • <strong className="text-blue-300">{c.studentGrade || 'N/A'}</strong></span>
+                          <span>TIPS: {c.tipsReportNum}</span>
+                        </div>
+                        <p className="text-xs text-slate-300 line-clamp-2 bg-slate-950 p-2 rounded border border-slate-800/80 mb-2">"{c.tovBrief}"</p>
+                        
+                        {!c.triageCompleted && (
+                          <button onClick={(e) => { e.stopPropagation(); handleOpenTriageModal(c); }} className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs py-1.5 px-3 rounded shadow transition-all">
+                            📋 Complete Threat Triage
+                          </button>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -1099,7 +839,7 @@
                 <div className="col-span-12 lg:col-span-8 space-y-6">
                   {currentCase ? (
                     <>
-                      {/* HEADER CARD WITH GLOBAL DELETE CASE BUTTON */}
+                      {/* HEADER CARD */}
                       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
                         <div className="flex justify-between items-start border-b border-slate-800 pb-3">
                           <div>
@@ -1108,57 +848,37 @@
                               <span className="text-xs font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded">#{currentCase.studentId}</span>
                               <span className="text-xs font-semibold bg-blue-950 text-blue-300 border border-blue-700 px-2.5 py-1 rounded">{currentCase.studentGrade || 'Grade N/A'}</span>
                             </div>
-
-                            {isStudentOnWatchList(currentCase.studentName, currentCase.studentId) && (
-                              <div className="mt-2 inline-flex items-center space-x-1.5 bg-teal-950/80 text-teal-300 border border-teal-600 px-3 py-1 rounded-md text-xs font-bold animate-pulse">
-                                <span>👁️</span>
-                                <span>STUDENT ON KEEPING AN EYE ON LIST</span>
-                              </div>
-                            )}
-
-                            <p className="text-xs text-slate-400 mt-1">
-                              Campus: <span className="text-slate-200">{currentCase.schoolLocation}</span> | TIPS: <span className="text-slate-200">{currentCase.tipsReportNum}</span> | Incident Date: <span className="text-slate-200 font-mono font-bold">{currentCase.incidentDate || 'N/A'}</span>
-                            </p>
+                            <p className="text-xs text-slate-400 mt-1">Campus: {currentCase.schoolLocation} | TIPS: {currentCase.tipsReportNum} | Incident Date: <strong className="text-slate-200">{currentCase.incidentDate}</strong></p>
                           </div>
 
                           <div className="flex items-center space-x-2">
-                            <span className={`text-xs font-bold px-3 py-1 rounded border ${currentCase.triagePriority === 'High' ? 'bg-red-950 text-red-300 border-red-800' : 'bg-yellow-950 text-yellow-300 border-yellow-800'}`}>
-                              {currentCase.triagePriority}
-                            </span>
+                            {!currentCase.triageCompleted && (
+                              <button onClick={() => handleOpenTriageModal(currentCase)} className="bg-purple-600 hover:bg-purple-500 text-white text-xs px-3 py-1 rounded font-bold shadow">
+                                📋 Triage Case
+                              </button>
+                            )}
                             {currentCase.caseStatus !== 'Closed' && (
-                              <button onClick={() => setShowCloseCaseModal(true)} className="bg-amber-600 hover:bg-amber-500 text-white text-xs px-3 py-1 rounded font-semibold transition-colors">
+                              <button onClick={() => setShowCloseCaseModal(true)} className="bg-amber-600 hover:bg-amber-500 text-white text-xs px-3 py-1 rounded font-semibold">
                                 Archive Case
                               </button>
                             )}
-                            {/* GLOBAL DELETE CASE BUTTON */}
-                            <button onClick={() => handleDeleteCaseOverall(currentCase.id)} className="bg-red-950 hover:bg-red-900 border border-red-700 text-red-300 text-xs px-3 py-1 rounded font-bold transition-colors">
+                            <button onClick={() => handleDeleteCaseOverall(currentCase.id)} className="bg-red-950 hover:bg-red-900 border border-red-700 text-red-300 text-xs px-3 py-1 rounded font-bold">
                               🗑️ Delete Case
                             </button>
                           </div>
                         </div>
 
-                        {/* VICTIM & INVOLVED STUDENTS BADGE CARD */}
+                        {/* VICTIM & INVOLVED BADGES */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                           <div className="bg-slate-950 p-3 rounded-lg border border-slate-800/80 flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <span className="text-rose-400 font-bold">🎯</span>
-                              <span className="font-semibold text-slate-400 uppercase text-[10px]">Targeted Victim:</span>
-                            </div>
-                            <div className="text-right">
-                              <span className="font-medium text-rose-200 bg-rose-950/60 border border-rose-800/80 px-2.5 py-1 rounded">
-                                {currentCase.victimName || 'None Listed'}
-                              </span>
-                              <span className="text-[10px] text-slate-400 block mt-1 font-mono">
-                                Role: {currentCase.victimRole === 'Other' ? (currentCase.victimOtherRoleDetails || 'Other') : currentCase.victimRole || 'Student'}
-                              </span>
-                            </div>
+                            <span className="font-semibold text-slate-400 uppercase text-[10px]">🎯 Targeted Victim:</span>
+                            <span className="font-medium text-rose-200 bg-rose-950/60 border border-rose-800/80 px-2.5 py-1 rounded">
+                              {currentCase.victimName || 'None Listed'} ({currentCase.victimRole || 'Student'})
+                            </span>
                           </div>
 
                           <div className="bg-slate-950 p-3 rounded-lg border border-slate-800/80 flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <span className="text-amber-400 font-bold">👥</span>
-                              <span className="font-semibold text-slate-400 uppercase text-[10px]">Involved Peers & IDs:</span>
-                            </div>
+                            <span className="font-semibold text-slate-400 uppercase text-[10px]">👥 Involved Peers:</span>
                             <span className="font-medium text-amber-200 bg-amber-950/60 border border-amber-800/80 px-2.5 py-1 rounded">
                               {currentCase.involvedStudents || 'None Listed'}
                             </span>
@@ -1167,53 +887,35 @@
 
                         {/* INTAKE FILES */}
                         <div className="bg-slate-950 p-3.5 rounded-lg border border-slate-800 space-y-2">
-                          <span className="text-[10px] text-slate-400 uppercase font-semibold tracking-wider block">Intake Records</span>
+                          <span className="text-[10px] text-slate-400 uppercase font-semibold">Intake Records</span>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
                             <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded">
                               <span className="font-semibold text-slate-200 truncate">{currentCase.intakeFiles?.tipsPdf?.name || 'TIPS_Report.pdf'}</span>
-                              <button onClick={() => openDocViewer(currentCase.intakeFiles?.tipsPdf)} className="bg-blue-900/60 text-blue-200 text-[11px] px-2.5 py-1 rounded font-medium">View</button>
+                              <button onClick={() => openDocViewer(currentCase.intakeFiles?.tipsPdf)} className="bg-blue-900/60 text-blue-200 text-[11px] px-2.5 py-1 rounded">View</button>
                             </div>
                             <div className="flex items-center justify-between p-2.5 bg-slate-900 border border-slate-800 rounded">
                               <span className="font-semibold text-slate-200 truncate">{currentCase.intakeFiles?.triagePdf?.name || 'Triage_Form.pdf'}</span>
-                              {currentCase.intakeFiles?.triagePdf && <button onClick={() => openDocViewer(currentCase.intakeFiles?.triagePdf)} className="bg-purple-900/60 text-purple-200 text-[11px] px-2.5 py-1 rounded font-medium">View</button>}
+                              {currentCase.intakeFiles?.triagePdf && <button onClick={() => openDocViewer(currentCase.intakeFiles?.triagePdf)} className="bg-purple-900/60 text-purple-200 text-[11px] px-2.5 py-1 rounded">View</button>}
                             </div>
                           </div>
                         </div>
 
-                        {/* CASE / TEAM STATUS UPDATING AREA */}
+                        {/* STATUS UPDATE AREA */}
                         {currentCase.caseStatus !== 'Closed' && (
                           <div className="bg-slate-950 p-4 rounded-lg border border-blue-900/60 space-y-2">
                             <div className="flex justify-between items-center">
-                              <div className="flex items-center space-x-2">
-                                <span className="text-blue-400 font-bold text-xs">💬</span>
-                                <h4 className="text-xs font-bold text-slate-100 uppercase tracking-wide">Case / Team Status</h4>
-                              </div>
-                              <span className="text-[10px] text-slate-400 font-mono">
-                                Last Updated: <strong className="text-blue-300">{currentCase.caseTeamStatusLastUpdated || 'Not set'}</strong>
-                              </span>
+                              <span className="text-xs font-bold text-slate-100 uppercase">Case / Team Status Notes</span>
+                              <span className="text-[10px] text-slate-400 font-mono">Last Updated: {currentCase.caseTeamStatusLastUpdated || 'N/A'}</span>
                             </div>
-
-                            <textarea
-                              rows="3"
-                              placeholder="Type ongoing updates, team communications, contact logs, or status notes here..."
-                              value={tempStatusNotes}
-                              onChange={(e) => setTempStatusNotes(e.target.value)}
-                              className="w-full bg-slate-900 border border-slate-800 p-2.5 rounded text-xs text-slate-100 focus:border-blue-500 focus:outline-none"
-                            />
-
+                            <textarea rows="3" value={tempStatusNotes} onChange={(e) => setTempStatusNotes(e.target.value)} className="w-full bg-slate-900 border border-slate-800 p-2.5 rounded text-xs text-slate-100 focus:border-blue-500 focus:outline-none" />
                             <div className="flex justify-end">
-                              <button
-                                onClick={handleSaveStatusNotes}
-                                className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-semibold transition-colors shadow"
-                              >
-                                Save Status Update
-                              </button>
+                              <button onClick={handleSaveStatusNotes} className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-semibold">Save Status Update</button>
                             </div>
                           </div>
                         )}
                       </div>
 
-                      {/* EDITABLE PATHWAY TO VIOLENCE TIMELINE */}
+                      {/* PATHWAY TO VIOLENCE TIMELINE */}
                       {(currentCase.triagePriority === 'Medium' || currentCase.triagePriority === 'High') && (
                         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
                           <div className="flex justify-between items-center">
@@ -1221,7 +923,7 @@
                               <span className="text-blue-400">📈</span>
                               <span>Pathway to Violence Timeline</span>
                             </h3>
-                            <button onClick={() => setShowAddPathwayModal(true)} className="bg-blue-600/80 hover:bg-blue-600 text-white text-xs px-3 py-1.5 rounded font-semibold">+ Add Event</button>
+                            <button onClick={() => setShowAddPathwayModal(true)} className="bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-semibold">+ Add Event</button>
                           </div>
 
                           <div className="space-y-3 pt-1">
@@ -1231,16 +933,17 @@
                                 <div key={stageObj.key} className="bg-slate-950 border border-slate-800/80 rounded-lg p-3 space-y-2">
                                   <div className="flex items-center space-x-2">
                                     <span className={`px-2 py-0.5 text-[10px] font-bold rounded border ${stageObj.color}`}>{stageObj.label}</span>
-                                    <span className="text-[11px] text-slate-400">({stageEvents.length} Event{stageEvents.length !== 1 ? 's' : ''})</span>
+                                    <span className="text-[11px] text-slate-400">({stageEvents.length})</span>
                                   </div>
 
                                   <div className="space-y-1.5 pl-2 border-l-2 border-slate-800">
                                     {stageEvents.map(evt => (
                                       <div key={evt.id} className="bg-slate-900 p-2.5 rounded border border-slate-800 text-xs flex justify-between items-start">
-                                        <p className="text-slate-200 pr-2 font-medium">{evt.description}</p>
+                                        <p className="text-slate-200 font-medium">{evt.description}</p>
                                         <div className="flex items-center space-x-2 shrink-0">
                                           <span className="text-slate-500 font-mono text-[10px]">{evt.date}</span>
-                                          <button onClick={() => handleOpenMoveEventModal(evt)} className="bg-slate-800 text-blue-300 text-[10px] px-2 py-0.5 rounded border border-slate-700 font-semibold">Move / Edit</button>
+                                          <button onClick={() => { setEditingPathwayEvent(evt); setMoveTargetStage(evt.stage); }} className="bg-slate-800 text-blue-300 text-[10px] px-2 py-0.5 rounded border border-slate-700">Move Stage</button>
+                                          <button onClick={() => handleDeletePathwayEvent(evt.id)} className="bg-red-950 text-red-300 text-[10px] px-1.5 py-0.5 rounded border border-red-800">🗑️</button>
                                         </div>
                                       </div>
                                     ))}
@@ -1265,41 +968,29 @@
                             { key: 'parentInterview', label: 'Parent Interview' },
                             { key: 'witnessStatements', label: 'Witness Statements' },
                             { key: 'recordsReview', label: 'Records Review' }
-                          ].map(tab => {
-                            const docsList = currentCase.documents?.[tab.key] || [];
-                            const hasDocs = docsList.length > 0;
-                            return (
-                              <button
-                                key={tab.key}
-                                onClick={() => setActiveDocTab(tab.key)}
-                                className={`p-2.5 rounded-lg text-xs font-semibold border flex items-center justify-between transition-all ${
-                                  hasDocs ? 'bg-blue-900/50 border-blue-500 text-blue-200 shadow-md' : 'bg-red-950/80 border-red-600 text-red-200 animate-pulse'
-                                }`}
-                              >
-                                <span>{tab.label}</span>
-                                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${hasDocs ? 'bg-blue-950 text-blue-300' : 'bg-red-900 text-red-100'}`}>{docsList.length}</span>
-                              </button>
-                            );
-                          })}
+                          ].map(tab => (
+                            <button key={tab.key} onClick={() => setActiveDocTab(tab.key)} className={`p-2.5 rounded-lg text-xs font-semibold border flex items-center justify-between ${activeDocTab === tab.key ? 'bg-blue-900/50 border-blue-500 text-blue-200' : 'bg-slate-950 border-slate-800 text-slate-400'}`}>
+                              <span>{tab.label}</span>
+                              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800">{(currentCase.documents?.[tab.key] || []).length}</span>
+                            </button>
+                          ))}
                         </div>
 
                         <div className="bg-slate-950 p-4 rounded-lg border border-slate-800 space-y-3 text-xs">
                           <div className="flex justify-between items-center pb-2 border-b border-slate-800">
-                            <span className="font-semibold text-slate-200 uppercase text-[11px]">{activeDocTab.replace(/([A-Z])/g, ' $1')} Files</span>
+                            <span className="font-semibold text-slate-200 uppercase text-[11px]">{activeDocTab} Files</span>
                             <label className="cursor-pointer bg-blue-600 hover:bg-blue-500 text-white text-xs px-3 py-1.5 rounded font-medium">
-                              + Upload File / Photo
-                              <input type="file" accept="application/pdf,image/*" className="hidden" onChange={(e) => handleFileUpload(activeDocTab, e)} />
+                              + Upload File <input type="file" accept="application/pdf,image/*" className="hidden" onChange={(e) => handleFileUpload(activeDocTab, e)} />
                             </label>
                           </div>
 
                           <div className="space-y-2">
                             {(currentCase.documents?.[activeDocTab] || []).map((doc, idx) => (
                               <div key={doc.id || idx} className="flex justify-between items-center p-2.5 bg-slate-900 rounded border border-slate-800">
-                                <span className="font-medium text-slate-200 truncate pr-2">{doc.isImage ? '🖼️' : '📄'} {doc.name}</span>
-                                <div className="flex items-center space-x-2 shrink-0">
-                                  <button onClick={() => openDocViewer(doc)} className="bg-blue-900/60 text-blue-200 text-[11px] px-2.5 py-1 rounded">View / Zoom</button>
-                                  <a href={doc.url} download={doc.name} className="bg-slate-800 text-slate-200 text-[11px] px-2.5 py-1 rounded">Download</a>
-                                  <button onClick={() => handleDeleteDocument(activeDocTab, doc.id || doc.name)} className="bg-red-950 text-red-300 text-[11px] px-2 py-1 rounded border border-red-800/80 font-semibold">🗑️ Delete</button>
+                                <span className="font-medium text-slate-200 truncate pr-2">📄 {doc.name}</span>
+                                <div className="flex space-x-2 shrink-0">
+                                  <button onClick={() => openDocViewer(doc)} className="bg-blue-900/60 text-blue-200 text-[11px] px-2.5 py-1 rounded">View</button>
+                                  <button onClick={() => handleDeleteDocument(activeDocTab, doc.id || doc.name)} className="bg-red-950 text-red-300 text-[11px] px-2 py-1 rounded border border-red-800">🗑️ Delete</button>
                                 </div>
                               </div>
                             ))}
@@ -1307,24 +998,19 @@
                         </div>
                       </div>
 
-                      {/* STEP 1: CSTAG DETERMINATION STEP BOX */}
+                      {/* CSTAG DETERMINATION STEP */}
                       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
                         <div className="flex justify-between items-center border-b border-slate-800 pb-3">
                           <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
                             <span className="text-purple-400">⚖️</span>
-                            <span>CSTAG Protocol Threat Determination Step</span>
+                            <span>CSTAG Protocol Determination Step</span>
                           </h3>
-                          <span className="text-[10px] text-slate-400 uppercase font-semibold">CSTAG Step 2</span>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                           <div>
-                            <label className="text-slate-400 block mb-1.5 font-semibold">Select CSTAG Determination:</label>
-                            <select
-                              value={currentCase.cstagClassification || 'Pending Assessment'}
-                              onChange={(e) => handleCstagChange(e.target.value)}
-                              className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded text-slate-100 focus:border-purple-500 font-bold"
-                            >
+                            <label className="text-slate-400 block mb-1.5 font-semibold">Classification:</label>
+                            <select value={currentCase.cstagClassification || 'Pending Assessment'} onChange={(e) => handleCstagChange(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded text-slate-100 font-bold">
                               <option value="Not-a-Threat">Not-a-Threat</option>
                               <option value="Transient Threat">Transient Threat</option>
                               <option value="Serious Substantive Threat">Serious Substantive Threat</option>
@@ -1333,14 +1019,11 @@
                           </div>
 
                           <div>
-                            <label className="text-slate-400 block mb-1.5 font-semibold">CSTAG Determination Document:</label>
+                            <label className="text-slate-400 block mb-1.5 font-semibold">CSTAG Determination PDF:</label>
                             {currentCase.cstagDoc ? (
                               <div className="flex items-center justify-between p-2 bg-slate-950 border border-slate-800 rounded">
                                 <span className="text-slate-200 font-mono truncate">{currentCase.cstagDoc.name}</span>
-                                <div className="flex space-x-1 shrink-0">
-                                  <button onClick={() => openDocViewer(currentCase.cstagDoc)} className="bg-purple-900/80 text-purple-200 text-[10px] px-2 py-1 rounded">View</button>
-                                  <a href={currentCase.cstagDoc.url} download={currentCase.cstagDoc.name} className="bg-slate-800 text-slate-200 text-[10px] px-2 py-1 rounded">Download</a>
-                                </div>
+                                <button onClick={() => openDocViewer(currentCase.cstagDoc)} className="bg-purple-900/80 text-purple-200 text-[10px] px-2 py-1 rounded">View</button>
                               </div>
                             ) : (
                               <label className="cursor-pointer bg-purple-900/60 hover:bg-purple-800 text-purple-200 border border-purple-700 px-3 py-2 rounded block text-center font-medium">
@@ -1352,93 +1035,62 @@
                         </div>
                       </div>
 
-                      {/* STEP 2: IMMEDIATE SUBSTANTIVE RESPONSE CHECKLIST */}
+                      {/* IMMEDIATE RESPONSE CHECKLIST */}
                       {(currentCase.cstagClassification === 'Serious Substantive Threat' || currentCase.cstagClassification === 'Very Serious Substantive Threat') && (
                         <div className="bg-slate-900 border border-red-900/60 rounded-xl p-5 space-y-3 shadow-xl">
-                          <div className="flex items-center space-x-2 border-b border-red-900/50 pb-2">
-                            <span className="text-red-400 text-base">🚨</span>
-                            <h3 className="text-xs font-bold text-red-200 uppercase tracking-wide">
-                              Immediate Substantive Response Checklist
-                            </h3>
-                          </div>
-
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1 text-xs">
-                            <label className="flex items-center space-x-2.5 bg-slate-950 p-3 rounded border border-slate-800 cursor-pointer">
-                              <input type="checkbox" checked={currentCase.immediateResponse?.victimNotification || false} onChange={() => toggleImmediateCheck('victimNotification')} className="rounded bg-slate-900 text-red-600 w-4 h-4" />
-                              <span className="text-slate-200 font-semibold">Victim Notification</span>
+                          <h3 className="text-xs font-bold text-red-200 uppercase tracking-wide">Immediate Response Checklist</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                            <label className="flex items-center space-x-2 bg-slate-950 p-3 rounded border border-slate-800 cursor-pointer">
+                              <input type="checkbox" checked={currentCase.immediateResponse?.victimNotification || false} onChange={() => toggleImmediateCheck('victimNotification')} className="rounded bg-slate-900 text-red-600" />
+                              <span>Victim Notification</span>
                             </label>
-
-                            <label className="flex items-center space-x-2.5 bg-slate-950 p-3 rounded border border-slate-800 cursor-pointer">
-                              <input type="checkbox" checked={currentCase.immediateResponse?.vulnerabilityReduction || false} onChange={() => toggleImmediateCheck('vulnerabilityReduction')} className="rounded bg-slate-900 text-red-600 w-4 h-4" />
-                              <span className="text-slate-200 font-semibold">Victim Vulnerability Reduction</span>
+                            <label className="flex items-center space-x-2 bg-slate-950 p-3 rounded border border-slate-800 cursor-pointer">
+                              <input type="checkbox" checked={currentCase.immediateResponse?.vulnerabilityReduction || false} onChange={() => toggleImmediateCheck('vulnerabilityReduction')} className="rounded bg-slate-900 text-red-600" />
+                              <span>Vulnerability Reduction</span>
                             </label>
-
-                            <label className="flex items-center space-x-2.5 bg-slate-950 p-3 rounded border border-slate-800 cursor-pointer">
-                              <input type="checkbox" checked={currentCase.immediateResponse?.conflictResolution || false} onChange={() => toggleImmediateCheck('conflictResolution')} className="rounded bg-slate-900 text-red-600 w-4 h-4" />
-                              <span className="text-slate-200 font-semibold">Conflict Resolution</span>
+                            <label className="flex items-center space-x-2 bg-slate-950 p-3 rounded border border-slate-800 cursor-pointer">
+                              <input type="checkbox" checked={currentCase.immediateResponse?.conflictResolution || false} onChange={() => toggleImmediateCheck('conflictResolution')} className="rounded bg-slate-900 text-red-600" />
+                              <span>Conflict Resolution</span>
                             </label>
                           </div>
                         </div>
                       )}
 
-                      {/* STEP 3: STUDENT SUPPORT PLAN OR STUDENT SAFETY PLAN BOX */}
-                      {currentCase.cstagClassification && currentCase.cstagClassification !== 'Not-a-Threat' && currentCase.cstagClassification !== 'Pending Assessment' && (
+                      {/* PLAN MANAGEMENT */}
+                      {currentCase.cstagClassification && currentCase.cstagClassification !== 'Not-a-Threat' && (
                         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4 shadow-xl">
                           <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                            <h3 className="text-sm font-bold text-slate-100 flex items-center space-x-2">
-                              <span className="text-emerald-400">📝</span>
-                              <span>
-                                {currentCase.cstagClassification === 'Transient Threat' ? 'Student Support Plan' : 'Student Safety Plan'}
-                              </span>
-                            </h3>
-
-                            <div className="flex items-center space-x-2">
-                              <span className="text-[10px] text-slate-400 font-semibold uppercase">Plan Status:</span>
-                              <select
-                                value={currentCase.planStatus || 'Waiting on team to schedule'}
-                                onChange={(e) => updatePlanDetail('planStatus', e.target.value)}
-                                className={`text-xs font-bold px-3 py-1 rounded border ${getPlanStatusStyle(currentCase.planStatus)}`}
-                              >
-                                {PLAN_STATUS_OPTIONS.map(opt => (
-                                  <option key={opt.label} value={opt.label} className="bg-slate-950 text-slate-100">{opt.label}</option>
-                                ))}
-                              </select>
-                            </div>
+                            <h3 className="text-sm font-bold text-slate-100">{currentCase.cstagClassification === 'Transient Threat' ? 'Student Support Plan' : 'Student Safety Plan'}</h3>
+                            <select value={currentCase.planStatus || 'Waiting on team to schedule'} onChange={(e) => updatePlanDetail('planStatus', e.target.value)} className={`text-xs font-bold px-3 py-1 rounded border ${getPlanStatusStyle(currentCase.planStatus)}`}>
+                              {PLAN_STATUS_OPTIONS.map(opt => (<option key={opt.label} value={opt.label} className="bg-slate-950">{opt.label}</option>))}
+                            </select>
                           </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
                             <div>
-                              <label className="text-slate-400 block mb-1">Plan Start Date</label>
+                              <label className="text-slate-400 block mb-1">Start Date</label>
                               <input type="date" value={currentCase.planStartDate || ''} onChange={(e) => updatePlanDetail('planStartDate', e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                             </div>
-
                             <div>
-                              <label className="text-slate-400 block mb-1">Plan End Date</label>
+                              <label className="text-slate-400 block mb-1">End Date</label>
                               <input type="date" value={currentCase.planEndDate || ''} onChange={(e) => updatePlanDetail('planEndDate', e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                             </div>
-
                             <div>
-                              <label className="text-slate-400 block mb-1">Next Progress Check-In Date</label>
+                              <label className="text-slate-400 block mb-1">Progress Check-In</label>
                               <input type="date" value={currentCase.planCheckinDate || ''} onChange={(e) => updatePlanDetail('planCheckinDate', e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                             </div>
                           </div>
 
                           <div className="pt-2 border-t border-slate-800/80 text-xs">
-                            <label className="text-slate-400 block mb-1 font-semibold">
-                              Upload {currentCase.cstagClassification === 'Transient Threat' ? 'Support Plan' : 'Safety Plan'} Document:
-                            </label>
+                            <label className="text-slate-400 block mb-1 font-semibold">Upload Plan Document:</label>
                             {currentCase.planDoc ? (
                               <div className="flex items-center justify-between p-2.5 bg-slate-950 border border-slate-800 rounded">
                                 <span className="text-slate-200 font-mono truncate">{currentCase.planDoc.name}</span>
-                                <div className="flex space-x-1 shrink-0">
-                                  <button onClick={() => openDocViewer(currentCase.planDoc)} className="bg-blue-900/80 text-blue-200 text-[10px] px-2.5 py-1 rounded">View</button>
-                                  <a href={currentCase.planDoc.url} download={currentCase.planDoc.name} className="bg-slate-800 text-slate-200 text-[10px] px-2.5 py-1 rounded">Download</a>
-                                </div>
+                                <button onClick={() => openDocViewer(currentCase.planDoc)} className="bg-blue-900/80 text-blue-200 text-[10px] px-2.5 py-1 rounded">View</button>
                               </div>
                             ) : (
                               <label className="cursor-pointer bg-blue-900/60 hover:bg-blue-800 text-blue-200 border border-blue-700 px-3 py-2 rounded block text-center font-medium">
-                                + Upload {currentCase.cstagClassification === 'Transient Threat' ? 'Support Plan' : 'Safety Plan'} PDF
-                                <input type="file" accept="application/pdf" className="hidden" onChange={handlePlanDocUpload} />
+                                + Upload Plan PDF <input type="file" accept="application/pdf" className="hidden" onChange={handlePlanDocUpload} />
                               </label>
                             )}
                           </div>
@@ -1454,114 +1106,56 @@
             {mainTab === 'watchTab' && (
               <div className="space-y-6">
                 <div className="bg-teal-950/40 border border-teal-800/80 rounded-xl p-4 flex justify-between items-center text-xs">
-                  <div>
-                    <h2 className="text-sm font-bold text-teal-200 flex items-center space-x-2">
-                      <span>👁️</span>
-                      <span>Keeping an Eye On Log (Multi-Incident Watch List)</span>
-                    </h2>
-                    <p className="text-slate-400 mt-0.5">Students listed here do not have active open cases and are excluded from the District Oversight Dashboard.</p>
-                  </div>
-
-                  <button onClick={() => setShowAddWatchModal(true)} className="bg-teal-600 hover:bg-teal-500 text-white font-semibold px-4 py-2 rounded-lg text-xs shadow">
-                    + Add Student to Watch List
-                  </button>
+                  <h2 className="text-sm font-bold text-teal-200">👁️ Keeping an Eye On Log</h2>
+                  <button onClick={() => setShowAddWatchModal(true)} className="bg-teal-600 hover:bg-teal-500 text-white font-semibold px-4 py-2 rounded-lg text-xs">+ Add Student to Watch List</button>
                 </div>
 
                 {watchStudents.map((st, idx) => (
                   <div key={st.studentId || idx} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
                     <div className="flex justify-between items-center bg-slate-950 px-4 py-2.5 border-b border-slate-800 text-xs">
-                      <span className="text-slate-300">
-                        Student Record: <strong className="text-teal-300 text-sm">{st.studentName}</strong> (ID #{st.studentId})
-                      </span>
-                      <div className="flex items-center space-x-2">
-                        <button onClick={() => handleOpenAddWatchIncidentModal(st.studentId)} className="bg-teal-900/80 hover:bg-teal-800 text-teal-200 border border-teal-600 text-[11px] font-semibold px-3 py-1 rounded">
-                          + Add Incident
-                        </button>
-                        <button onClick={() => handleDeleteWatchStudent(st.studentId)} className="bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 text-[11px] font-bold px-2.5 py-1 rounded">
-                          🗑️ Remove Student
-                        </button>
+                      <span className="text-slate-300">Student: <strong className="text-teal-300 text-sm">{st.studentName}</strong> (ID #{st.studentId})</span>
+                      <div className="flex space-x-2">
+                        <button onClick={() => { setTargetWatchStudentId(st.studentId); setShowAddWatchIncidentModal(true); }} className="bg-teal-900 hover:bg-teal-800 text-teal-200 border border-teal-600 text-[11px] font-semibold px-3 py-1 rounded">+ Add Incident</button>
+                        <button onClick={() => handleDeleteWatchStudent(st.studentId)} className="bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 text-[11px] font-bold px-2.5 py-1 rounded">🗑️ Remove Student</button>
                       </div>
                     </div>
 
                     <div className="overflow-x-auto">
-                      <table className="w-full text-left text-xs border-collapse">
-                        <thead>
-                          <tr className="bg-teal-600 text-slate-950 font-bold uppercase text-[11px]">
-                            <th className="p-3 border-r border-teal-500/50 w-1/6">TIPS / Action</th>
-                            <th className="p-3 border-r border-teal-500/50 w-1/4">Incident Details</th>
-                            <th className="p-3 border-r border-teal-500/50 w-1/12">Date</th>
-                            <th className="p-3 border-r border-teal-500/50 w-1/12">Triage</th>
-                            <th className="p-3 border-r border-teal-500/50 w-1/5">Resolution</th>
-                            <th className="p-3 border-r border-teal-500/50 w-1/5">Notes</th>
-                            <th className="p-3 w-1/12 text-center">Controls</th>
-                          </tr>
-                          <tr className="bg-blue-900/90 text-blue-100 font-bold text-xs border-b border-slate-800">
-                            <td className="p-3 border-r border-slate-800" colSpan="2">{st.studentName} — {st.schoolLocation}</td>
-                            <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
-                            <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
-                            <td className="p-3 border-r border-slate-800 text-slate-400">--</td>
-                            <td className="p-3 border-r border-slate-800 text-amber-300 font-mono">
-                              <span onClick={() => handleEditWatchLastUpdated(st.studentId)} className="cursor-pointer hover:bg-amber-950/60 p-1 rounded border border-amber-800/60 inline-flex items-center space-x-1">
-                                <span>Last Updated ({st.lastUpdatedDate})</span>
-                                <span className="text-[10px] text-amber-400">✏️</span>
-                              </span>
-                            </td>
-                            <td className="p-3"></td>
+                      <table className="w-full text-left text-xs">
+                        <thead className="bg-teal-600 text-slate-950 font-bold uppercase text-[11px]">
+                          <tr>
+                            <th className="p-3">TIPS</th>
+                            <th className="p-3">Details</th>
+                            <th className="p-3">Date</th>
+                            <th className="p-3">Triage</th>
+                            <th className="p-3">Resolution</th>
+                            <th className="p-3 text-center">Controls</th>
                           </tr>
                         </thead>
-
                         <tbody className="divide-y divide-slate-800">
                           {st.incidents.map((inc) => {
-                            const isEditingThis = editingWatchIncKey === `${st.studentId}_${inc.id}`;
+                            const isEditing = editingWatchIncKey === `${st.studentId}_${inc.id}`;
                             return (
-                              <tr key={inc.id} className="hover:bg-slate-800/40 align-top">
-                                {isEditingThis ? (
-                                  /* INLINE EDIT MODE */
+                              <tr key={inc.id} className="hover:bg-slate-800/40">
+                                {isEditing ? (
                                   <>
-                                    <td className="p-2 border-r border-slate-800 bg-slate-950">
-                                      <input type="text" value={editWatchIncData.tipsNum || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, tipsNum: e.target.value})} className="w-full bg-slate-900 border border-slate-700 p-1 rounded font-mono text-blue-300 text-xs" />
-                                    </td>
-                                    <td className="p-2 border-r border-slate-800 bg-slate-950">
-                                      <textarea rows="2" value={editWatchIncData.details || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, details: e.target.value})} className="w-full bg-slate-900 border border-slate-700 p-1 rounded text-xs text-slate-100" />
-                                    </td>
-                                    <td className="p-2 border-r border-slate-800 bg-slate-950">
-                                      <input type="text" value={editWatchIncData.date || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, date: e.target.value})} className="w-full bg-slate-900 border border-slate-700 p-1 rounded text-xs" />
-                                    </td>
-                                    <td className="p-2 border-r border-slate-800 bg-slate-950">
-                                      <select value={editWatchIncData.triage || 'Low-Risk'} onChange={(e) => setEditWatchIncData({...editWatchIncData, triage: e.target.value})} className="w-full bg-slate-900 border border-slate-700 p-1 rounded text-xs">
-                                        <option value="Low-Risk">Low-Risk</option>
-                                        <option value="Medium-Risk">Medium-Risk</option>
-                                        <option value="High-Risk">High-Risk</option>
-                                        <option value="Not completed">Not completed</option>
-                                      </select>
-                                    </td>
-                                    <td className="p-2 border-r border-slate-800 bg-slate-950">
-                                      <textarea rows="2" value={editWatchIncData.resolution || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, resolution: e.target.value})} className="w-full bg-slate-900 border border-slate-700 p-1 rounded text-xs text-slate-100" />
-                                    </td>
-                                    <td className="p-2 border-r border-slate-800 bg-slate-950">
-                                      <textarea rows="2" value={editWatchIncData.notes || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, notes: e.target.value})} className="w-full bg-slate-900 border border-slate-700 p-1 rounded text-xs text-slate-100" />
-                                    </td>
-                                    <td className="p-2 bg-slate-950 text-center space-y-1">
-                                      <button onClick={() => handleSaveInlineWatchInc(st.studentId, inc.id)} className="w-full bg-emerald-600 text-white text-[10px] py-1 rounded font-bold">Save</button>
-                                      <button onClick={() => setEditingWatchIncKey(null)} className="w-full bg-slate-800 text-slate-300 text-[10px] py-1 rounded">Cancel</button>
-                                    </td>
+                                    <td className="p-2 bg-slate-950"><input type="text" value={editWatchIncData.tipsNum || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, tipsNum: e.target.value})} className="w-full bg-slate-900 p-1 text-xs" /></td>
+                                    <td className="p-2 bg-slate-950"><textarea rows="1" value={editWatchIncData.details || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, details: e.target.value})} className="w-full bg-slate-900 p-1 text-xs" /></td>
+                                    <td className="p-2 bg-slate-950"><input type="text" value={editWatchIncData.date || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, date: e.target.value})} className="w-full bg-slate-900 p-1 text-xs" /></td>
+                                    <td className="p-2 bg-slate-950"><input type="text" value={editWatchIncData.triage || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, triage: e.target.value})} className="w-full bg-slate-900 p-1 text-xs" /></td>
+                                    <td className="p-2 bg-slate-950"><input type="text" value={editWatchIncData.resolution || ''} onChange={(e) => setEditWatchIncData({...editWatchIncData, resolution: e.target.value})} className="w-full bg-slate-900 p-1 text-xs" /></td>
+                                    <td className="p-2 bg-slate-950 text-center"><button onClick={() => handleSaveInlineWatchInc(st.studentId, inc.id)} className="bg-emerald-600 text-white text-[10px] px-2 py-0.5 rounded font-bold">Save</button></td>
                                   </>
                                 ) : (
-                                  /* READ ONLY MODE */
                                   <>
-                                    <td className="p-3 font-mono font-bold text-blue-400 bg-slate-950/40 border-r border-slate-800">TIPS #{inc.tipsNum}</td>
-                                    <td className="p-3 text-slate-200 border-r border-slate-800">{inc.details}</td>
-                                    <td className="p-3 font-mono text-slate-300 border-r border-slate-800 whitespace-nowrap">{inc.date}</td>
-                                    <td className="p-3 border-r border-slate-800">{inc.triage}</td>
-                                    <td className="p-3 text-slate-300 border-r border-slate-800">{inc.resolution}</td>
-                                    <td className="p-3 text-slate-300 border-r border-slate-800">{inc.notes}</td>
-                                    <td className="p-3 text-center space-y-1">
-                                      <button onClick={() => handleStartEditWatchInc(st.studentId, inc)} className="bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-700 text-[10px] px-2 py-0.5 rounded font-semibold w-full block">
-                                        ✏️ Edit
-                                      </button>
-                                      <button onClick={() => handleDeleteWatchIncident(st.studentId, inc.id)} className="bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 text-[10px] px-2 py-0.5 rounded font-semibold w-full block">
-                                        🗑️ Delete
-                                      </button>
+                                    <td className="p-3 font-mono font-bold text-blue-400">TIPS #{inc.tipsNum}</td>
+                                    <td className="p-3 text-slate-200">{inc.details}</td>
+                                    <td className="p-3 font-mono text-slate-300">{inc.date}</td>
+                                    <td className="p-3">{inc.triage}</td>
+                                    <td className="p-3 text-slate-300">{inc.resolution}</td>
+                                    <td className="p-3 text-center space-x-1">
+                                      <button onClick={() => handleStartEditWatchInc(st.studentId, inc)} className="bg-slate-800 text-blue-300 text-[10px] px-2 py-0.5 rounded">✏️ Edit</button>
+                                      <button onClick={() => handleDeleteWatchIncident(st.studentId, inc.id)} className="bg-red-950 text-red-300 border border-red-800 text-[10px] px-2 py-0.5 rounded">🗑️ Delete</button>
                                     </td>
                                   </>
                                 )}
@@ -1576,34 +1170,20 @@
               </div>
             )}
 
-            {/* DISTRICT OVERSIGHT DASHBOARD MATRIX */}
+            {/* DISTRICT OVERSIGHT DASHBOARD */}
             {mainTab === 'dashboard' && (
               <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
-                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                  <div>
-                    <h2 className="text-base font-bold text-slate-100">District-Wide Open Cases Matrix</h2>
-                    <p className="text-xs text-slate-400 mt-0.5">Tracking active/monitored open cases across all campuses. Closed cases are housed in the Closed Cases Archive tab.</p>
-                  </div>
-                  <span className="text-xs font-bold bg-blue-950 text-blue-300 border border-blue-700 px-3 py-1.5 rounded-lg">
-                    {openCasesOnly.length} Active Open Cases
-                  </span>
-                </div>
-
+                <h2 className="text-base font-bold text-slate-100 border-b border-slate-800 pb-2">District-Wide Open Cases Matrix</h2>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs text-slate-300">
-                    <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase text-[10px]">
+                    <thead className="bg-slate-950 text-slate-400 uppercase text-[10px]">
                       <tr>
                         <th className="p-3">Student / ID</th>
-                        <th className="p-3">Grade</th>
-                        <th className="p-3">School Location</th>
+                        <th className="p-3">Campus</th>
                         <th className="p-3">Victim Info</th>
-                        <th className="p-3">Incident Date</th>
-                        <th className="p-3">Involved Students</th>
                         <th className="p-3">TIPS #</th>
-                        <th className="p-3">Triage Status</th>
-                        <th className="p-3">CSTAG Classification</th>
-                        <th className="p-3">Plan Status</th>
-                        <th className="p-3">Case Status</th>
+                        <th className="p-3">Triage Priority</th>
+                        <th className="p-3">Classification</th>
                         <th className="p-3 text-center">Action</th>
                       </tr>
                     </thead>
@@ -1611,20 +1191,13 @@
                       {openCasesOnly.map(c => (
                         <tr key={c.id} className="hover:bg-slate-800/40">
                           <td className="p-3 font-semibold text-slate-100">{c.studentName} <span className="text-slate-500 font-mono text-[10px]">#{c.studentId}</span></td>
-                          <td className="p-3 font-medium text-blue-300">{c.studentGrade || 'N/A'}</td>
                           <td className="p-3">{c.schoolLocation}</td>
-                          <td className="p-3 text-rose-300 font-medium">{c.victimName || 'None'}</td>
-                          <td className="p-3 font-mono text-slate-300">{c.incidentDate || 'N/A'}</td>
-                          <td className="p-3 text-amber-300/90">{c.involvedStudents || 'None'}</td>
+                          <td className="p-3 text-rose-300">{c.victimName || 'None'}</td>
                           <td className="p-3 font-mono">{c.tipsReportNum}</td>
                           <td className="p-3">{c.triagePriority}</td>
                           <td className="p-3 font-bold">{c.cstagClassification || 'Pending'}</td>
-                          <td className="p-3"><span className={`px-2 py-0.5 text-[10px] font-bold rounded border ${getPlanStatusStyle(c.planStatus)}`}>{c.planStatus || 'Not Completed'}</span></td>
-                          <td className="p-3"><span className="font-semibold text-blue-400">{c.caseStatus}</span></td>
                           <td className="p-3 text-center">
-                            <button onClick={() => handleDeleteCaseOverall(c.id)} className="bg-red-950 hover:bg-red-900 border border-red-800 text-red-300 text-[10px] font-bold px-2 py-1 rounded">
-                              🗑️ Delete
-                            </button>
+                            <button onClick={() => handleDeleteCaseOverall(c.id)} className="bg-red-950 hover:bg-red-900 text-red-300 text-[10px] font-bold px-2 py-1 rounded">🗑️ Delete</button>
                           </td>
                         </tr>
                       ))}
@@ -1637,29 +1210,155 @@
 
           {/* ADVANCED DOCUMENT VIEWER MODAL */}
           {viewingDoc && (
-            <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4">
-              <div className={`bg-slate-900 border border-slate-800 rounded-xl flex flex-col shadow-2xl overflow-hidden ${isFullscreen ? 'w-full h-full rounded-none' : 'max-w-5xl w-full h-[88vh]'}`}>
-                <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-950 shrink-0">
-                  <span className="font-bold text-xs text-slate-100 truncate">{viewingDoc.name}</span>
+            <div className="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+              <div className={`bg-slate-900 border border-slate-800 rounded-xl flex flex-col shadow-2xl overflow-hidden ${isFullscreen ? 'w-full h-full' : 'max-w-5xl w-full h-[88vh]'}`}>
+                <div className="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-950">
+                  <span className="font-bold text-xs text-slate-100">{viewingDoc.name}</span>
                   <div className="flex items-center space-x-2">
                     <button onClick={() => setIsFullscreen(!isFullscreen)} className="bg-slate-800 text-slate-200 text-xs px-2.5 py-1 rounded">Fullscreen ⛶</button>
-                    <a href={viewingDoc.url} download={viewingDoc.name} className="bg-blue-600 text-white text-xs px-3 py-1 rounded font-semibold">Download</a>
                     <button onClick={() => setViewingDoc(null)} className="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
                   </div>
                 </div>
-                <div className="flex-1 bg-slate-950 p-4 overflow-auto flex items-center justify-center">
+                <div className="flex-1 bg-slate-950 p-4">
                   <iframe src={viewingDoc.url} className="w-full h-full rounded border border-slate-800" title={viewingDoc.name} />
                 </div>
               </div>
             </div>
           )}
 
-          {/* ADD STUDENT TO WATCH LIST MODAL */}
+          {/* POST-INTAKE TRIAGE MODAL */}
+          {showTriageModal && triageCaseTarget && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-purple-800 rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <h3 className="text-base font-bold text-purple-300">Complete Threat Triage</h3>
+                  <button onClick={() => setShowTriageModal(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
+                </div>
+
+                <form onSubmit={handleSavePostIntakeTriage} className="space-y-4 text-xs">
+                  <div className="bg-slate-950 p-3 rounded border border-slate-800">
+                    <p className="text-slate-300 font-bold">{triageCaseTarget.studentName} <span className="font-mono text-slate-400">(ID #{triageCaseTarget.studentId})</span></p>
+                    <p className="text-slate-400 text-[11px] mt-1">TIPS Report #{triageCaseTarget.tipsReportNum}</p>
+                  </div>
+
+                  <div>
+                    <label className="text-slate-400 block mb-1.5 font-semibold">Select Triage Priority Level</label>
+                    <select value={selectedTriageScore} onChange={(e) => setSelectedTriageScore(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded text-slate-100 font-bold text-sm focus:border-purple-500">
+                      <option value="High">High Risk (Active Medium/High Tab)</option>
+                      <option value="Medium">Medium Risk (Active Medium/High Tab)</option>
+                      <option value="Low">Low Risk (Low-Risk Cases Tab)</option>
+                    </select>
+                  </div>
+
+                  <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
+                    <button type="button" onClick={() => setShowTriageModal(false)} className="bg-slate-800 text-slate-300 px-4 py-2 rounded">Cancel</button>
+                    <button type="submit" className="bg-purple-600 hover:bg-purple-500 text-white px-5 py-2 rounded font-semibold">Save & Relocate Case</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* ADD PATHWAY EVENT MODAL */}
+          {showAddPathwayModal && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-blue-800 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <h3 className="text-base font-bold text-blue-300">Add Event to Pathway to Violence</h3>
+                  <button onClick={() => setShowAddPathwayModal(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
+                </div>
+
+                <form onSubmit={handleAddPathwayEvent} className="space-y-3 text-xs">
+                  <div>
+                    <label className="text-slate-400 block mb-1 font-semibold">Select Stage</label>
+                    <select value={newEventStage} onChange={(e) => setNewEventStage(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 font-semibold">
+                      {PATHWAY_STAGES.map(s => (<option key={s.key} value={s.key}>{s.label}</option>))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-slate-400 block mb-1 font-semibold">Event Date</label>
+                    <input type="date" required value={newEventDate} onChange={(e) => setNewEventDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                  </div>
+
+                  <div>
+                    <label className="text-slate-400 block mb-1 font-semibold">Event Description</label>
+                    <textarea rows="3" required placeholder="e.g., Posted photo with weapon on social media..." value={newEventDesc} onChange={(e) => setNewEventDesc(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2.5 rounded text-slate-100" />
+                  </div>
+
+                  <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
+                    <button type="button" onClick={() => setShowAddPathwayModal(false)} className="bg-slate-800 text-slate-300 px-4 py-2 rounded">Cancel</button>
+                    <button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded font-semibold">Save Event</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* MOVE PATHWAY EVENT MODAL */}
+          {editingPathwayEvent && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <h3 className="text-base font-bold text-slate-100">Move Event to Different Stage</h3>
+                  <button onClick={() => setEditingPathwayEvent(null)} className="text-slate-400 hover:text-white font-bold">✕</button>
+                </div>
+
+                <form onSubmit={handleSaveMovedPathwayEvent} className="space-y-3 text-xs">
+                  <div>
+                    <label className="text-slate-400 block mb-1">Target Stage</label>
+                    <select value={moveTargetStage} onChange={(e) => setMoveTargetStage(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 font-bold">
+                      {PATHWAY_STAGES.map(s => (<option key={s.key} value={s.key}>{s.label}</option>))}
+                    </select>
+                  </div>
+
+                  <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
+                    <button type="button" onClick={() => setEditingPathwayEvent(null)} className="bg-slate-800 text-slate-300 px-4 py-2 rounded">Cancel</button>
+                    <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">Move Stage</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* ADD WATCH INCIDENT MODAL */}
+          {showAddWatchIncidentModal && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+              <div className="bg-slate-900 border border-teal-800 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+                  <h3 className="text-base font-bold text-teal-300">Add Incident Entry to Log</h3>
+                  <button onClick={() => setShowAddWatchIncidentModal(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="text-slate-400 block mb-1">TIPS Report #</label>
+                    <input type="text" value={watchIncTipsNum} onChange={(e) => setWatchIncTipsNum(e.target.value)} placeholder="e.g. 26-03099" className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 font-mono" />
+                  </div>
+
+                  <div>
+                    <label className="text-slate-400 block mb-1">Incident Details</label>
+                    <textarea rows="2" value={watchIncDetails} onChange={(e) => setWatchIncDetails(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
+                  </div>
+
+                  <div className="flex justify-between items-center pt-3 border-t border-slate-800">
+                    <button type="button" onClick={() => setShowAddWatchIncidentModal(false)} className="bg-slate-800 text-slate-300 px-4 py-2 rounded">Cancel</button>
+                    <div className="flex space-x-2">
+                      <button type="button" onClick={() => handleSaveWatchIncident(true)} className="bg-teal-900 border border-teal-600 text-teal-200 px-4 py-2 rounded font-semibold">Save & Add Another (Next ➔)</button>
+                      <button type="button" onClick={() => handleSaveWatchIncident(false)} className="bg-teal-600 text-white px-5 py-2 rounded font-semibold">Save & Finish</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ADD WATCH STUDENT MODAL */}
           {showAddWatchModal && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
+              <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-xl w-full p-6 space-y-4 shadow-2xl">
                 <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                  <h3 className="text-base font-bold text-teal-300">Add Student to "Keeping an Eye On" Log</h3>
+                  <h3 className="text-base font-bold text-teal-300">Add Student to Watch List</h3>
                   <button onClick={() => setShowAddWatchModal(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
                 </div>
 
@@ -1677,11 +1376,11 @@
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-slate-400 block mb-1">School / Location</label>
+                      <label className="text-slate-400 block mb-1">School Location</label>
                       <input type="text" required value={watchSchool} onChange={(e) => setWatchSchool(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                     </div>
                     <div>
-                      <label className="text-slate-400 block mb-1">Initial TIPS Report #</label>
+                      <label className="text-slate-400 block mb-1">TIPS Report #</label>
                       <input type="text" required value={watchTipsNum} onChange={(e) => setWatchTipsNum(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                     </div>
                   </div>
@@ -1700,91 +1399,22 @@
             </div>
           )}
 
-          {/* ADD INCIDENT TO WATCH LIST MODAL (WITH NEXT BUTTON) */}
-          {showAddWatchIncidentModal && (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-              <div className="bg-slate-900 border border-teal-800 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-                <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                  <h3 className="text-base font-bold text-teal-300">Add Incident Entry to Log</h3>
-                  <button onClick={() => setShowAddWatchIncidentModal(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
-                </div>
-
-                <div className="space-y-3 text-xs">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-slate-400 block mb-1">TIPS Report #</label>
-                      <input type="text" value={watchIncTipsNum} onChange={(e) => setWatchIncTipsNum(e.target.value)} placeholder="e.g. 26-03099" className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 font-mono" />
-                    </div>
-                    <div>
-                      <label className="text-slate-400 block mb-1">Incident Date</label>
-                      <input type="date" value={watchIncDate} onChange={(e) => setWatchIncDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-slate-400 block mb-1">Incident Details / Description</label>
-                    <textarea rows="2" value={watchIncDetails} onChange={(e) => setWatchIncDetails(e.target.value)} placeholder="Describe threat statement, social media post, or behavior..." className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-slate-400 block mb-1">Triage Level</label>
-                      <select value={watchIncTriage} onChange={(e) => setWatchIncTriage(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
-                        <option value="Low-Risk">Low-Risk</option>
-                        <option value="Medium-Risk">Medium-Risk</option>
-                        <option value="High-Risk">High-Risk</option>
-                        <option value="Not completed">Not completed</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-slate-400 block mb-1">Resolution / Action Taken</label>
-                      <input type="text" value={watchIncResolution} onChange={(e) => setWatchIncResolution(e.target.value)} placeholder="e.g., Parent conference, schedule change..." className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-slate-400 block mb-1">Notes / Additional Info</label>
-                    <textarea rows="2" value={watchIncNotes} onChange={(e) => setWatchIncNotes(e.target.value)} placeholder="Notes regarding student interactions or follow-up..." className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
-                  </div>
-
-                  <div className="flex justify-between items-center pt-3 border-t border-slate-800">
-                    <button type="button" onClick={() => setShowAddWatchIncidentModal(false)} className="bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded">
-                      Cancel
-                    </button>
-                    <div className="flex space-x-2">
-                      <button type="button" onClick={() => handleSaveWatchIncident(true)} className="bg-teal-900 hover:bg-teal-800 border border-teal-600 text-teal-200 px-4 py-2 rounded font-semibold">
-                        Save & Add Another (Next ➔)
-                      </button>
-                      <button type="button" onClick={() => handleSaveWatchIncident(false)} className="bg-teal-600 hover:bg-teal-500 text-white px-5 py-2 rounded font-semibold">
-                        Save & Finish
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* NEW INTAKE MODAL */}
           {showNewIntakeModal && (
             <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
               <div className="bg-slate-900 border border-slate-800 rounded-xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto shadow-2xl">
                 <div className="flex justify-between items-center border-b border-slate-800 pb-3">
-                  <h3 className="text-base font-bold text-slate-100">New Threat Intake (Upload TIPS & Triage PDF)</h3>
+                  <h3 className="text-base font-bold text-slate-100">New Threat Intake</h3>
                   <button onClick={() => setShowNewIntakeModal(false)} className="text-slate-400 hover:text-white font-bold">✕</button>
                 </div>
 
                 <form onSubmit={handleCreateCase} className="space-y-4 text-xs">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="border-2 border-dashed border-slate-700 p-4 rounded-lg text-center bg-slate-950/50">
-                      <span className="text-2xl block mb-1">📄</span>
                       <p className="font-semibold text-slate-200 mb-1">Upload TIPS Report PDF</p>
                       <input type="file" accept="application/pdf" onChange={handleTipsFileUpload} className="text-xs text-slate-400 w-full" />
-                      {isParsingPdf && <p className="mt-2 text-yellow-400 text-[10px] animate-pulse">Reading TIPS PDF text streams...</p>}
                     </div>
-
                     <div className="border-2 border-dashed border-slate-700 p-4 rounded-lg text-center bg-slate-950/50">
-                      <span className="text-2xl block mb-1">📋</span>
                       <p className="font-semibold text-slate-200 mb-1">Upload Threat Triage PDF</p>
                       <input type="file" accept="application/pdf" onChange={handleTriageFileUpload} className="text-xs text-slate-400 w-full" />
                     </div>
@@ -1792,7 +1422,7 @@
 
                   <div className="grid grid-cols-3 gap-3">
                     <div className="col-span-2">
-                      <label className="text-slate-400 block mb-1">Primary Student Name</label>
+                      <label className="text-slate-400 block mb-1">Student Name</label>
                       <input type="text" required value={intakeStudentName} onChange={(e) => setIntakeStudentName(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                     </div>
                     <div>
@@ -1803,126 +1433,27 @@
 
                   <div className="grid grid-cols-3 gap-3">
                     <div>
-                      <label className="text-slate-400 block mb-1">Student Grade</label>
-                      <select value={intakeStudentGrade} onChange={(e) => setIntakeStudentGrade(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100 font-semibold">
-                        <option value="Pre-K / Kindergarten">Pre-K / Kindergarten</option>
-                        <option value="1st Grade">1st Grade</option>
-                        <option value="2nd Grade">2nd Grade</option>
-                        <option value="3rd Grade">3rd Grade</option>
-                        <option value="4th Grade">4th Grade</option>
-                        <option value="5th Grade">5th Grade</option>
-                        <option value="6th Grade">6th Grade</option>
-                        <option value="7th Grade">7th Grade</option>
-                        <option value="8th Grade">8th Grade</option>
+                      <label className="text-slate-400 block mb-1">Grade</label>
+                      <select value={intakeStudentGrade} onChange={(e) => setIntakeStudentGrade(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100">
                         <option value="9th Grade">9th Grade</option>
                         <option value="10th Grade">10th Grade</option>
                         <option value="11th Grade">11th Grade</option>
                         <option value="12th Grade">12th Grade</option>
                       </select>
                     </div>
-
                     <div>
-                      <label className="text-slate-400 block mb-1">School Location / Campus</label>
+                      <label className="text-slate-400 block mb-1">Campus</label>
                       <input type="text" required value={intakeSchool} onChange={(e) => setIntakeSchool(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                     </div>
-
                     <div>
-                      <label className="text-slate-400 block mb-1">TIPS Report Number</label>
+                      <label className="text-slate-400 block mb-1">TIPS #</label>
                       <input type="text" required value={intakeTipsNum} onChange={(e) => setIntakeTipsNum(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                     </div>
                   </div>
 
-                  <div className="bg-slate-950 p-3.5 rounded-lg border border-rose-900/60 space-y-3">
-                    <span className="text-[11px] font-bold text-rose-300 uppercase tracking-wide flex items-center space-x-1.5">
-                      <span>🎯</span>
-                      <span>Targeted Victim Information</span>
-                    </span>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-slate-400 block mb-1">Victim Name</label>
-                        <input 
-                          type="text" 
-                          placeholder="e.g., Jane Doe" 
-                          value={intakeVictimName} 
-                          onChange={(e) => setIntakeVictimName(e.target.value)} 
-                          className="w-full bg-slate-900 border border-slate-800 p-2 rounded text-slate-100 focus:border-rose-500" 
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-slate-400 block mb-1">Victim Role / Type</label>
-                        <select 
-                          value={intakeVictimRole} 
-                          onChange={(e) => setIntakeVictimRole(e.target.value)} 
-                          className="w-full bg-slate-900 border border-slate-800 p-2 rounded text-slate-100 focus:border-rose-500"
-                        >
-                          <option value="Student">Student</option>
-                          <option value="Staff Member">Staff Member</option>
-                          <option value="Other">Other (Specify below)</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {intakeVictimRole === 'Other' && (
-                      <div className="pt-1">
-                        <label className="text-rose-300 block mb-1 font-semibold">Specify Role / Relationship (Fill-In):</label>
-                        <input 
-                          type="text" 
-                          placeholder="e.g., Parent, Campus Visitor, Security Guard, Community Member..." 
-                          value={intakeVictimOtherRoleDetails} 
-                          onChange={(e) => setIntakeVictimOtherRoleDetails(e.target.value)} 
-                          className="w-full bg-slate-900 border border-rose-800 p-2 rounded text-slate-100 focus:border-rose-500 font-medium" 
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-slate-400 block mb-1">TIPS Incident Date</label>
-                      <input type="date" required value={intakeIncidentDate} onChange={(e) => setIntakeIncidentDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
-                    </div>
-
-                    <div>
-                      <label className="text-slate-400 block mb-1">Other Involved / Associated Students & ID #s</label>
-                      <input 
-                        type="text" 
-                        placeholder="e.g., Raymond Vance (ID: 332901), Sarah Lopez (ID: 441029)" 
-                        value={intakeInvolvedStudents} 
-                        onChange={(e) => setIntakeInvolvedStudents(e.target.value)} 
-                        className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" 
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-slate-400 block mb-1">Generated Threat Brief (Editable)</label>
-                    <textarea rows="2" required value={intakeBrief} onChange={(e) => setIntakeBrief(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 pt-2">
-                    <div className="flex items-center space-x-2">
-                      <input type="checkbox" id="iepCheck" checked={intakeIsIep} onChange={(e) => setIntakeIsIep(e.target.checked)} className="rounded bg-slate-950 border-slate-800 text-blue-600" />
-                      <label htmlFor="iepCheck" className="text-slate-300 font-semibold">Student on IEP (OESS Flag)</label>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <input type="checkbox" id="suspensionCheck" checked={intakeSuspended} onChange={(e) => setIntakeSuspended(e.target.checked)} className="rounded bg-slate-950 border-slate-800 text-blue-600" />
-                      <label htmlFor="suspensionCheck" className="text-slate-300">OSS Suspension Active?</label>
-                    </div>
-                  </div>
-
-                  {intakeSuspended && (
-                    <div>
-                      <label className="text-slate-400 block mb-1">OSS Re-entry Date</label>
-                      <input type="date" value={intakeReEntryDate} onChange={(e) => setIntakeReEntryDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
-                    </div>
-                  )}
-
                   <div className="flex justify-end space-x-2 pt-3 border-t border-slate-800">
                     <button type="button" onClick={() => setShowNewIntakeModal(false)} className="bg-slate-800 px-4 py-2 rounded text-slate-300">Cancel</button>
-                    <button type="submit" className="bg-blue-600 text-white px-5 py-2 rounded font-semibold">Initialize or Merge Case</button>
+                    <button type="submit" className="bg-blue-600 text-white px-5 py-2 rounded font-semibold">Initialize Case Record</button>
                   </div>
                 </form>
               </div>
@@ -1936,7 +1467,7 @@
                 <h3 className="text-base font-bold text-slate-100">Archive Case Record</h3>
                 <div className="space-y-3 text-xs">
                   <div>
-                    <label className="text-slate-400 block mb-1">Close / Archive Date</label>
+                    <label className="text-slate-400 block mb-1">Archive Date</label>
                     <input type="date" required value={closeCaseDate} onChange={(e) => setCloseCaseDate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 p-2 rounded text-slate-100" />
                   </div>
                   <div>
